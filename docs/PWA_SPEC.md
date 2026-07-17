@@ -4,7 +4,9 @@ Phase 3 feature (see [ROADMAP.md](ROADMAP.md)). Goal: installable, app-like expe
 
 ## Manifest
 
-`manifest.json`: app name ("PG Near Me"), short_name, icons (multiple sizes — 192px, 512px minimum, maskable variant recommended), `display: standalone`, theme color pulled from `site_settings` if feasible at implementation time (see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#site_settings-themefontsglobal-config--phase-3)), start_url.
+`manifest.json`: app name ("PG Near Me"), short_name, `theme_color`/`background_color` = Primary `#534AB7` (from [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#color-palette), overridable later via `site_settings` — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#site_settings-themefontsglobal-config--phase-3)), `display: standalone`, start_url.
+
+Icons: source art is the purple app-icon tile ([`docs/assets/brand/app-icon-purple.png`](assets/brand/app-icon-purple.png)) — regenerate at 192px/512px plus a maskable variant. Blocked on [open question #12](GLOSSARY_AND_OPEN_QUESTIONS.md) — the current source art is the full roof+wordmark lockup, which won't be legible as a small maskable glyph; needs an icon-only mark before final export.
 
 ## Service worker
 

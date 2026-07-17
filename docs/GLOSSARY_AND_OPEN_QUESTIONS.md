@@ -31,4 +31,10 @@
 
 9. **Owner authentication timeline** — confirmed no login in Phase 1. Schema anticipates owners eventually claiming/managing their own listings via a real account (Phase 2+), but this isn't committed to a specific phase yet. Confirm whether owner accounts (Supabase Auth) are actually in scope, and for which phase, or whether the product stays admin-mediated (owners submit via form, admin publishes) indefinitely.
 
-10. **Repo structure** — should the Next.js app live directly inside the existing empty `web-landing/` folder, or should that folder be repurposed/renamed once the full app (not just a landing page) is built? Needs a decision before Phase 0 scaffolding.
+10. ~~**Repo structure**~~ — resolved: the repo now lives in `web-landing/` (docs + git root), so the Next.js app scaffolds directly there in Phase 0.
+
+11. **Logo type-treatment confirmation** — the brand Figma file ([DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#logo)) contains two wordmark styles (a rounded "Cherry Bomb" treatment and a bolder slab-serif alternative) shown side by side. The standalone lockup outside that comparison grid uses Cherry Bomb, which is why it's documented as the chosen primary logo — but this is an inference, not an explicit label in the file. Confirm Cherry Bomb is final before it's wired into the codebase.
+
+12. **Icon-only favicon/app-icon mark** — every exported logo lockup pairs the roof icon with the full "NEAR ME" wordmark; there's no icon-only mark for small sizes (16–32px favicon, app-icon glyph). Needed before Phase 3 PWA icons ([PWA_SPEC.md](PWA_SPEC.md)) ship — either the founder provides one or it gets derived (roof + "PG" only) and sent back for approval.
+
+13. **Body/UI font pairing** — the Figma file only specifies Cherry Bomb for the logo wordmark (a heavy display face, not meant for body copy). A body/UI font still needs picking at Phase 0 scaffolding time — see [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#typography).
