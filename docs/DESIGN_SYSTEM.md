@@ -16,7 +16,7 @@ The file also explores this same lockup as a rounded-square app-icon tile in thr
 | App icon — dark | Black | [`app-icon-black.png`](assets/brand/app-icon-black.png) |
 | App icon — light | White | [`app-icon-white.png`](assets/brand/app-icon-white.png) |
 
-Note: the Figma file also contains a second, unused type treatment (a bolder slab-serif "PG") shown in the same three background tiles — the standalone/primary lockup outside that comparison grid uses Cherry Bomb, which is why Cherry Bomb is treated here as the chosen wordmark. Worth a quick confirmation with the founder that this reading is correct.
+Note: the Figma file also contains a second, unused type treatment (a bolder slab-serif "PG") shown in the same three background tiles — the standalone/primary lockup outside that comparison grid uses Cherry Bomb, which is why Cherry Bomb is treated here as the chosen wordmark. Worth a quick confirmation with the founder that this reading is correct. Exported for reference/comparison, not for use, as [`app-icon-purple-alt-serif.png`](assets/brand/app-icon-purple-alt-serif.png), [`app-icon-black-alt-serif.png`](assets/brand/app-icon-black-alt-serif.png), and [`app-icon-white-alt-serif.png`](assets/brand/app-icon-white-alt-serif.png) — see [open question #11](GLOSSARY_AND_OPEN_QUESTIONS.md).
 
 **Open item**: every exported lockup pairs the roof icon with the full "NEAR ME" wordmark — there's no icon-only mark. At favicon size (16–32px) the wordmark won't be legible, so an icon-only variant (roof + "PG" only, or roof alone) is needed before Phase 3 PWA icons ship. Track this alongside [GLOSSARY_AND_OPEN_QUESTIONS.md](GLOSSARY_AND_OPEN_QUESTIONS.md).
 
