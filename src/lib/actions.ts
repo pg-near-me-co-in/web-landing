@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "crypto";
 import { db } from "./db";
 
 const PHONE_RE = /^[+\d][\d\s()-]{7,17}$/;
@@ -161,5 +162,58 @@ export async function submitListing(
     return { ok: false, error: "Submission failed. Please try again." };
   } finally {
     client.release();
+  }
+}
+
+export interface ReviewState {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Public review submission — always lands as status='pending' and only shows
+ * after admin approval. Phone is optional and stored as a hash (spam control).
+ */
+export async function submitReview(
+  _prev: ReviewState | null,
+  formData: FormData
+): Promise<ReviewState> {
+  const listingId = String(formData.get("listing_id") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const rating = Number(formData.get("rating"));
+  const text = String(formData.get("review_text") ?? "").trim();
+
+  if (!listingId) return { ok: false, error: "Missing listing." };
+  if (!name) return { ok: false, error: "Please enter your name." };
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5)
+    return { ok: false, error: "Please pick a star rating." };
+  if (text.length > 2000)
+    return { ok: false, error: "Review is too long (2000 characters max)." };
+  if (phone && !PHONE_RE.test(phone))
+    return { ok: false, error: "Please enter a valid phone number." };
+
+  try {
+    const { rows } = await db.query(
+      `select 1 from pg_listings where id = $1 and status = 'published'`,
+      [listingId]
+    );
+    if (!rows[0]) return { ok: false, error: "Listing not found." };
+
+    await db.query(
+      `insert into reviews
+         (listing_id, reviewer_name, reviewer_phone_hash, rating, review_text, status, source)
+       values ($1, $2, $3, $4, $5, 'pending', 'user_submitted')`,
+      [
+        listingId,
+        name,
+        phone ? createHash("sha256").update(phone).digest("hex") : null,
+        rating,
+        text || null,
+      ]
+    );
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Something went wrong. Please try again." };
   }
 }

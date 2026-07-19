@@ -6,7 +6,9 @@ Domain: **pgnearme.co.in**
 
 ## Status
 
-**Phase 1 MVP implemented, with real listing data + PWA + analytics.** Next.js 16 (App Router) + Tailwind v4 + Supabase (Postgres/Storage).
+**Phase 1 + Phase 2 core implemented, with real listing data + PWA + analytics.** Next.js 16 (App Router) + Tailwind v4 + Supabase (Postgres/Storage).
+
+Phase 2 additions: public review submission (lands as `pending`, moderated), advanced city-page filters (budget / sharing / food / text search / sort), GA4 custom events (`contact_reveal`, `callback_request`, `owner_submission`, `review_submit`), and an **admin panel** at `/admin` (noindex) — dashboard stats, owner-submission approval queue, review moderation, lead inbox with CSV export — gated by `ADMIN_ACCESS_CODE` until Supabase Auth admin accounts are provisioned.
 
 - Schema live on Supabase — [`supabase/migrations/`](supabase/migrations/) (all tables from [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md), RLS, triggers; `0002` adds the public `listing-images` Storage bucket + nullable `pg_type`)
 - Base data: top 5 states × top 5 cities (25 cities), areas for 6 launched metros, 16 amenities — re-runnable via [`supabase/seed/seed-base.js`](supabase/seed/seed-base.js) (`DB_PASSWORD` env var)
@@ -14,7 +16,7 @@ Domain: **pgnearme.co.in**
 - Routes: `/` (hero, search, map, explore citywise, story), `/pg/[city]` (+ `?type=` filter), `/pg/[city]/[area]/[slug]` (detail + contact-reveal lead capture), `/add-your-pg` (owner submission with photo upload to Supabase Storage → `pending_review`), `sitemap.xml`, `robots.txt`, `manifest`, JSON-LD
 - PWA: manifest + icons (from brand asset), service worker ([`public/sw.js`](public/sw.js)) per [PWA_SPEC.md](docs/PWA_SPEC.md), custom install banner, `/offline` fallback
 - Analytics: GA4 + Microsoft Clarity via env IDs (`NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_CLARITY_ID`)
-- Run locally: copy `.env.example` → `.env.local` (session-pooler `DATABASE_URL` + Supabase URL/publishable key), then `npm install && npm run dev`
+- Run locally: copy `.env.example` → `.env.local` (transaction-pooler `DATABASE_URL` + Supabase URL/publishable key + `ADMIN_ACCESS_CODE`), then `npm install && npm run dev`
 
 ## Start here
 

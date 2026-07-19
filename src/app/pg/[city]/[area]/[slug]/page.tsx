@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPublishedSlugs, getListingBySlug } from "@/lib/queries";
 import { ContactReveal } from "@/components/contact-reveal";
+import { ReviewForm } from "@/components/review-form";
 import { PgTypeBadge, RatingStars } from "@/components/badges";
 import {
   FOOD_LABEL,
@@ -232,7 +233,12 @@ export default async function ListingPage({ params }: Props) {
 
           {/* Reviews */}
           <section className="mt-8">
-            <h2 className="text-lg font-bold text-grey-900">Reviews</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-bold text-grey-900">Reviews</h2>
+            </div>
+            <div className="mt-3">
+              <ReviewForm listingId={l.id} />
+            </div>
             {l.reviews.length > 0 ? (
               <ul className="mt-3 space-y-3">
                 {l.reviews.map((r, i) => (

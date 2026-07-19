@@ -1,8 +1,9 @@
 "use client";
 
-import { startTransition, useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { submitListing, type SubmitState } from "@/lib/actions";
 import { getSupabaseBrowser, LISTING_IMAGES_BUCKET } from "@/lib/supabase-browser";
+import { trackEvent } from "@/lib/gtag";
 
 interface CityOpt {
   id: string;
@@ -31,6 +32,10 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
   const [uploadError, setUploadError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const cityAreas = areas.filter((a) => a.city_id === cityId);
+
+  useEffect(() => {
+    if (state?.ok) trackEvent("owner_submission");
+  }, [state?.ok]);
 
   // Photos are uploaded to Supabase Storage from the browser (publishable
   // key + bucket RLS), then only their storage paths travel to the server

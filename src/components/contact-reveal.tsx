@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { captureLead, type LeadState } from "@/lib/actions";
+import { trackEvent } from "@/lib/gtag";
 
 /**
  * The notebook's "IP" (interested party) capture: the contact number is
@@ -14,6 +15,13 @@ export function ContactReveal({ listingId }: { listingId: string }) {
     captureLead,
     null
   );
+
+  useEffect(() => {
+    if (state?.ok)
+      trackEvent(state.phone ? "contact_reveal" : "callback_request", {
+        listing_id: listingId,
+      });
+  }, [state?.ok, state?.phone, listingId]);
 
   if (state?.ok && !state.phone) {
     return (

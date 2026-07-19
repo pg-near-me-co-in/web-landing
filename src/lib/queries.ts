@@ -54,17 +54,47 @@ const CARD_SELECT = `
     ) img on true
    where l.status = 'published'`;
 
+export interface ListingFilters {
+  pgType?: PgType;
+  priceMax?: number;
+  sharing?: string;
+  food?: string;
+  q?: string;
+  sort?: "rating" | "price_asc" | "price_desc";
+}
+
 export async function getListingsForCity(
   citySlug: string,
-  pgType?: PgType
+  filters: ListingFilters = {}
 ): Promise<ListingCard[]> {
-  const params: string[] = [citySlug];
+  const params: unknown[] = [citySlug];
   let sql = `${CARD_SELECT} and c.slug = $1`;
-  if (pgType) {
-    params.push(pgType);
-    sql += ` and l.pg_type = $2`;
+  const add = (clause: string, value: unknown) => {
+    params.push(value);
+    sql += ` and ${clause.replace("?", `$${params.length}`)}`;
+  };
+
+  if (filters.pgType) add(`l.pg_type = ?`, filters.pgType);
+  if (filters.priceMax) add(`l.price_min <= ?`, filters.priceMax);
+  if (filters.sharing) add(`? = any(l.sharing_types)`, filters.sharing);
+  if (filters.food) {
+    // veg seekers want strictly veg; non-veg seekers are fine with "both"
+    if (filters.food === "veg") add(`l.food_preference = ?`, "veg");
+    else add(`l.food_preference = any(array[?, 'both'])`, filters.food);
   }
-  sql += ` order by l.rating_avg desc nulls last, l.published_at desc`;
+  if (filters.q) {
+    params.push(filters.q);
+    const n = `$${params.length}`;
+    sql += ` and (l.name ilike '%' || ${n} || '%' or a.name ilike '%' || ${n} || '%')`;
+  }
+
+  const sort =
+    filters.sort === "price_asc"
+      ? `l.price_min asc nulls last`
+      : filters.sort === "price_desc"
+        ? `l.price_min desc nulls last`
+        : `l.rating_avg desc nulls last, (img.storage_path is not null) desc`;
+  sql += ` order by ${sort}, l.name`;
   const { rows } = await db.query(sql, params);
   return rows;
 }
@@ -144,7 +174,69 @@ export async function getAllPublishedSlugs(): Promise<
   return rows;
 }
 
-/** City list for the owner-submission form (all 25, launched or not). */
+// ---------------------------------------------------------------------------
+// Admin panel (all callers must pass the isAdminSession() gate first)
+// ---------------------------------------------------------------------------
+
+export async function getAdminStats() {
+  const { rows } = await db.query(`
+    select
+      (select count(*)::int from pg_listings where status = 'pending_review') as pending_listings,
+      (select count(*)::int from reviews where status = 'pending') as pending_reviews,
+      (select count(*)::int from leads) as total_leads,
+      (select count(*)::int from leads where created_at > now() - interval '7 days') as leads_7d,
+      (select count(*)::int from pg_listings where status = 'published') as published_listings`);
+  return rows[0];
+}
+
+export async function getPendingSubmissions() {
+  const { rows } = await db.query(
+    `select l.id, l.name, l.pg_type, l.price_min, l.price_max, l.sharing_types,
+            l.address_line, l.description, l.contact_phone, l.source, l.created_at,
+            c.name as city_name, a.name as area_name,
+            o.name as owner_name, o.phone as owner_phone
+       from pg_listings l
+       join cities c on c.id = l.city_id
+       left join areas a on a.id = l.area_id
+       left join owners o on o.id = l.owner_id
+      where l.status = 'pending_review'
+      order by l.created_at desc
+      limit 100`
+  );
+  return rows;
+}
+
+export async function getPendingReviews() {
+  const { rows } = await db.query(
+    `select r.id, r.reviewer_name, r.rating, r.review_text, r.created_at,
+            l.name as listing_name, l.slug as listing_slug,
+            c.slug as city_slug, a.slug as area_slug
+       from reviews r
+       join pg_listings l on l.id = r.listing_id
+       join cities c on c.id = l.city_id
+       left join areas a on a.id = l.area_id
+      where r.status = 'pending'
+      order by r.created_at desc
+      limit 100`
+  );
+  return rows;
+}
+
+export async function getLeads(limit = 200) {
+  const { rows } = await db.query(
+    `select ld.id, ld.name, ld.phone, ld.intent, ld.message, ld.created_at,
+            l.name as listing_name, c.name as city_name
+       from leads ld
+       join pg_listings l on l.id = ld.listing_id
+       join cities c on c.id = l.city_id
+      order by ld.created_at desc
+      limit $1`,
+    [limit]
+  );
+  return rows;
+}
+
+/** City list for the owner-submission form (all cities, launched or not). */
 export async function getAllCities(): Promise<City[]> {
   const { rows } = await db.query(
     `select id, name, slug, state, lat, lng, is_launched, listing_count_cache
