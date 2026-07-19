@@ -1,5 +1,10 @@
 import { getPendingSubmissions } from "@/lib/queries";
-import { approveListing, rejectListing } from "@/lib/admin-actions";
+import {
+  aiImproveDescription,
+  approveListing,
+  rejectListing,
+} from "@/lib/admin-actions";
+import { isAiConfigured } from "@/lib/ai";
 import { PG_TYPE_LABEL, formatPriceRange } from "@/lib/format";
 import type { PgType } from "@/lib/types";
 
@@ -7,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SubmissionsPage() {
   const rows = await getPendingSubmissions();
+  const aiOn = isAiConfigured();
 
   return (
     <>
@@ -41,6 +47,14 @@ export default async function SubmissionsPage() {
                 )}
               </div>
               <div className="flex shrink-0 gap-2">
+                {aiOn && (
+                  <form action={aiImproveDescription}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <button className="rounded-full border border-accent bg-accent/15 px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent/30">
+                      ✦ AI description
+                    </button>
+                  </form>
+                )}
                 <form action={approveListing}>
                   <input type="hidden" name="id" value={r.id} />
                   <button className="rounded-full bg-success-fg px-4 py-2 text-sm font-bold text-white transition hover:opacity-90">

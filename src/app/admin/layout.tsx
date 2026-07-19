@@ -32,6 +32,9 @@ export default async function AdminLayout({
             ["/admin/submissions", "Submissions"],
             ["/admin/reviews", "Reviews"],
             ["/admin/leads", "Leads"],
+            ["/admin/seo", "SEO"],
+            ["/admin/theme", "Theme"],
+            ["/admin/staleness", "Staleness"],
           ].map(([href, label]) => (
             <Link
               key={href}

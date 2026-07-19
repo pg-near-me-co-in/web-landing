@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@/components/analytics";
 import { Pwa } from "@/components/pwa";
+import { getThemeSettings, themeCss } from "@/lib/theme";
 
 const cherryBomb = Cherry_Bomb_One({
   variable: "--font-cherry-bomb",
@@ -42,17 +43,19 @@ export const viewport = {
   themeColor: "#534AB7",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeOverride = themeCss(await getThemeSettings());
   return (
     <html
       lang="en"
       className={`${cherryBomb.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        {themeOverride && <style>{themeOverride}</style>}
         <Header />
         {children}
         <Footer />

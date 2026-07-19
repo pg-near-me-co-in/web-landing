@@ -47,6 +47,8 @@ export interface ListingDetail extends ListingCard {
   road_access: "with_road" | "without_road" | null;
   house_rules_strictness: "strict" | "moderate" | "liberal" | null;
   curfew_time: string | null;
+  trust_score: number | null;
+  ai_review_summary: string | null;
   verified_at: string | null;
   published_at: string | null;
   images: { storage_path: string; alt_text: string; is_cover: boolean }[];

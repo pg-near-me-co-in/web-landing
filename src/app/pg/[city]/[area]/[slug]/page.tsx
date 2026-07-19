@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllPublishedSlugs, getListingBySlug } from "@/lib/queries";
+import { getAllPublishedSlugs, getListingBySlug, getSeoOverride } from "@/lib/queries";
 import { ContactReveal } from "@/components/contact-reveal";
 import { ReviewForm } from "@/components/review-form";
 import { PgTypeBadge, RatingStars } from "@/components/badges";
@@ -33,6 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const l = await getListingBySlug(slug);
   if (!l) return {};
+  // fallback precedence: page_seo_meta override -> computed entity default
+  const seo = await getSeoOverride("listing", l.id);
   const price = formatPriceRange(l.price_min, l.price_max);
   const traits = [
     l.pg_type ? `${PG_TYPE_LABEL[l.pg_type]} PG` : "PG/hostel",
@@ -41,13 +43,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]
     .filter(Boolean)
     .join(", ");
+  const title =
+    seo?.meta_title ?? `${l.name} — ${l.area_name ?? l.city_name}, ${l.city_name}`;
+  const description =
+    seo?.meta_description ??
+    `${l.name} in ${l.area_name ?? l.city_name}, ${l.city_name}: ${traits}. Photos, amenities, reviews and direct owner contact on PG Near Me.`;
   return {
-    title: `${l.name} — ${l.area_name ?? l.city_name}, ${l.city_name}`,
-    description: `${l.name} in ${l.area_name ?? l.city_name}, ${l.city_name}: ${traits}. Photos, amenities, reviews and direct owner contact on PG Near Me.`,
+    title,
+    description,
     alternates: {
       canonical: `/pg/${l.city_slug}/${l.area_slug ?? "all"}/${l.slug}`,
     },
-    openGraph: l.cover_image ? { images: [l.cover_image] } : undefined,
+    openGraph: {
+      title: seo?.og_title ?? title,
+      description: seo?.og_description ?? description,
+      ...(l.cover_image ? { images: [l.cover_image] } : {}),
+    },
   };
 }
 
@@ -236,6 +247,16 @@ export default async function ListingPage({ params }: Props) {
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-grey-900">Reviews</h2>
             </div>
+            {l.ai_review_summary && (
+              <div className="mt-3 rounded-2xl border border-accent/40 bg-accent/10 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                  AI summary of reviews
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-grey-600">
+                  {l.ai_review_summary}
+                </p>
+              </div>
+            )}
             <div className="mt-3">
               <ReviewForm listingId={l.id} />
             </div>
@@ -307,6 +328,9 @@ export default async function ListingPage({ params }: Props) {
                     year: "numeric",
                   })}
                 />
+              )}
+              {l.trust_score != null && (
+                <FactRow label="Trust score" value={`${l.trust_score}/100`} />
               )}
             </dl>
           </div>

@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { getAdminStats } from "@/lib/queries";
+import { aiGenerateReviewSummaries } from "@/lib/admin-actions";
+import { isAiConfigured } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const s = await getAdminStats();
+  const aiOn = isAiConfigured();
   const cards = [
     { label: "Pending submissions", value: s.pending_listings, href: "/admin/submissions" },
     { label: "Pending reviews", value: s.pending_reviews, href: "/admin/reviews" },
@@ -28,7 +31,28 @@ export default async function AdminDashboard() {
           </Link>
         ))}
       </div>
-      <p className="mt-8 text-sm text-grey-400">
+      <div className="mt-8 rounded-2xl border border-grey-50 bg-white p-5 shadow-sm">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-grey-400">
+          AI tools
+        </h2>
+        {aiOn ? (
+          <form action={aiGenerateReviewSummaries} className="mt-3">
+            <button className="rounded-full border border-accent bg-accent/15 px-5 py-2.5 text-sm font-bold text-primary transition hover:bg-accent/30">
+              ✦ Generate review summaries
+            </button>
+            <p className="mt-2 text-xs text-grey-400">
+              Summarises listings with 3+ approved reviews (10 per run); shows
+              on detail pages under an &quot;AI summary&quot; label.
+            </p>
+          </form>
+        ) : (
+          <p className="mt-2 text-sm text-grey-400">
+            Set <code>ANTHROPIC_API_KEY</code> in the environment to enable AI
+            description assist and review summaries.
+          </p>
+        )}
+      </div>
+      <p className="mt-6 text-sm text-grey-400">
         Access is gated by the shared code in <code>ADMIN_ACCESS_CODE</code>.
         Role-based Supabase Auth (admin_users) replaces this in a later pass.
       </p>

@@ -236,6 +236,60 @@ export async function getLeads(limit = 200) {
   return rows;
 }
 
+export interface SeoOverride {
+  meta_title: string | null;
+  meta_description: string | null;
+  og_title: string | null;
+  og_description: string | null;
+}
+
+/** page_seo_meta override for an entity (or a static route when id is null). */
+export async function getSeoOverride(
+  entityType: "static_page" | "city" | "listing",
+  entityIdOrRoute: string
+): Promise<SeoOverride | null> {
+  const { rows } = await db.query(
+    entityType === "static_page"
+      ? `select meta_title, meta_description, og_title, og_description
+           from page_seo_meta where entity_type = $1 and route_pattern = $2`
+      : `select meta_title, meta_description, og_title, og_description
+           from page_seo_meta where entity_type = $1 and entity_id = $2`,
+    [entityType, entityIdOrRoute]
+  );
+  return rows[0] ?? null;
+}
+
+/** Published listings never verified or verified > 180 days ago. */
+export async function getStaleListings(limit = 100) {
+  const { rows } = await db.query(
+    `select l.id, l.name, l.slug, l.verified_at, l.trust_score, l.source,
+            c.name as city_name, c.slug as city_slug, a.slug as area_slug
+       from pg_listings l
+       join cities c on c.id = l.city_id
+       left join areas a on a.id = l.area_id
+      where l.status = 'published'
+        and (l.verified_at is null or l.verified_at < now() - interval '180 days')
+      order by l.verified_at asc nulls first, l.name
+      limit $1`,
+    [limit]
+  );
+  return rows;
+}
+
+/** Aggregate facts for a city's FAQ/AEO block. */
+export async function getCityStats(cityId: string) {
+  const { rows } = await db.query(
+    `select count(*)::int as total,
+            count(*) filter (where pg_type = 'female')::int as female_count,
+            count(*) filter (where pg_type = 'male')::int as male_count,
+            min(price_min) as min_price,
+            max(price_max) as max_price
+       from pg_listings where city_id = $1 and status = 'published'`,
+    [cityId]
+  );
+  return rows[0];
+}
+
 /** City list for the owner-submission form (all cities, launched or not). */
 export async function getAllCities(): Promise<City[]> {
   const { rows } = await db.query(
