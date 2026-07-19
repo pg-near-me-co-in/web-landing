@@ -163,7 +163,7 @@ export default async function CityPage({ params, searchParams }: Props) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
+    <main className="w-full flex-1">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -173,24 +173,54 @@ export default async function CityPage({ params, searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <nav className="text-sm text-grey-400" aria-label="Breadcrumb">
-        <Link href="/" className="hover:text-primary">
-          Home
-        </Link>{" "}
-        / <span className="text-grey-600">{city.name}</span>
-      </nav>
+      {/* City hero band with aggregate stats */}
+      <div className="bg-gradient-to-b from-accent/15 to-grey-5">
+        <div className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-6">
+          <nav className="text-sm text-grey-400" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-primary">
+              Home
+            </Link>{" "}
+            / <span className="text-grey-600">{city.name}</span>
+          </nav>
 
-      <h1 className="mt-3 font-display text-3xl text-grey-900 sm:text-4xl">
-        PGs in {city.name}
-      </h1>
-      {/* AEO factual summary block */}
-      <p className="mt-2 max-w-2xl text-grey-500">
-        {listings.length} published PG{listings.length === 1 ? "" : "s"} in{" "}
-        {city.name}, {city.state}
-        {pgType ? ` for ${PG_TYPE_LABEL[pgType].toLowerCase()}` : ""}. All
-        listings are free to contact — no broker fees.
-      </p>
+          <h1 className="mt-3 font-display text-3xl text-grey-900 sm:text-4xl">
+            PGs in {city.name}
+          </h1>
+          {/* AEO factual summary block */}
+          <p className="mt-2 max-w-2xl text-grey-500">
+            {listings.length} published PG{listings.length === 1 ? "" : "s"} in{" "}
+            {city.name}, {city.state}
+            {pgType ? ` for ${PG_TYPE_LABEL[pgType].toLowerCase()}` : ""}. All
+            listings are free to contact — no broker fees.
+          </p>
 
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+              {stats.total} listed
+            </span>
+            {stats.min_price && (
+              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+                {fmtInr(stats.min_price)} – {fmtInr(stats.max_price)}/mo
+              </span>
+            )}
+            {stats.female_count > 0 && (
+              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+                {stats.female_count} for women
+              </span>
+            )}
+            {stats.male_count > 0 && (
+              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+                {stats.male_count} for men
+              </span>
+            )}
+            <span className="rounded-full bg-success-bg px-3 py-1.5 text-success-fg shadow-sm">
+              ₹0 brokerage
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6">
       {/* PG-type toggle chips (the notebook's filter) */}
       <div className="mt-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => {
@@ -295,20 +325,30 @@ export default async function CityPage({ params, searchParams }: Props) {
       </form>
 
       {listings.length > 0 ? (
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.map((l) => (
-            <ListingCard key={l.id} listing={l} />
-          ))}
-        </div>
+        <>
+          <p className="mt-8 text-sm font-semibold text-grey-500">
+            Showing {listings.length} PG{listings.length === 1 ? "" : "s"}
+            {pgType ? ` · ${PG_TYPE_LABEL[pgType]} only` : ""}
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((l) => (
+              <ListingCard key={l.id} listing={l} />
+            ))}
+          </div>
+        </>
       ) : (
-        <div className="mt-16 rounded-3xl border border-dashed border-grey-100 p-12 text-center">
-          <p className="font-semibold text-grey-600">
+        <div className="mt-16 rounded-3xl border border-dashed border-grey-100 bg-white p-12 text-center">
+          <p className="font-display text-xl text-grey-700">
             No {pgType ? `${PG_TYPE_LABEL[pgType].toLowerCase()} ` : ""}PGs
-            published in {city.name} yet.
+            published in {city.name} yet
+          </p>
+          <p className="mt-2 text-sm text-grey-500">
+            Try clearing filters, or check back soon — new listings are added
+            regularly.
           </p>
           <Link
             href="/add-your-pg"
-            className="mt-3 inline-block text-sm font-bold text-primary hover:underline"
+            className="mt-4 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-purple"
           >
             Own a PG here? List it free →
           </Link>
@@ -326,14 +366,18 @@ export default async function CityPage({ params, searchParams }: Props) {
               key={f.q}
               className="group rounded-2xl border border-grey-50 bg-white p-4 shadow-sm"
             >
-              <summary className="cursor-pointer list-none font-semibold text-grey-800 transition group-open:text-primary">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-grey-800 transition group-open:text-primary">
                 {f.q}
+                <span className="text-grey-300 transition group-open:rotate-45 group-open:text-primary">
+                  +
+                </span>
               </summary>
               <p className="mt-2 text-sm leading-relaxed text-grey-600">{f.a}</p>
             </details>
           ))}
         </div>
       </section>
+      </div>
     </main>
   );
 }

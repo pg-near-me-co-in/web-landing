@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Home — PG Near Me</title>
+<meta name="description" content="Find verified PGs, flats and shared rooms across India, with zero brokerage.">
+<meta name="theme-color" content="#534AB7">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#534AB7;
+  --primary-dark:#443C99;
+  --primary-tint:#EFEDFB;
+  --purple:#7F77DD;
+  --accent:#AFA9EC;
+  --teal:#1D9E75;
+  --teal-dark:#178360;
+  --highlight:#5DCAA5;
+
+  --white:#FFFFFF;
+  --grey-5:#FAFBFC;
+  --grey-10:#F4F6F8;
+  --grey-50:#E8ECF0;
+  --grey-100:#D6DCE2;
+  --grey-200:#B8C1CA;
+  --grey-300:#98A3AF;
+  --grey-400:#7C8894;
+  --grey-500:#616C78;
+  --grey-600:#4C555F;
+  --grey-700:#383F47;
+  --grey-800:#262B30;
+  --grey-900:#16191C;
+  --grey-950:#0C0E10;
+  --black:#000000;
+
+  --warning-bg:#FDEAB8;
+  --warning:#EFA820;
+  --success-bg:#E8F4F0;
+  --success:#1FAA72;
+  --alert-bg:#FCE8E8;
+  --alert:#D94F4F;
+
+  --radius-sm:8px;
+  --radius:14px;
+  --radius-lg:22px;
+  --shadow-card: 0 2px 10px rgba(22,25,28,0.06);
+  --shadow-lift: 0 20px 44px -20px rgba(83,74,183,0.35);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--grey-10);
+  color:var(--grey-900);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+h1,h2,h3,h4,.display{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.01em; color:var(--grey-900);}
+.mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.03em;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+ul{list-style:none;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+.wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+@media (max-width:640px){ .wrap{padding:0 18px;} }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--primary); outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------- Logo mark ---------- */
+.logo{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; color:var(--grey-900);}
+.mark{width:34px; height:34px; border-radius:10px; background:var(--primary-dark); position:relative; flex:none; overflow:hidden;}
+.mark::before, .mark::after{content:''; position:absolute; width:46%; height:14%; border-radius:4px; background:var(--white);}
+.mark::before{top:32%; left:14%; transform:rotate(-45deg);}
+.mark::after{top:52%; left:38%; transform:rotate(-45deg); background:var(--highlight); width:34%;}
+
+/* ---------- Nav ---------- */
+.site-header{position:sticky; top:0; z-index:100; background:rgba(250,251,252,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--grey-50);}
+.nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
+.nav-links{display:flex; gap:30px; align-items:center;}
+.nav-links a{font-size:14px; font-weight:500; color:var(--grey-600); transition:color .15s;}
+.nav-links a.active, .nav-links a:hover{color:var(--primary);}
+.nav-actions{display:flex; gap:10px; align-items:center;}
+.hamburger{display:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--grey-100); background:var(--white); cursor:pointer; align-items:center; justify-content:center;}
+.hamburger span, .hamburger span::before, .hamburger span::after{content:''; display:block; width:16px; height:2px; background:var(--grey-800); position:relative;}
+.hamburger span::before{position:absolute; top:-5px;}
+.hamburger span::after{position:absolute; top:5px;}
+@media (max-width:900px){
+  .nav-links.desktop-only{display:none;}
+  .hamburger{display:flex;}
+}
+.mobile-drawer{position:fixed; inset:0; z-index:200; display:none;}
+.mobile-drawer.open{display:block;}
+.mobile-drawer .backdrop{position:absolute; inset:0; background:rgba(22,25,28,0.4);}
+.mobile-drawer .panel{position:absolute; top:0; right:0; width:78%; max-width:320px; height:100%; background:var(--white); padding:22px; display:flex; flex-direction:column; gap:6px; box-shadow:-10px 0 30px rgba(0,0,0,0.15);}
+.mobile-drawer .panel a{padding:13px 4px; font-size:15px; font-weight:500; color:var(--grey-800); border-bottom:1px solid var(--grey-50);}
+.mobile-drawer .close{align-self:flex-end; width:34px; height:34px; border-radius:8px; border:1px solid var(--grey-100); background:var(--grey-5); margin-bottom:10px;}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 20px; border-radius:10px; font-weight:600; font-size:14px; border:1px solid transparent; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease; white-space:nowrap;}
+.btn-primary{background:var(--primary); color:var(--white);}
+.btn-primary:hover{background:var(--primary-dark); box-shadow:var(--shadow-lift); transform:translateY(-1px);}
+.btn-teal{background:var(--teal); color:var(--white);}
+.btn-teal:hover{background:var(--teal-dark); transform:translateY(-1px);}
+.btn-outline{background:var(--white); border:1px solid var(--grey-100); color:var(--grey-800);}
+.btn-outline:hover{border-color:var(--primary); color:var(--primary);}
+.btn-ghost{background:transparent; color:var(--grey-600);}
+.btn-ghost:hover{color:var(--primary);}
+.btn-sm{padding:8px 14px; font-size:13px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:999px; font-family:'JetBrains Mono';}
+.badge-success{background:var(--success-bg); color:var(--teal-dark);}
+.badge-warning{background:var(--warning-bg); color:#8A5A0B;}
+.badge-alert{background:var(--alert-bg); color:var(--alert);}
+.badge-accent{background:var(--primary-tint); color:var(--primary);}
+
+/* ---------- Cards ---------- */
+.card{background:var(--white); border:1px solid var(--grey-50); border-radius:var(--radius); box-shadow:var(--shadow-card);}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--grey-600); margin-bottom:6px;}
+.field .hint{font-size:11.5px; color:var(--grey-400); margin-top:5px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--grey-100);
+  background:var(--grey-5); font-size:14.5px; color:var(--grey-900); transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--primary); background:var(--white);}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:520px){ .field-row{grid-template-columns:1fr;} }
+.check-row{display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--grey-700);}
+.check-row input{width:16px; height:16px; accent-color:var(--primary);}
+
+/* ---------- Section basics ---------- */
+section{padding:56px 0;}
+@media (max-width:640px){ section{padding:38px 0;} }
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:11.5px; font-weight:600; color:var(--primary); background:var(--primary-tint); padding:6px 13px; border-radius:999px; margin-bottom:16px; font-family:'JetBrains Mono';}
+.section-head h2{font-size:clamp(24px,3.2vw,34px); font-weight:700; line-height:1.14;}
+.section-head p{margin-top:12px; color:var(--grey-500); font-size:15.5px; max-width:520px; line-height:1.6;}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--grey-900); color:rgba(250,251,252,0.7); padding:52px 0 26px; margin-top:40px;}
+.foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:28px;}
+@media (max-width:820px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+@media (max-width:480px){ .foot-grid{grid-template-columns:1fr;} }
+.site-footer h4{color:#fff; font-size:13px; margin-bottom:14px;}
+.site-footer a{display:block; font-size:13.5px; margin-bottom:9px; color:rgba(250,251,252,0.6);}
+.site-footer a:hover{color:#fff;}
+.foot-bottom{margin-top:34px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:rgba(250,251,252,0.4);}
+.site-footer .logo{color:#fff; margin-bottom:12px;}
+.site-footer .mark::before{background:var(--white);}
+
+/* ---------- Install banner ---------- */
+.install-banner{position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; background:var(--grey-900); color:#fff; border-radius:14px; padding:14px 16px; display:none; align-items:center; justify-content:space-between; gap:12px; z-index:300; box-shadow:0 20px 40px rgba(0,0,0,0.25);}
+.install-banner.show{display:flex;}
+.install-banner p{font-size:13px; line-height:1.4;}
+.install-banner .close-install{background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer;}
+
+
+.hero{padding:56px 0 20px;}
+.hero-grid{display:grid; grid-template-columns:1.05fr 0.95fr; gap:48px; align-items:center;}
+@media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+h1.headline{font-size:clamp(32px,5vw,54px); line-height:1.05; font-weight:700; max-width:600px;}
+h1.headline .accent{color:var(--primary);}
+.sub{margin-top:18px; font-size:16.5px; line-height:1.6; color:var(--grey-500); max-width:460px;}
+.hero-ctas{display:flex; gap:12px; margin-top:26px; flex-wrap:wrap;}
+.trust-row{display:flex; gap:26px; margin-top:36px; flex-wrap:wrap;}
+.trust-item .num{font-family:'Space Grotesk'; font-weight:700; font-size:22px; color:var(--grey-900);}
+.trust-item .lbl{font-size:12px; color:var(--grey-500); margin-top:2px;}
+
+.search-card{background:var(--white); border:1px solid var(--grey-50); border-radius:var(--radius-lg); padding:24px; box-shadow:0 30px 60px -24px rgba(83,74,183,0.28);}
+.search-card .tag{font-size:11px; color:var(--primary); display:block; margin-bottom:14px;}
+.toggle-row{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+.toggle{flex:1; min-width:80px; text-align:center; padding:9px 6px; border-radius:10px; background:var(--grey-10); border:1px solid var(--grey-50); font-size:13px; font-weight:600; cursor:pointer; color:var(--grey-500); transition:.15s;}
+.toggle.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.city-chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+.chip{font-size:12px; padding:6px 12px; border-radius:999px; background:var(--grey-10); border:1px solid var(--grey-50); color:var(--grey-600); cursor:pointer; transition:.15s;}
+.chip:hover, .chip.active{background:var(--primary-tint); color:var(--primary); border-color:var(--accent);}
+
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+@media (max-width:820px){ .steps{grid-template-columns:1fr;} }
+.step{padding:26px 22px;}
+.step .idx{font-family:'JetBrains Mono'; font-size:12.5px; color:var(--primary); font-weight:600; display:block; margin-bottom:14px;}
+.step h3{font-size:17px; margin-bottom:8px;}
+.step p{font-size:14px; color:var(--grey-500); line-height:1.6;}
+
+.cities-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+@media (max-width:900px){ .cities-grid{grid-template-columns:repeat(2,1fr);} }
+.city-card{border-radius:var(--radius); padding:20px 18px; min-height:118px; display:flex; flex-direction:column; justify-content:space-between; transition:transform .2s;}
+.city-card:hover{transform:translateY(-3px);}
+.city-card h4{font-size:15.5px; font-weight:600;}
+.city-card .count{font-size:11.5px; color:var(--grey-500); margin-top:3px; font-family:'JetBrains Mono';}
+.city-card .arrow{align-self:flex-end; color:var(--primary); font-size:17px;}
+.c1{background:var(--primary-tint);} .c2{background:var(--success-bg);} .c3{background:var(--warning-bg);}
+.c4{background:#EFE9FB;} .c5{background:var(--grey-50);} .c6{background:#E6F6EF;}
+.c7{background:#FDF1DC;} .c8{background:#F1EFFB;}
+
+.types-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+@media (max-width:900px){ .types-grid{grid-template-columns:repeat(2,1fr);} }
+.type-card{padding:24px 20px; transition:.2s;}
+.type-card:hover{border-color:var(--accent); box-shadow:var(--shadow-lift);}
+.type-icon{width:42px; height:42px; border-radius:10px; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-size:18px;}
+.type-card h3{font-size:16px; margin-bottom:6px;}
+.type-card p{font-size:13.5px; color:var(--grey-500); line-height:1.55;}
+
+.why-wrap{background:var(--grey-900); color:rgba(250,251,252,0.9); border-radius:24px; padding:52px 44px;}
+@media (max-width:640px){ .why-wrap{padding:36px 22px;} }
+.why-wrap .eyebrow{background:rgba(175,169,236,0.15); color:var(--accent);}
+.why-wrap .section-head p{color:rgba(250,251,252,0.55);}
+.why-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;}
+@media (max-width:820px){ .why-grid{grid-template-columns:1fr;} }
+.why-item{background:var(--grey-900); padding:26px 24px;}
+.why-item .n{font-family:'JetBrains Mono'; color:var(--highlight); font-size:12px; display:block; margin-bottom:12px;}
+.why-item h3{font-size:16px; color:#fff; margin-bottom:7px;}
+.why-item p{font-size:13.5px; color:rgba(250,251,252,0.55); line-height:1.6;}
+
+.cta-banner{background:linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%); border-radius:24px; padding:48px 42px; display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap;}
+.cta-banner h2{font-size:clamp(20px,3vw,30px); color:#fff; max-width:440px;}
+.cta-banner p{color:rgba(255,255,255,0.75); margin-top:8px; font-size:14px; max-width:400px;}
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="index.html" class="logo"><span class="mark"></span> PG Near Me</a>
+    <nav class="nav-links desktop-only"><a href="search.html" class="">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="">Dashboard</a></nav>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm desktop-only">Log in</a>
+      <a href="search.html" class="btn btn-primary btn-sm">Find a PG</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="backdrop" id="drawerBackdrop"></div>
+  <div class="panel">
+    <button class="close" id="drawerClose" aria-label="Close menu">✕</button>
+    <a href="search.html" class="">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="">Dashboard</a>
+    <a href="login.html">Log in</a>
+    <a href="list-property.html" style="border-bottom:none;">List your property</a>
+  </div>
+</div>
+
+
+<section class="hero" id="search">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">● LIVE IN 40+ INDIAN CITIES</span>
+      <h1 class="headline">Your next room is <span class="accent">closer</span> than you think.</h1>
+      <p class="sub">PGs, flats, and shared rooms — verified, zero brokerage, anywhere in India.</p>
+      <div class="hero-ctas">
+        <a href="search.html" class="btn btn-primary">Browse listings</a>
+        <a href="#how" class="btn btn-outline">How it works</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item"><div class="num">40+</div><div class="lbl">Cities covered</div></div>
+        <div class="trust-item"><div class="num">12,000+</div><div class="lbl">Verified listings</div></div>
+        <div class="trust-item"><div class="num">₹0</div><div class="lbl">Brokerage, always</div></div>
+      </div>
+    </div>
+    <div class="search-card">
+      <span class="tag mono">FIND A PLACE →</span>
+      <div class="toggle-row">
+        <div class="toggle active" data-val="pg">PG</div>
+        <div class="toggle" data-val="flat">Flat</div>
+        <div class="toggle" data-val="room">Shared room</div>
+      </div>
+      <div class="field"><label for="cityInput">City or locality</label><input id="cityInput" type="text" placeholder="e.g. Vadodara, Koramangala..."></div>
+      <div class="field-row">
+        <div class="field"><label>Budget (per month)</label><select><option>Under ₹8,000</option><option>₹8,000 – ₹15,000</option><option>₹15,000 – ₹25,000</option><option>₹25,000+</option></select></div>
+        <div class="field"><label>For</label><select><option>Anyone</option><option>Men only</option><option>Women only</option></select></div>
+      </div>
+      <a href="search.html" class="btn btn-primary btn-block">Search listings</a>
+      <div class="city-chips">
+        <span class="chip">Bangalore</span><span class="chip">Pune</span><span class="chip">Hyderabad</span>
+        <span class="chip">Vadodara</span><span class="chip">Delhi NCR</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head"><span class="eyebrow">HOW IT WORKS</span><h2>Three steps between you and move-in day.</h2></div>
+    <div class="steps">
+      <div class="card step"><span class="idx mono">01 / SEARCH</span><h3>Tell us where and what</h3><p>Pick a city, locality, or landmark. Filter by budget, gender preference, and room type.</p></div>
+      <div class="card step"><span class="idx mono">02 / COMPARE</span><h3>See verified options</h3><p>Every listing is checked for photos, amenities, and accurate pricing before it goes live.</p></div>
+      <div class="card step"><span class="idx mono">03 / CONNECT</span><h3>Talk to the owner directly</h3><p>Message or call the owner straight from the listing. No broker fee, ever.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="cities">
+  <div class="wrap">
+    <div class="section-head"><span class="eyebrow">PAN-INDIA COVERAGE</span><h2>Wherever the move is, we're already there.</h2></div>
+    <div class="cities-grid">
+      <a href="search.html" class="city-card c1"><div><h4>Bangalore</h4><div class="count mono">2,400+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c2"><div><h4>Pune</h4><div class="count mono">1,850+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c3"><div><h4>Hyderabad</h4><div class="count mono">1,600+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c4"><div><h4>Delhi NCR</h4><div class="count mono">2,100+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c5"><div><h4>Mumbai</h4><div class="count mono">1,950+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c6"><div><h4>Ahmedabad</h4><div class="count mono">890+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c7"><div><h4>Vadodara</h4><div class="count mono">510+ listings</div></div><div class="arrow">→</div></a>
+      <a href="search.html" class="city-card c8"><div><h4>Chennai</h4><div class="count mono">1,020+ listings</div></div><div class="arrow">→</div></a>
+    </div>
+  </div>
+</section>
+
+<section id="types">
+  <div class="wrap">
+    <div class="section-head"><span class="eyebrow">PROPERTY TYPES</span><h2>Every kind of stay, one search away.</h2></div>
+    <div class="types-grid">
+      <div class="card type-card"><div class="type-icon">♂</div><h3>PG for men</h3><p>Single, double & triple sharing with food and housekeeping included.</p></div>
+      <div class="card type-card"><div class="type-icon">♀</div><h3>PG for women</h3><p>Verified, secure PGs with biometric entry where available.</p></div>
+      <div class="card type-card"><div class="type-icon">⌂</div><h3>Independent flats</h3><p>1BHK, 2BHK and 3BHK options for individuals, couples, or flatmates.</p></div>
+      <div class="card type-card"><div class="type-icon">⇄</div><h3>Shared rooms</h3><p>Split rent with a flatmate in a fully furnished apartment.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap why-wrap">
+    <div class="section-head"><span class="eyebrow">WHY PG NEAR ME</span><h2>Built for people who move, a lot.</h2><p>Students relocating for college, professionals starting new jobs, one platform, no matter the city.</p></div>
+    <div class="why-grid">
+      <div class="why-item"><span class="n mono">01</span><h3>Verified listings only</h3><p>Every property is checked for accurate photos, pricing and amenities.</p></div>
+      <div class="why-item"><span class="n mono">02</span><h3>Zero brokerage</h3><p>Talk to owners directly. No hidden commission, ever.</p></div>
+      <div class="why-item"><span class="n mono">03</span><h3>Pan-India, always growing</h3><p>The same simple search, wherever you're headed next.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta-banner">
+      <div><h2>Own a PG or a flat sitting empty?</h2><p>List it in under five minutes and start getting genuine inquiries, no brokerage taken.</p></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="list-property.html" class="btn" style="background:#fff; color:var(--primary);">List your property</a>
+        <a href="dashboard.html" class="btn btn-outline" style="border-color:rgba(255,255,255,0.4); color:#fff;">Owner dashboard</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="mark"></span> PG Near Me</div>
+        <p style="font-size:13.5px; line-height:1.6; max-width:280px; color:rgba(250,251,252,0.55);">Pan-India platform to find verified PGs, flats and shared rooms — no brokerage, ever.</p>
+      </div>
+      <div><h4>Explore</h4>
+        <a href="search.html">Find a PG</a>
+        <a href="index.html#cities">Cities</a>
+        <a href="index.html#types">Property types</a>
+      </div>
+      <div><h4>Owners</h4>
+        <a href="list-property.html">List your property</a>
+        <a href="dashboard.html">Owner dashboard</a>
+        <a href="login.html">Log in</a>
+      </div>
+      <div><h4>Company</h4>
+        <a href="#">About us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy policy</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 PG Near Me. All rights reserved.</span>
+      <span>Made for people on the move, across India.</span>
+    </div>
+  </div>
+</footer>
+
+
+<div class="install-banner" id="installBanner">
+  <p>Install PG Near Me for one-tap access to your searches and listings.</p>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <button class="btn btn-primary btn-sm" id="installBtn">Install</button>
+    <button class="close-install" id="closeInstall" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+
+<script>
+  // mobile drawer
+  const hb = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('mobileDrawer');
+  const back = document.getElementById('drawerBackdrop');
+  const close = document.getElementById('drawerClose');
+  if(hb){ hb.addEventListener('click', ()=> drawer.classList.add('open')); }
+  if(back){ back.addEventListener('click', ()=> drawer.classList.remove('open')); }
+  if(close){ close.addEventListener('click', ()=> drawer.classList.remove('open')); }
+
+  // PWA install prompt
+  let deferredPrompt;
+  const banner = document.getElementById('installBanner');
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    if(banner) banner.classList.add('show');
+  });
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn){
+    installBtn.addEventListener('click', async ()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      banner.classList.remove('show');
+    });
+  }
+  const closeInstall = document.getElementById('closeInstall');
+  if(closeInstall){ closeInstall.addEventListener('click', ()=> banner.classList.remove('show')); }
+
+  // service worker
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
+</script>
+
+
+<script>
+  document.querySelectorAll('.toggle').forEach(t=>{
+    t.addEventListener('click', ()=>{ document.querySelectorAll('.toggle').forEach(x=>x.classList.remove('active')); t.classList.add('active'); });
+  });
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.addEventListener('click', ()=>{ document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); c.classList.add('active'); document.getElementById('cityInput').value = c.textContent; });
+  });
+</script>
+
+</body>
+</html>

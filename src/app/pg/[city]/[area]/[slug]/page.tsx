@@ -62,6 +62,45 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/* Icon-first amenities (reference-site pattern): match on icon_key or slug,
+   fall back to a neutral check. */
+const AMENITY_EMOJI: [string, string][] = [
+  ["wifi", "📶"],
+  ["internet", "📶"],
+  ["food", "🍱"],
+  ["meal", "🍱"],
+  ["mess", "🍱"],
+  ["kitchen", "🍳"],
+  ["laundry", "🧺"],
+  ["washing", "🧺"],
+  ["ac", "❄️"],
+  ["air", "❄️"],
+  ["parking", "🛵"],
+  ["cctv", "📹"],
+  ["security", "🛡️"],
+  ["guard", "🛡️"],
+  ["power", "🔌"],
+  ["backup", "🔌"],
+  ["electric", "🔌"],
+  ["housekeeping", "🧹"],
+  ["clean", "🧹"],
+  ["gym", "🏋️"],
+  ["tv", "📺"],
+  ["fridge", "🧊"],
+  ["water", "🚰"],
+  ["geyser", "🚿"],
+  ["hot", "🚿"],
+  ["bed", "🛏️"],
+  ["furnish", "🛏️"],
+  ["lift", "🛗"],
+  ["study", "📚"],
+];
+
+function amenityEmoji(a: { slug: string; icon_key: string | null }): string {
+  const key = `${a.icon_key ?? ""} ${a.slug}`.toLowerCase();
+  return AMENITY_EMOJI.find(([k]) => key.includes(k))?.[1] ?? "✓";
+}
+
 function FactRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-grey-50 py-2.5 last:border-0">
@@ -171,6 +210,23 @@ export default async function ListingPage({ params }: Props) {
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-display text-3xl text-grey-900">{l.name}</h1>
             <PgTypeBadge type={l.pg_type} />
+            {l.verified_at && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2.5 py-0.5 text-xs font-bold text-success-fg">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                Verified
+              </span>
+            )}
           </div>
           <p className="mt-1 flex items-center gap-1.5 text-grey-500">
             <svg
@@ -232,9 +288,11 @@ export default async function ListingPage({ params }: Props) {
                 {l.amenities.map((a) => (
                   <li
                     key={a.slug}
-                    className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-grey-600 shadow-sm"
+                    className="flex items-center gap-2.5 rounded-xl border border-grey-50 bg-white px-3 py-2.5 text-sm font-medium text-grey-600 shadow-sm"
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-teal" aria-hidden />
+                    <span className="text-base" aria-hidden>
+                      {amenityEmoji(a)}
+                    </span>
                     {a.name}
                   </li>
                 ))}
@@ -286,12 +344,19 @@ export default async function ListingPage({ params }: Props) {
         </div>
 
         {/* Sidebar: price + facts + contact */}
-        <aside className="h-fit space-y-4 lg:sticky lg:top-24">
+        <aside
+          id="contact"
+          className="h-fit scroll-mt-24 space-y-4 lg:sticky lg:top-24"
+        >
           <div className="rounded-2xl border border-grey-50 bg-white p-5 shadow-sm">
-            {price && (
+            {price ? (
               <p className="text-2xl font-bold text-grey-900">
                 {price}
                 <span className="text-sm font-normal text-grey-400"> /month approx</span>
+              </p>
+            ) : (
+              <p className="text-lg font-bold text-grey-700">
+                Price on request
               </p>
             )}
             <dl className="mt-4">
@@ -337,6 +402,29 @@ export default async function ListingPage({ params }: Props) {
           <ContactReveal listingId={l.id} />
         </aside>
       </div>
+
+      {/* Mobile sticky contact bar (reference-site pattern) */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-grey-50 bg-white/95 p-3 backdrop-blur-md lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-1">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-grey-900">
+              {price ?? "Price on request"}
+              {price && (
+                <span className="text-xs font-normal text-grey-400"> /mo</span>
+              )}
+            </p>
+            <p className="truncate text-xs text-grey-400">{l.name}</p>
+          </div>
+          <a
+            href="#contact"
+            className="shrink-0 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/25 transition hover:bg-purple"
+          >
+            Contact owner
+          </a>
+        </div>
+      </div>
+      {/* keeps the sticky bar from covering the page tail on mobile */}
+      <div className="h-16 lg:hidden" aria-hidden />
     </main>
   );
 }

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Owner dashboard — PG Near Me</title>
+<meta name="description" content="Manage your PG and flat listings, track views and respond to inquiries.">
+<meta name="theme-color" content="#534AB7">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#534AB7;
+  --primary-dark:#443C99;
+  --primary-tint:#EFEDFB;
+  --purple:#7F77DD;
+  --accent:#AFA9EC;
+  --teal:#1D9E75;
+  --teal-dark:#178360;
+  --highlight:#5DCAA5;
+
+  --white:#FFFFFF;
+  --grey-5:#FAFBFC;
+  --grey-10:#F4F6F8;
+  --grey-50:#E8ECF0;
+  --grey-100:#D6DCE2;
+  --grey-200:#B8C1CA;
+  --grey-300:#98A3AF;
+  --grey-400:#7C8894;
+  --grey-500:#616C78;
+  --grey-600:#4C555F;
+  --grey-700:#383F47;
+  --grey-800:#262B30;
+  --grey-900:#16191C;
+  --grey-950:#0C0E10;
+  --black:#000000;
+
+  --warning-bg:#FDEAB8;
+  --warning:#EFA820;
+  --success-bg:#E8F4F0;
+  --success:#1FAA72;
+  --alert-bg:#FCE8E8;
+  --alert:#D94F4F;
+
+  --radius-sm:8px;
+  --radius:14px;
+  --radius-lg:22px;
+  --shadow-card: 0 2px 10px rgba(22,25,28,0.06);
+  --shadow-lift: 0 20px 44px -20px rgba(83,74,183,0.35);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--grey-10);
+  color:var(--grey-900);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+h1,h2,h3,h4,.display{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.01em; color:var(--grey-900);}
+.mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.03em;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+ul{list-style:none;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+.wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+@media (max-width:640px){ .wrap{padding:0 18px;} }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--primary); outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------- Logo mark ---------- */
+.logo{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; color:var(--grey-900);}
+.mark{width:34px; height:34px; border-radius:10px; background:var(--primary-dark); position:relative; flex:none; overflow:hidden;}
+.mark::before, .mark::after{content:''; position:absolute; width:46%; height:14%; border-radius:4px; background:var(--white);}
+.mark::before{top:32%; left:14%; transform:rotate(-45deg);}
+.mark::after{top:52%; left:38%; transform:rotate(-45deg); background:var(--highlight); width:34%;}
+
+/* ---------- Nav ---------- */
+.site-header{position:sticky; top:0; z-index:100; background:rgba(250,251,252,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--grey-50);}
+.nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
+.nav-links{display:flex; gap:30px; align-items:center;}
+.nav-links a{font-size:14px; font-weight:500; color:var(--grey-600); transition:color .15s;}
+.nav-links a.active, .nav-links a:hover{color:var(--primary);}
+.nav-actions{display:flex; gap:10px; align-items:center;}
+.hamburger{display:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--grey-100); background:var(--white); cursor:pointer; align-items:center; justify-content:center;}
+.hamburger span, .hamburger span::before, .hamburger span::after{content:''; display:block; width:16px; height:2px; background:var(--grey-800); position:relative;}
+.hamburger span::before{position:absolute; top:-5px;}
+.hamburger span::after{position:absolute; top:5px;}
+@media (max-width:900px){
+  .nav-links.desktop-only{display:none;}
+  .hamburger{display:flex;}
+}
+.mobile-drawer{position:fixed; inset:0; z-index:200; display:none;}
+.mobile-drawer.open{display:block;}
+.mobile-drawer .backdrop{position:absolute; inset:0; background:rgba(22,25,28,0.4);}
+.mobile-drawer .panel{position:absolute; top:0; right:0; width:78%; max-width:320px; height:100%; background:var(--white); padding:22px; display:flex; flex-direction:column; gap:6px; box-shadow:-10px 0 30px rgba(0,0,0,0.15);}
+.mobile-drawer .panel a{padding:13px 4px; font-size:15px; font-weight:500; color:var(--grey-800); border-bottom:1px solid var(--grey-50);}
+.mobile-drawer .close{align-self:flex-end; width:34px; height:34px; border-radius:8px; border:1px solid var(--grey-100); background:var(--grey-5); margin-bottom:10px;}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 20px; border-radius:10px; font-weight:600; font-size:14px; border:1px solid transparent; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease; white-space:nowrap;}
+.btn-primary{background:var(--primary); color:var(--white);}
+.btn-primary:hover{background:var(--primary-dark); box-shadow:var(--shadow-lift); transform:translateY(-1px);}
+.btn-teal{background:var(--teal); color:var(--white);}
+.btn-teal:hover{background:var(--teal-dark); transform:translateY(-1px);}
+.btn-outline{background:var(--white); border:1px solid var(--grey-100); color:var(--grey-800);}
+.btn-outline:hover{border-color:var(--primary); color:var(--primary);}
+.btn-ghost{background:transparent; color:var(--grey-600);}
+.btn-ghost:hover{color:var(--primary);}
+.btn-sm{padding:8px 14px; font-size:13px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:999px; font-family:'JetBrains Mono';}
+.badge-success{background:var(--success-bg); color:var(--teal-dark);}
+.badge-warning{background:var(--warning-bg); color:#8A5A0B;}
+.badge-alert{background:var(--alert-bg); color:var(--alert);}
+.badge-accent{background:var(--primary-tint); color:var(--primary);}
+
+/* ---------- Cards ---------- */
+.card{background:var(--white); border:1px solid var(--grey-50); border-radius:var(--radius); box-shadow:var(--shadow-card);}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--grey-600); margin-bottom:6px;}
+.field .hint{font-size:11.5px; color:var(--grey-400); margin-top:5px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--grey-100);
+  background:var(--grey-5); font-size:14.5px; color:var(--grey-900); transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--primary); background:var(--white);}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:520px){ .field-row{grid-template-columns:1fr;} }
+.check-row{display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--grey-700);}
+.check-row input{width:16px; height:16px; accent-color:var(--primary);}
+
+/* ---------- Section basics ---------- */
+section{padding:56px 0;}
+@media (max-width:640px){ section{padding:38px 0;} }
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:11.5px; font-weight:600; color:var(--primary); background:var(--primary-tint); padding:6px 13px; border-radius:999px; margin-bottom:16px; font-family:'JetBrains Mono';}
+.section-head h2{font-size:clamp(24px,3.2vw,34px); font-weight:700; line-height:1.14;}
+.section-head p{margin-top:12px; color:var(--grey-500); font-size:15.5px; max-width:520px; line-height:1.6;}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--grey-900); color:rgba(250,251,252,0.7); padding:52px 0 26px; margin-top:40px;}
+.foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:28px;}
+@media (max-width:820px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+@media (max-width:480px){ .foot-grid{grid-template-columns:1fr;} }
+.site-footer h4{color:#fff; font-size:13px; margin-bottom:14px;}
+.site-footer a{display:block; font-size:13.5px; margin-bottom:9px; color:rgba(250,251,252,0.6);}
+.site-footer a:hover{color:#fff;}
+.foot-bottom{margin-top:34px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:rgba(250,251,252,0.4);}
+.site-footer .logo{color:#fff; margin-bottom:12px;}
+.site-footer .mark::before{background:var(--white);}
+
+/* ---------- Install banner ---------- */
+.install-banner{position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; background:var(--grey-900); color:#fff; border-radius:14px; padding:14px 16px; display:none; align-items:center; justify-content:space-between; gap:12px; z-index:300; box-shadow:0 20px 40px rgba(0,0,0,0.25);}
+.install-banner.show{display:flex;}
+.install-banner p{font-size:13px; line-height:1.4;}
+.install-banner .close-install{background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer;}
+
+
+.dash-shell{display:grid; grid-template-columns:230px 1fr; min-height:calc(100vh - 66px);}
+@media (max-width:840px){ .dash-shell{grid-template-columns:1fr;} }
+.dash-sidebar{border-right:1px solid var(--grey-50); padding:24px 16px; background:var(--white);}
+@media (max-width:840px){ .dash-sidebar{display:none;} }
+.dash-sidebar a{display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:10px; font-size:14px; color:var(--grey-600); margin-bottom:4px; font-weight:500;}
+.dash-sidebar a.active{background:var(--primary-tint); color:var(--primary); font-weight:600;}
+.dash-sidebar a:hover{background:var(--grey-10);}
+.dash-main{padding:28px 24px 70px;}
+.dash-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;}
+.dash-head h1{font-size:22px;}
+.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;}
+@media (max-width:820px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
+.stat-card{padding:20px;}
+.stat-card .lbl{font-size:12px; color:var(--grey-500); margin-bottom:8px;}
+.stat-card .val{font-family:'Space Grotesk'; font-size:24px; font-weight:700;}
+.stat-card .delta{font-size:11.5px; margin-top:6px; font-family:'JetBrains Mono';}
+.delta.up{color:var(--teal-dark);} .delta.down{color:var(--alert);}
+.dash-grid{display:grid; grid-template-columns:1.6fr 1fr; gap:20px;}
+@media (max-width:920px){ .dash-grid{grid-template-columns:1fr;} }
+.listing-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+.listing-table th{text-align:left; font-size:11.5px; text-transform:uppercase; color:var(--grey-400); padding:10px 14px; border-bottom:1px solid var(--grey-50); font-family:'JetBrains Mono'; font-weight:600;}
+.listing-table td{padding:12px 14px; border-bottom:1px solid var(--grey-50); color:var(--grey-700);}
+.listing-table tr:last-child td{border-bottom:none;}
+.mini-thumb{width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--accent), var(--primary)); display:inline-block; vertical-align:middle; margin-right:10px;}
+.inquiry-item{display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--grey-50);}
+.inquiry-item:last-child{border-bottom:none;}
+.inquiry-item .txt{font-size:13.5px; color:var(--grey-700); line-height:1.5;}
+.inquiry-item .time{font-size:11.5px; color:var(--grey-400); margin-top:3px;}
+.bottom-nav{display:none;}
+@media (max-width:840px){
+  .bottom-nav{display:flex; position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--grey-50); padding:8px 4px calc(8px + env(safe-area-inset-bottom)); z-index:150; justify-content:space-around;}
+  .bottom-nav a{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; color:var(--grey-400); flex:1;}
+  .bottom-nav a.active{color:var(--primary);}
+  .dash-main{padding-bottom:90px;}
+}
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="index.html" class="logo"><span class="mark"></span> PG Near Me</a>
+    <nav class="nav-links desktop-only"><a href="search.html" class="">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="active">Dashboard</a></nav>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm desktop-only">Log in</a>
+      <a href="search.html" class="btn btn-primary btn-sm">Find a PG</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="backdrop" id="drawerBackdrop"></div>
+  <div class="panel">
+    <button class="close" id="drawerClose" aria-label="Close menu">✕</button>
+    <a href="search.html" class="">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="active">Dashboard</a>
+    <a href="login.html">Log in</a>
+    <a href="list-property.html" style="border-bottom:none;">List your property</a>
+  </div>
+</div>
+
+
+<div class="dash-shell">
+  <aside class="dash-sidebar">
+    <a href="#" class="active">📊 Overview</a>
+    <a href="#">🏠 My listings</a>
+    <a href="#">💬 Inquiries</a>
+    <a href="#">💳 Payments</a>
+    <a href="#">⚙️ Settings</a>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-head">
+      <h1>Welcome back, Ramesh</h1>
+      <a href="list-property.html" class="btn btn-primary">+ Add new listing</a>
+    </div>
+
+    <div class="stat-grid">
+      <div class="card stat-card"><div class="lbl">Active listings</div><div class="val">4</div><div class="delta up">↑ 1 this month</div></div>
+      <div class="card stat-card"><div class="lbl">Total views</div><div class="val">2,340</div><div class="delta up">↑ 12% vs last month</div></div>
+      <div class="card stat-card"><div class="lbl">Inquiries this week</div><div class="val">17</div><div class="delta up">↑ 5 new</div></div>
+      <div class="card stat-card"><div class="lbl">Occupancy rate</div><div class="val">86%</div><div class="delta down">↓ 2% vs last month</div></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card" style="overflow:auto;">
+        <table class="listing-table">
+          <thead><tr><th>Listing</th><th>City</th><th>Rent</th><th>Status</th><th>Views</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mini-thumb"></span>Sunrise Residency PG</td><td>Vadodara</td><td>₹9,500</td><td><span class="badge badge-success">Live</span></td><td>820</td></tr>
+            <tr><td><span class="mini-thumb" style="background:linear-gradient(135deg,var(--highlight),var(--teal));"></span>Her Space Co-living</td><td>Vadodara</td><td>₹12,000</td><td><span class="badge badge-success">Live</span></td><td>640</td></tr>
+            <tr><td><span class="mini-thumb" style="background:linear-gradient(135deg,var(--warning),#F5C776);"></span>Green Nest 2BHK</td><td>Vadodara</td><td>₹18,500</td><td><span class="badge badge-warning">Pending review</span></td><td>110</td></tr>
+            <tr><td><span class="mini-thumb" style="background:linear-gradient(135deg,var(--purple),var(--primary));"></span>Elite Stay PG</td><td>Vadodara</td><td>₹11,200</td><td><span class="badge badge-alert">Paused</span></td><td>770</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="padding:18px 20px;">
+        <h4 style="font-size:13px; text-transform:uppercase; color:var(--grey-500); margin-bottom:6px; font-family:'JetBrains Mono';">Recent inquiries</h4>
+        <div class="inquiry-item"><div class="owner-avatar" style="width:34px;height:34px;font-size:12px;">A</div><div class="txt"><b>Aditi S.</b> asked about Sunrise Residency PG<div class="time">12 minutes ago</div></div></div>
+        <div class="inquiry-item"><div class="owner-avatar" style="width:34px;height:34px;font-size:12px;">K</div><div class="txt"><b>Karan M.</b> requested a visit to Her Space Co-living<div class="time">2 hours ago</div></div></div>
+        <div class="inquiry-item"><div class="owner-avatar" style="width:34px;height:34px;font-size:12px;">P</div><div class="txt"><b>Priya D.</b> asked about availability at Green Nest<div class="time">Yesterday</div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<nav class="bottom-nav">
+  <a href="#" class="active">📊<span>Overview</span></a>
+  <a href="#">🏠<span>Listings</span></a>
+  <a href="#">💬<span>Inquiries</span></a>
+  <a href="#">⚙️<span>Settings</span></a>
+</nav>
+
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="mark"></span> PG Near Me</div>
+        <p style="font-size:13.5px; line-height:1.6; max-width:280px; color:rgba(250,251,252,0.55);">Pan-India platform to find verified PGs, flats and shared rooms — no brokerage, ever.</p>
+      </div>
+      <div><h4>Explore</h4>
+        <a href="search.html">Find a PG</a>
+        <a href="index.html#cities">Cities</a>
+        <a href="index.html#types">Property types</a>
+      </div>
+      <div><h4>Owners</h4>
+        <a href="list-property.html">List your property</a>
+        <a href="dashboard.html">Owner dashboard</a>
+        <a href="login.html">Log in</a>
+      </div>
+      <div><h4>Company</h4>
+        <a href="#">About us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy policy</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 PG Near Me. All rights reserved.</span>
+      <span>Made for people on the move, across India.</span>
+    </div>
+  </div>
+</footer>
+
+
+<div class="install-banner" id="installBanner">
+  <p>Install PG Near Me for one-tap access to your searches and listings.</p>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <button class="btn btn-primary btn-sm" id="installBtn">Install</button>
+    <button class="close-install" id="closeInstall" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+
+<script>
+  // mobile drawer
+  const hb = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('mobileDrawer');
+  const back = document.getElementById('drawerBackdrop');
+  const close = document.getElementById('drawerClose');
+  if(hb){ hb.addEventListener('click', ()=> drawer.classList.add('open')); }
+  if(back){ back.addEventListener('click', ()=> drawer.classList.remove('open')); }
+  if(close){ close.addEventListener('click', ()=> drawer.classList.remove('open')); }
+
+  // PWA install prompt
+  let deferredPrompt;
+  const banner = document.getElementById('installBanner');
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    if(banner) banner.classList.add('show');
+  });
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn){
+    installBtn.addEventListener('click', async ()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      banner.classList.remove('show');
+    });
+  }
+  const closeInstall = document.getElementById('closeInstall');
+  if(closeInstall){ closeInstall.addEventListener('click', ()=> banner.classList.remove('show')); }
+
+  // service worker
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
+</script>
+
+
+</body>
+</html>
