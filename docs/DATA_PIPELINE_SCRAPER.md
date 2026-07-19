@@ -26,6 +26,12 @@ Scraped rows never auto-publish — they enter exactly like an owner submission 
 
 Independent of scraping, listings need periodic accuracy checks (prices, availability change season to season). A scheduled job flags any `pg_listings` row whose `verified_at` is older than a staleness threshold (e.g. 3–6 months, tune later) into the admin's "staleness dashboard" (see [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md)). Admin can either confirm it's still accurate (bump `verified_at`) or reach out to the owner for re-confirmation. This applies equally to owner-submitted and scrape-seeded listings.
 
+## Implemented: OpenStreetMap bootstrap (2026-07-17)
+
+The first (and so far only) approved source is **OpenStreetMap via the Overpass API** (`scripts/scrape-osm.js`): ODbL-licensed open data, so the legal gate was cleared with the conditions that (a) the site displays "© OpenStreetMap contributors" attribution (footer) and (b) ODbL share-alike is understood to apply to the derived listing database. It ingests `tourism=hostel` and PG-named places for the launched cities, inferring `pg_type` from explicit OSM gender tags or unambiguous name keywords ("Ladies PG" → female), leaving it null otherwise; price/food/rules stay null pending verification.
+
+**Deviation from the rule above, at founder direction**: this bootstrap batch was published directly (`status='published'`, `review_status='approved_new'`) rather than parked at `pending_review`, because no admin UI exists yet and the founder wanted real data live. Descriptions state that details are pending verification. Future sources — and future OSM re-runs once the admin panel exists — should revert to the normal `pending_review` path.
+
 ## What this document deliberately does not do
 
 - Name specific scrape targets — that's a legal/business decision made per-source, tracked via `scrape_sources.legal_review_status`, not hardcoded into the architecture.

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Brand tokens from docs/DESIGN_SYSTEM.md (Figma palette).
+   Kept as CSS custom properties so Phase 3 `site_settings` theming can
+   override them at runtime without restyling components. */
+:root {
+  --brand-primary: #534ab7;
+  --brand-purple: #7f77dd;
+  --brand-accent: #afa9ec;
+  --brand-teal: #1d9e75;
+  --brand-highlight: #5dcaa5;
+
+  --grey-5: #fafbfc;
+  --grey-10: #f4f6f8;
+  --grey-50: #e8ecf0;
+  --grey-100: #d6dce2;
+  --grey-200: #b8c1ca;
+  --grey-300: #98a3af;
+  --grey-400: #7c8894;
+  --grey-500: #616c78;
+  --grey-600: #4c555f;
+  --grey-700: #383f47;
+  --grey-800: #262b30;
+  --grey-900: #16191c;
+
+  --state-warn-bg: #fdeab8;
+  --state-warn-fg: #efa820;
+  --state-success-bg: #e8f4f0;
+  --state-success-fg: #1faa72;
+  --state-alert-bg: #fce8e8;
+  --state-alert-fg: #d94f4f;
+}
+
+@theme inline {
+  --color-primary: var(--brand-primary);
+  --color-purple: var(--brand-purple);
+  --color-accent: var(--brand-accent);
+  --color-teal: var(--brand-teal);
+  --color-highlight: var(--brand-highlight);
+
+  --color-grey-5: var(--grey-5);
+  --color-grey-10: var(--grey-10);
+  --color-grey-50: var(--grey-50);
+  --color-grey-100: var(--grey-100);
+  --color-grey-200: var(--grey-200);
+  --color-grey-300: var(--grey-300);
+  --color-grey-400: var(--grey-400);
+  --color-grey-500: var(--grey-500);
+  --color-grey-600: var(--grey-600);
+  --color-grey-700: var(--grey-700);
+  --color-grey-800: var(--grey-800);
+  --color-grey-900: var(--grey-900);
+
+  --color-warn-bg: var(--state-warn-bg);
+  --color-warn-fg: var(--state-warn-fg);
+  --color-success-bg: var(--state-success-bg);
+  --color-success-fg: var(--state-success-fg);
+  --color-alert-bg: var(--state-alert-bg);
+  --color-alert-fg: var(--state-alert-fg);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cherry-bomb), var(--font-manrope), sans-serif;
+}
+
+body {
+  background: var(--grey-5);
+  color: var(--grey-800);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

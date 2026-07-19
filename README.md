@@ -6,7 +6,15 @@ Domain: **pgnearme.co.in**
 
 ## Status
 
-Pre-implementation. No application code exists yet — this repo currently holds only the planning documentation in [`docs/`](docs/) plus an empty `web-landing/` folder.
+**Phase 1 MVP implemented, with real listing data + PWA + analytics.** Next.js 16 (App Router) + Tailwind v4 + Supabase (Postgres/Storage).
+
+- Schema live on Supabase — [`supabase/migrations/`](supabase/migrations/) (all tables from [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md), RLS, triggers; `0002` adds the public `listing-images` Storage bucket + nullable `pg_type`)
+- Base data: top 5 states × top 5 cities (25 cities), areas for 6 launched metros, 16 amenities — re-runnable via [`supabase/seed/seed-base.js`](supabase/seed/seed-base.js) (`DB_PASSWORD` env var)
+- **Real listings** ingested from OpenStreetMap (Overpass API, ODbL — attribution in footer) through the documented `scrape_sources → scrape_jobs → ingested_raw_listings` pipeline: [`scripts/scrape-osm.js`](scripts/scrape-osm.js). Commercial sources (NoBroker etc.) remain gated on legal/ToS review per [DATA_PIPELINE_SCRAPER.md](docs/DATA_PIPELINE_SCRAPER.md)
+- Routes: `/` (hero, search, map, explore citywise, story), `/pg/[city]` (+ `?type=` filter), `/pg/[city]/[area]/[slug]` (detail + contact-reveal lead capture), `/add-your-pg` (owner submission with photo upload to Supabase Storage → `pending_review`), `sitemap.xml`, `robots.txt`, `manifest`, JSON-LD
+- PWA: manifest + icons (from brand asset), service worker ([`public/sw.js`](public/sw.js)) per [PWA_SPEC.md](docs/PWA_SPEC.md), custom install banner, `/offline` fallback
+- Analytics: GA4 + Microsoft Clarity via env IDs (`NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_CLARITY_ID`)
+- Run locally: copy `.env.example` → `.env.local` (session-pooler `DATABASE_URL` + Supabase URL/publishable key), then `npm install && npm run dev`
 
 ## Start here
 
