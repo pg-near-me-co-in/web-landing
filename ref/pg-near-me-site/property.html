@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sunrise Residency PG — PG Near Me</title>
+<meta name="description" content="Verified PG in Alkapuri, Vadodara with meals, Wi-Fi and zero brokerage.">
+<meta name="theme-color" content="#534AB7">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#534AB7;
+  --primary-dark:#443C99;
+  --primary-tint:#EFEDFB;
+  --purple:#7F77DD;
+  --accent:#AFA9EC;
+  --teal:#1D9E75;
+  --teal-dark:#178360;
+  --highlight:#5DCAA5;
+
+  --white:#FFFFFF;
+  --grey-5:#FAFBFC;
+  --grey-10:#F4F6F8;
+  --grey-50:#E8ECF0;
+  --grey-100:#D6DCE2;
+  --grey-200:#B8C1CA;
+  --grey-300:#98A3AF;
+  --grey-400:#7C8894;
+  --grey-500:#616C78;
+  --grey-600:#4C555F;
+  --grey-700:#383F47;
+  --grey-800:#262B30;
+  --grey-900:#16191C;
+  --grey-950:#0C0E10;
+  --black:#000000;
+
+  --warning-bg:#FDEAB8;
+  --warning:#EFA820;
+  --success-bg:#E8F4F0;
+  --success:#1FAA72;
+  --alert-bg:#FCE8E8;
+  --alert:#D94F4F;
+
+  --radius-sm:8px;
+  --radius:14px;
+  --radius-lg:22px;
+  --shadow-card: 0 2px 10px rgba(22,25,28,0.06);
+  --shadow-lift: 0 20px 44px -20px rgba(83,74,183,0.35);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--grey-10);
+  color:var(--grey-900);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+h1,h2,h3,h4,.display{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.01em; color:var(--grey-900);}
+.mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.03em;}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+ul{list-style:none;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+.wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+@media (max-width:640px){ .wrap{padding:0 18px;} }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--primary); outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------- Logo mark ---------- */
+.logo{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; color:var(--grey-900);}
+.mark{width:34px; height:34px; border-radius:10px; background:var(--primary-dark); position:relative; flex:none; overflow:hidden;}
+.mark::before, .mark::after{content:''; position:absolute; width:46%; height:14%; border-radius:4px; background:var(--white);}
+.mark::before{top:32%; left:14%; transform:rotate(-45deg);}
+.mark::after{top:52%; left:38%; transform:rotate(-45deg); background:var(--highlight); width:34%;}
+
+/* ---------- Nav ---------- */
+.site-header{position:sticky; top:0; z-index:100; background:rgba(250,251,252,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--grey-50);}
+.nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
+.nav-links{display:flex; gap:30px; align-items:center;}
+.nav-links a{font-size:14px; font-weight:500; color:var(--grey-600); transition:color .15s;}
+.nav-links a.active, .nav-links a:hover{color:var(--primary);}
+.nav-actions{display:flex; gap:10px; align-items:center;}
+.hamburger{display:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--grey-100); background:var(--white); cursor:pointer; align-items:center; justify-content:center;}
+.hamburger span, .hamburger span::before, .hamburger span::after{content:''; display:block; width:16px; height:2px; background:var(--grey-800); position:relative;}
+.hamburger span::before{position:absolute; top:-5px;}
+.hamburger span::after{position:absolute; top:5px;}
+@media (max-width:900px){
+  .nav-links.desktop-only{display:none;}
+  .hamburger{display:flex;}
+}
+.mobile-drawer{position:fixed; inset:0; z-index:200; display:none;}
+.mobile-drawer.open{display:block;}
+.mobile-drawer .backdrop{position:absolute; inset:0; background:rgba(22,25,28,0.4);}
+.mobile-drawer .panel{position:absolute; top:0; right:0; width:78%; max-width:320px; height:100%; background:var(--white); padding:22px; display:flex; flex-direction:column; gap:6px; box-shadow:-10px 0 30px rgba(0,0,0,0.15);}
+.mobile-drawer .panel a{padding:13px 4px; font-size:15px; font-weight:500; color:var(--grey-800); border-bottom:1px solid var(--grey-50);}
+.mobile-drawer .close{align-self:flex-end; width:34px; height:34px; border-radius:8px; border:1px solid var(--grey-100); background:var(--grey-5); margin-bottom:10px;}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 20px; border-radius:10px; font-weight:600; font-size:14px; border:1px solid transparent; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease; white-space:nowrap;}
+.btn-primary{background:var(--primary); color:var(--white);}
+.btn-primary:hover{background:var(--primary-dark); box-shadow:var(--shadow-lift); transform:translateY(-1px);}
+.btn-teal{background:var(--teal); color:var(--white);}
+.btn-teal:hover{background:var(--teal-dark); transform:translateY(-1px);}
+.btn-outline{background:var(--white); border:1px solid var(--grey-100); color:var(--grey-800);}
+.btn-outline:hover{border-color:var(--primary); color:var(--primary);}
+.btn-ghost{background:transparent; color:var(--grey-600);}
+.btn-ghost:hover{color:var(--primary);}
+.btn-sm{padding:8px 14px; font-size:13px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:999px; font-family:'JetBrains Mono';}
+.badge-success{background:var(--success-bg); color:var(--teal-dark);}
+.badge-warning{background:var(--warning-bg); color:#8A5A0B;}
+.badge-alert{background:var(--alert-bg); color:var(--alert);}
+.badge-accent{background:var(--primary-tint); color:var(--primary);}
+
+/* ---------- Cards ---------- */
+.card{background:var(--white); border:1px solid var(--grey-50); border-radius:var(--radius); box-shadow:var(--shadow-card);}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--grey-600); margin-bottom:6px;}
+.field .hint{font-size:11.5px; color:var(--grey-400); margin-top:5px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--grey-100);
+  background:var(--grey-5); font-size:14.5px; color:var(--grey-900); transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--primary); background:var(--white);}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:520px){ .field-row{grid-template-columns:1fr;} }
+.check-row{display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--grey-700);}
+.check-row input{width:16px; height:16px; accent-color:var(--primary);}
+
+/* ---------- Section basics ---------- */
+section{padding:56px 0;}
+@media (max-width:640px){ section{padding:38px 0;} }
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:11.5px; font-weight:600; color:var(--primary); background:var(--primary-tint); padding:6px 13px; border-radius:999px; margin-bottom:16px; font-family:'JetBrains Mono';}
+.section-head h2{font-size:clamp(24px,3.2vw,34px); font-weight:700; line-height:1.14;}
+.section-head p{margin-top:12px; color:var(--grey-500); font-size:15.5px; max-width:520px; line-height:1.6;}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--grey-900); color:rgba(250,251,252,0.7); padding:52px 0 26px; margin-top:40px;}
+.foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:28px;}
+@media (max-width:820px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+@media (max-width:480px){ .foot-grid{grid-template-columns:1fr;} }
+.site-footer h4{color:#fff; font-size:13px; margin-bottom:14px;}
+.site-footer a{display:block; font-size:13.5px; margin-bottom:9px; color:rgba(250,251,252,0.6);}
+.site-footer a:hover{color:#fff;}
+.foot-bottom{margin-top:34px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:rgba(250,251,252,0.4);}
+.site-footer .logo{color:#fff; margin-bottom:12px;}
+.site-footer .mark::before{background:var(--white);}
+
+/* ---------- Install banner ---------- */
+.install-banner{position:fixed; bottom:16px; left:16px; right:16px; max-width:420px; margin:0 auto; background:var(--grey-900); color:#fff; border-radius:14px; padding:14px 16px; display:none; align-items:center; justify-content:space-between; gap:12px; z-index:300; box-shadow:0 20px 40px rgba(0,0,0,0.25);}
+.install-banner.show{display:flex;}
+.install-banner p{font-size:13px; line-height:1.4;}
+.install-banner .close-install{background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer;}
+
+
+.pd-layout{display:grid; grid-template-columns:1.6fr 1fr; gap:36px; align-items:start; padding:26px 0 60px;}
+@media (max-width:960px){ .pd-layout{grid-template-columns:1fr;} }
+.gallery{display:grid; grid-template-columns:2fr 1fr; gap:8px; border-radius:var(--radius); overflow:hidden; height:340px;}
+@media (max-width:600px){ .gallery{height:220px;} }
+.gallery-main{background:linear-gradient(135deg, var(--primary), var(--purple));}
+.gallery-side{display:grid; grid-template-rows:1fr 1fr; gap:8px;}
+.gallery-side div:nth-child(1){background:linear-gradient(135deg, var(--accent), var(--primary));}
+.gallery-side div:nth-child(2){background:linear-gradient(135deg, var(--teal), var(--highlight));}
+.pd-header{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-top:22px; flex-wrap:wrap;}
+.pd-header h1{font-size:26px; font-weight:700;}
+.pd-header .loc{color:var(--grey-500); font-size:14.5px; margin-top:6px;}
+.pd-badges{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+.pd-section{padding:26px 0; border-top:1px solid var(--grey-50);}
+.pd-section h2{font-size:18px; margin-bottom:14px;}
+.amenity-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:520px){ .amenity-grid{grid-template-columns:repeat(2,1fr);} }
+.amenity{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--grey-700);}
+.amenity .ico{width:32px; height:32px; border-radius:8px; background:var(--primary-tint); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:15px;}
+.rules-list{display:flex; flex-direction:column; gap:10px; font-size:14px; color:var(--grey-600);}
+.map-block{height:200px; border-radius:var(--radius); background:repeating-linear-gradient(45deg, var(--grey-50), var(--grey-50) 10px, var(--grey-10) 10px, var(--grey-10) 20px); display:flex; align-items:center; justify-content:center; color:var(--grey-400); font-size:13px;}
+
+.contact-card{position:sticky; top:80px; padding:24px;}
+.contact-price{font-family:'JetBrains Mono'; font-size:24px; font-weight:700; color:var(--primary);}
+.contact-price span{font-size:13px; font-weight:400; color:var(--grey-400);}
+.owner-row{display:flex; align-items:center; gap:12px; margin:18px 0; padding:14px; background:var(--grey-10); border-radius:12px;}
+.owner-avatar{width:42px; height:42px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-family:'Space Grotesk';}
+.owner-name{font-size:14px; font-weight:600;}
+.owner-role{font-size:12px; color:var(--grey-500);}
+.similar-strip{display:flex; gap:14px; overflow-x:auto; padding-bottom:8px;}
+.similar-card{flex:0 0 220px; overflow:hidden;}
+.similar-img{height:100px; background:linear-gradient(135deg, var(--accent), var(--teal));}
+.similar-body{padding:12px 14px;}
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="index.html" class="logo"><span class="mark"></span> PG Near Me</a>
+    <nav class="nav-links desktop-only"><a href="search.html" class="active">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="">Dashboard</a></nav>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-outline btn-sm desktop-only">Log in</a>
+      <a href="search.html" class="btn btn-primary btn-sm">Find a PG</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="backdrop" id="drawerBackdrop"></div>
+  <div class="panel">
+    <button class="close" id="drawerClose" aria-label="Close menu">✕</button>
+    <a href="search.html" class="active">Find a PG</a><a href="index.html#cities" class="">Cities</a><a href="list-property.html" class="">List property</a><a href="dashboard.html" class="">Dashboard</a>
+    <a href="login.html">Log in</a>
+    <a href="list-property.html" style="border-bottom:none;">List your property</a>
+  </div>
+</div>
+
+
+<section style="padding-top:22px;">
+  <div class="wrap">
+    <a href="search.html" class="btn-ghost btn-sm" style="display:inline-flex;">← Back to results</a>
+  </div>
+</section>
+<section style="padding-top:0;">
+  <div class="wrap pd-layout">
+    <div>
+      <div class="gallery">
+        <div class="gallery-main"></div>
+        <div class="gallery-side"><div></div><div></div></div>
+      </div>
+      <div class="pd-header">
+        <div>
+          <h1>Sunrise Residency PG</h1>
+          <div class="loc">Alkapuri, Vadodara · 1.2 km from railway station</div>
+          <div class="pd-badges">
+            <span class="badge badge-success">✓ Verified</span>
+            <span class="badge badge-accent">Men only</span>
+            <span class="badge badge-warning">3 rooms left</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-section">
+        <h2>Overview</h2>
+        <p style="font-size:14.5px; line-height:1.7; color:var(--grey-600);">A well-maintained PG five minutes from Alkapuri's main market, offering double and triple sharing rooms with home-style meals, daily housekeeping, and 24x7 water and power backup. Popular with working professionals and students commuting to MSU and nearby offices.</p>
+      </div>
+
+      <div class="pd-section">
+        <h2>Amenities</h2>
+        <div class="amenity-grid">
+          <div class="amenity"><span class="ico">📶</span> Wi-Fi included</div>
+          <div class="amenity"><span class="ico">🍽</span> 3 meals a day</div>
+          <div class="amenity"><span class="ico">🧺</span> Laundry service</div>
+          <div class="amenity"><span class="ico">🧹</span> Daily housekeeping</div>
+          <div class="amenity"><span class="ico">🔒</span> Biometric entry</div>
+          <div class="amenity"><span class="ico">⚡</span> Power backup</div>
+        </div>
+      </div>
+
+      <div class="pd-section">
+        <h2>House rules</h2>
+        <div class="rules-list">
+          <div>• Entry gate closes at 11:00 PM</div>
+          <div>• Guests allowed only in common areas</div>
+          <div>• One month's notice required before vacating</div>
+        </div>
+      </div>
+
+      <div class="pd-section" style="border-bottom:1px solid var(--grey-50);">
+        <h2>Location</h2>
+        <div class="map-block">Map preview — connect to Google Maps in production</div>
+      </div>
+
+      <div class="pd-section">
+        <h2>Similar PGs nearby</h2>
+        <div class="similar-strip">
+          <a href="property.html" class="card similar-card"><div class="similar-img"></div><div class="similar-body"><b style="font-size:13.5px;">Elite Stay PG</b><div style="font-size:12px; color:var(--grey-500);">₹11,200/mo · Karelibaug</div></div></a>
+          <a href="property.html" class="card similar-card"><div class="similar-img" style="background:linear-gradient(135deg,var(--warning),#F5C776);"></div><div class="similar-body"><b style="font-size:13.5px;">Campus Corner PG</b><div style="font-size:12px; color:var(--grey-500);">₹7,800/mo · Sama</div></div></a>
+          <a href="property.html" class="card similar-card"><div class="similar-img" style="background:linear-gradient(135deg,var(--teal),var(--grey-700));"></div><div class="similar-body"><b style="font-size:13.5px;">Riverside Room</b><div style="font-size:12px; color:var(--grey-500);">₹6,500/mo · Sayajigunj</div></div></a>
+        </div>
+      </div>
+    </div>
+
+    <aside class="card contact-card">
+      <div class="contact-price">₹9,500 <span>/ month</span></div>
+      <div style="font-size:12.5px; color:var(--grey-400); margin-top:4px;">Security deposit: ₹9,500 (refundable)</div>
+      <div class="owner-row">
+        <div class="owner-avatar">R</div>
+        <div><div class="owner-name">Ramesh Patel</div><div class="owner-role">Owner · Responds in ~2 hrs</div></div>
+      </div>
+      <a href="#" class="btn btn-primary btn-block">Contact owner</a>
+      <a href="#" class="btn btn-outline btn-block" style="margin-top:10px;">Schedule a visit</a>
+      <div class="hint" style="margin-top:14px; text-align:center;">No brokerage. Ever.</div>
+    </aside>
+  </div>
+</section>
+
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="mark"></span> PG Near Me</div>
+        <p style="font-size:13.5px; line-height:1.6; max-width:280px; color:rgba(250,251,252,0.55);">Pan-India platform to find verified PGs, flats and shared rooms — no brokerage, ever.</p>
+      </div>
+      <div><h4>Explore</h4>
+        <a href="search.html">Find a PG</a>
+        <a href="index.html#cities">Cities</a>
+        <a href="index.html#types">Property types</a>
+      </div>
+      <div><h4>Owners</h4>
+        <a href="list-property.html">List your property</a>
+        <a href="dashboard.html">Owner dashboard</a>
+        <a href="login.html">Log in</a>
+      </div>
+      <div><h4>Company</h4>
+        <a href="#">About us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy policy</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 PG Near Me. All rights reserved.</span>
+      <span>Made for people on the move, across India.</span>
+    </div>
+  </div>
+</footer>
+
+
+<div class="install-banner" id="installBanner">
+  <p>Install PG Near Me for one-tap access to your searches and listings.</p>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <button class="btn btn-primary btn-sm" id="installBtn">Install</button>
+    <button class="close-install" id="closeInstall" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+
+<script>
+  // mobile drawer
+  const hb = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('mobileDrawer');
+  const back = document.getElementById('drawerBackdrop');
+  const close = document.getElementById('drawerClose');
+  if(hb){ hb.addEventListener('click', ()=> drawer.classList.add('open')); }
+  if(back){ back.addEventListener('click', ()=> drawer.classList.remove('open')); }
+  if(close){ close.addEventListener('click', ()=> drawer.classList.remove('open')); }
+
+  // PWA install prompt
+  let deferredPrompt;
+  const banner = document.getElementById('installBanner');
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    if(banner) banner.classList.add('show');
+  });
+  const installBtn = document.getElementById('installBtn');
+  if(installBtn){
+    installBtn.addEventListener('click', async ()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      banner.classList.remove('show');
+    });
+  }
+  const closeInstall = document.getElementById('closeInstall');
+  if(closeInstall){ closeInstall.addEventListener('click', ()=> banner.classList.remove('show')); }
+
+  // service worker
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
+</script>
+
+
+</body>
+</html>
