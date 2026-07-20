@@ -1,14 +1,20 @@
 @import "tailwindcss";
 
-/* Brand tokens from docs/DESIGN_SYSTEM.md (Figma palette).
+/* Brand tokens per ref/pg-near-me-site (reference theme) + docs/DESIGN_SYSTEM.md.
    Kept as CSS custom properties so Phase 3 `site_settings` theming can
-   override them at runtime without restyling components. */
+   override them at runtime without restyling components. Derived shades
+   (dark/tint) are computed from --brand-primary so runtime theme overrides
+   stay coherent. */
 :root {
   --brand-primary: #534ab7;
   --brand-purple: #7f77dd;
   --brand-accent: #afa9ec;
   --brand-teal: #1d9e75;
   --brand-highlight: #5dcaa5;
+
+  --brand-primary-dark: color-mix(in srgb, var(--brand-primary), #16191c 18%);
+  --brand-primary-tint: color-mix(in srgb, var(--brand-primary), #ffffff 90%);
+  --brand-teal-dark: color-mix(in srgb, var(--brand-teal), #16191c 18%);
 
   --grey-5: #fafbfc;
   --grey-10: #f4f6f8;
@@ -22,6 +28,7 @@
   --grey-700: #383f47;
   --grey-800: #262b30;
   --grey-900: #16191c;
+  --grey-950: #0c0e10;
 
   --state-warn-bg: #fdeab8;
   --state-warn-fg: #efa820;
@@ -29,13 +36,19 @@
   --state-success-fg: #1faa72;
   --state-alert-bg: #fce8e8;
   --state-alert-fg: #d94f4f;
+
+  --shadow-card: 0 2px 10px rgba(22, 25, 28, 0.06);
+  --shadow-lift: 0 20px 44px -20px rgba(83, 74, 183, 0.35);
 }
 
 @theme inline {
   --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-tint: var(--brand-primary-tint);
   --color-purple: var(--brand-purple);
   --color-accent: var(--brand-accent);
   --color-teal: var(--brand-teal);
+  --color-teal-dark: var(--brand-teal-dark);
   --color-highlight: var(--brand-highlight);
 
   --color-grey-5: var(--grey-5);
@@ -50,6 +63,7 @@
   --color-grey-700: var(--grey-700);
   --color-grey-800: var(--grey-800);
   --color-grey-900: var(--grey-900);
+  --color-grey-950: var(--grey-950);
 
   --color-warn-bg: var(--state-warn-bg);
   --color-warn-fg: var(--state-warn-fg);
@@ -58,13 +72,75 @@
   --color-alert-bg: var(--state-alert-bg);
   --color-alert-fg: var(--state-alert-fg);
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-cherry-bomb), var(--font-manrope), sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+
+  --radius-card: 14px;
+  --radius-card-lg: 22px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--grey-5);
-  color: var(--grey-800);
+  background: var(--grey-10);
+  color: var(--grey-900);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@layer components {
+  /* mono eyebrow pill above section headings (ref .eyebrow) */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--brand-primary);
+    background: var(--brand-primary-tint);
+    padding: 6px 13px;
+    border-radius: 999px;
+  }
+
+  /* white card surface (ref .card) */
+  .surface-card {
+    background: #fff;
+    border: 1px solid var(--grey-50);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
 }

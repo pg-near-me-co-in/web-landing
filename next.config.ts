@@ -8,6 +8,19 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "ggaxffyliyblgqqpapcn.supabase.co" },
     ],
   },
+  async headers() {
+    return [
+      {
+        // admin is URL-only: never indexed, never linked from the public UI
+        source: "/admin/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/admin",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

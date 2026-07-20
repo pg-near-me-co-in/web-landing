@@ -53,12 +53,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const FILTERS: { value: PgType | ""; label: string }[] = [
+const TYPE_CHIPS: { value: PgType | ""; label: string }[] = [
   { value: "", label: "All" },
-  { value: "female", label: `${PG_TYPE_LABEL.female} only` },
-  { value: "male", label: `${PG_TYPE_LABEL.male} only` },
+  { value: "female", label: PG_TYPE_LABEL.female },
+  { value: "male", label: PG_TYPE_LABEL.male },
   { value: "unisex", label: PG_TYPE_LABEL.unisex },
 ];
+
+const fieldCls =
+  "w-full rounded-[10px] border border-grey-100 bg-grey-5 px-3 py-2.5 text-sm text-grey-900 outline-none transition focus:border-primary focus:bg-white";
+const groupHead =
+  "mb-3 font-mono text-[12.5px] font-semibold uppercase tracking-wider text-grey-500";
 
 export default async function CityPage({ params, searchParams }: Props) {
   const [{ city: citySlug }, sp] = await Promise.all([params, searchParams]);
@@ -106,7 +111,7 @@ export default async function CityPage({ params, searchParams }: Props) {
       q: `Are there girls-only PGs in ${city.name}?`,
       a:
         stats.female_count > 0
-          ? `Yes — ${stats.female_count} women-only PGs/hostels are listed in ${city.name}. Use the "Girls only" filter to see them.`
+          ? `Yes — ${stats.female_count} women-only PGs/hostels are listed in ${city.name}. Use the "${PG_TYPE_LABEL.female}" filter to see them.`
           : `Women-only listings for ${city.name} are being added — check back soon or list your PG for free.`,
     },
     {
@@ -162,6 +167,70 @@ export default async function CityPage({ params, searchParams }: Props) {
     },
   };
 
+  /* Filter panel body — rendered in the desktop sidebar and the mobile
+     <details> sheet (plain GET form, no JS required). */
+  const filterForm = (
+    <form method="get" className="surface-card p-5">
+      {pgType && <input type="hidden" name="type" value={pgType} />}
+      <div className="mb-5">
+        <h3 className={groupHead}>Search</h3>
+        <input
+          name="q"
+          defaultValue={sp.q ?? ""}
+          placeholder="PG or area name"
+          className={fieldCls}
+        />
+      </div>
+      <div className="mb-5">
+        <h3 className={groupHead}>Budget</h3>
+        <select name="price" defaultValue={sp.price ?? ""} className={fieldCls}>
+          <option value="">Any</option>
+          <option value="5000">Under ₹5,000</option>
+          <option value="8000">Under ₹8,000</option>
+          <option value="10000">Under ₹10,000</option>
+          <option value="15000">Under ₹15,000</option>
+          <option value="20000">Under ₹20,000</option>
+        </select>
+      </div>
+      <div className="mb-5">
+        <h3 className={groupHead}>Sharing</h3>
+        <select
+          name="sharing"
+          defaultValue={sp.sharing ?? ""}
+          className={fieldCls}
+        >
+          <option value="">Any</option>
+          <option value="Single">Single</option>
+          <option value="Double">Double</option>
+          <option value="Triple">Triple</option>
+        </select>
+      </div>
+      <div className="mb-5">
+        <h3 className={groupHead}>Food</h3>
+        <select name="food" defaultValue={sp.food ?? ""} className={fieldCls}>
+          <option value="">Any</option>
+          <option value="veg">Veg only</option>
+          <option value="non_veg">Non-veg ok</option>
+        </select>
+      </div>
+      {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
+      <button
+        type="submit"
+        className="w-full rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+      >
+        Apply filters
+      </button>
+      {(sp.price || sp.sharing || sp.food || sp.q) && (
+        <Link
+          href={`/pg/${citySlug}${pgType ? `?type=${pgType}` : ""}`}
+          className="mt-3 block text-center text-sm font-semibold text-grey-400 hover:text-grey-600"
+        >
+          Clear filters
+        </Link>
+      )}
+    </form>
+  );
+
   return (
     <main className="w-full flex-1">
       <script
@@ -173,210 +242,164 @@ export default async function CityPage({ params, searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      {/* City hero band with aggregate stats */}
-      <div className="bg-gradient-to-b from-accent/15 to-grey-5">
-        <div className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        {/* City head + AEO factual summary */}
+        <div className="pt-7">
           <nav className="text-sm text-grey-400" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-primary">
               Home
             </Link>{" "}
             / <span className="text-grey-600">{city.name}</span>
           </nav>
-
-          <h1 className="mt-3 font-display text-3xl text-grey-900 sm:text-4xl">
+          <h1 className="mt-3 font-display text-3xl font-bold text-grey-900 sm:text-4xl">
             PGs in {city.name}
           </h1>
-          {/* AEO factual summary block */}
           <p className="mt-2 max-w-2xl text-grey-500">
             {listings.length} published PG{listings.length === 1 ? "" : "s"} in{" "}
             {city.name}, {city.state}
             {pgType ? ` for ${PG_TYPE_LABEL[pgType].toLowerCase()}` : ""}. All
             listings are free to contact — no broker fees.
           </p>
-
-          <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
-              {stats.total} listed
-            </span>
+          <div className="mt-4 flex flex-wrap gap-2">
             {stats.min_price && (
-              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+              <span className="rounded-full bg-white px-3 py-1.5 font-mono text-[11.5px] font-semibold text-grey-600 shadow-sm">
                 {fmtInr(stats.min_price)} – {fmtInr(stats.max_price)}/mo
               </span>
             )}
             {stats.female_count > 0 && (
-              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+              <span className="rounded-full bg-white px-3 py-1.5 font-mono text-[11.5px] font-semibold text-grey-600 shadow-sm">
                 {stats.female_count} for women
               </span>
             )}
             {stats.male_count > 0 && (
-              <span className="rounded-full bg-white px-3 py-1.5 text-grey-600 shadow-sm">
+              <span className="rounded-full bg-white px-3 py-1.5 font-mono text-[11.5px] font-semibold text-grey-600 shadow-sm">
                 {stats.male_count} for men
               </span>
             )}
-            <span className="rounded-full bg-success-bg px-3 py-1.5 text-success-fg shadow-sm">
+            <span className="rounded-full bg-success-bg px-3 py-1.5 font-mono text-[11.5px] font-semibold text-teal-dark shadow-sm">
               ₹0 brokerage
             </span>
           </div>
         </div>
-      </div>
 
-      <div className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6">
-      {/* PG-type toggle chips (the notebook's filter) */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        {FILTERS.map((f) => {
-          const active = (pgType ?? "") === f.value;
-          return (
-            <Link
-              key={f.label}
-              href={`/pg/${citySlug}${chipQuery(f.value)}`}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-                active
-                  ? "bg-primary text-white"
-                  : "border border-grey-100 bg-white text-grey-600 hover:border-primary hover:text-primary"
-              }`}
-            >
-              {f.label}
-            </Link>
-          );
-        })}
-      </div>
+        {/* Results layout (ref .results-layout): sidebar + grid */}
+        <div className="grid items-start gap-7 py-6 pb-14 lg:grid-cols-[260px_1fr]">
+          <aside className="sticky top-20 hidden lg:block">{filterForm}</aside>
 
-      {/* Advanced filters (Phase 2) — plain GET form, no JS required */}
-      <form
-        method="get"
-        className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-grey-50 bg-white p-4 shadow-sm"
-      >
-        {pgType && <input type="hidden" name="type" value={pgType} />}
-        <label className="flex flex-col gap-1 text-xs font-semibold text-grey-500">
-          Search
-          <input
-            name="q"
-            defaultValue={sp.q ?? ""}
-            placeholder="PG or area name"
-            className="w-40 rounded-xl border border-grey-100 px-3 py-2 text-sm font-normal outline-none focus:border-primary"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-grey-500">
-          Budget up to
-          <select
-            name="price"
-            defaultValue={sp.price ?? ""}
-            className="rounded-xl border border-grey-100 px-3 py-2 text-sm font-normal outline-none focus:border-primary"
-          >
-            <option value="">Any</option>
-            <option value="5000">₹5,000</option>
-            <option value="8000">₹8,000</option>
-            <option value="10000">₹10,000</option>
-            <option value="15000">₹15,000</option>
-            <option value="20000">₹20,000</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-grey-500">
-          Sharing
-          <select
-            name="sharing"
-            defaultValue={sp.sharing ?? ""}
-            className="rounded-xl border border-grey-100 px-3 py-2 text-sm font-normal outline-none focus:border-primary"
-          >
-            <option value="">Any</option>
-            <option value="Single">Single</option>
-            <option value="Double">Double</option>
-            <option value="Triple">Triple</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-grey-500">
-          Food
-          <select
-            name="food"
-            defaultValue={sp.food ?? ""}
-            className="rounded-xl border border-grey-100 px-3 py-2 text-sm font-normal outline-none focus:border-primary"
-          >
-            <option value="">Any</option>
-            <option value="veg">Veg only</option>
-            <option value="non_veg">Non-veg ok</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-grey-500">
-          Sort by
-          <select
-            name="sort"
-            defaultValue={sp.sort ?? ""}
-            className="rounded-xl border border-grey-100 px-3 py-2 text-sm font-normal outline-none focus:border-primary"
-          >
-            <option value="">Best match</option>
-            <option value="price_asc">Price: low to high</option>
-            <option value="price_desc">Price: high to low</option>
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-purple"
-        >
-          Apply
-        </button>
-        {(sp.price || sp.sharing || sp.food || sp.q || sp.sort) && (
-          <Link
-            href={`/pg/${citySlug}${pgType ? `?type=${pgType}` : ""}`}
-            className="text-sm font-semibold text-grey-400 hover:text-grey-600"
-          >
-            Clear
-          </Link>
-        )}
-      </form>
+          <div>
+            {/* PG-type chip row (ref .chip-set) */}
+            <div className="flex flex-wrap gap-2">
+              {TYPE_CHIPS.map((f) => {
+                const active = (pgType ?? "") === f.value;
+                return (
+                  <Link
+                    key={f.label}
+                    href={`/pg/${citySlug}${chipQuery(f.value)}`}
+                    className={`rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold transition ${
+                      active
+                        ? "border-accent bg-primary-tint text-primary"
+                        : "border-grey-50 bg-white text-grey-600 hover:border-accent hover:text-primary"
+                    }`}
+                  >
+                    {f.label}
+                  </Link>
+                );
+              })}
+            </div>
 
-      {listings.length > 0 ? (
-        <>
-          <p className="mt-8 text-sm font-semibold text-grey-500">
-            Showing {listings.length} PG{listings.length === 1 ? "" : "s"}
-            {pgType ? ` · ${PG_TYPE_LABEL[pgType]} only` : ""}
-          </p>
-          <div className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((l) => (
-              <ListingCard key={l.id} listing={l} />
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className="mt-16 rounded-3xl border border-dashed border-grey-100 bg-white p-12 text-center">
-          <p className="font-display text-xl text-grey-700">
-            No {pgType ? `${PG_TYPE_LABEL[pgType].toLowerCase()} ` : ""}PGs
-            published in {city.name} yet
-          </p>
-          <p className="mt-2 text-sm text-grey-500">
-            Try clearing filters, or check back soon — new listings are added
-            regularly.
-          </p>
-          <Link
-            href="/add-your-pg"
-            className="mt-4 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-purple"
-          >
-            Own a PG here? List it free →
-          </Link>
-        </div>
-      )}
-
-      {/* FAQ (AEO) — matches the FAQPage JSON-LD above */}
-      <section className="mt-14 max-w-3xl">
-        <h2 className="font-display text-2xl text-grey-900">
-          PGs in {city.name} — FAQs
-        </h2>
-        <div className="mt-4 space-y-3">
-          {faqs.map((f) => (
-            <details
-              key={f.q}
-              className="group rounded-2xl border border-grey-50 bg-white p-4 shadow-sm"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-grey-800 transition group-open:text-primary">
-                {f.q}
-                <span className="text-grey-300 transition group-open:rotate-45 group-open:text-primary">
-                  +
-                </span>
+            {/* Mobile filters (collapsible, same GET form) */}
+            <details className="mt-3 lg:hidden">
+              <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-[10px] border border-grey-100 bg-white px-4 py-2 text-[13px] font-semibold text-grey-800">
+                Filters
+                {(sp.price || sp.sharing || sp.food || sp.q) && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+                )}
               </summary>
-              <p className="mt-2 text-sm leading-relaxed text-grey-600">{f.a}</p>
+              <div className="mt-3">{filterForm}</div>
             </details>
-          ))}
+
+            {/* Results head: count + sort (ref .results-head) */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5">
+              <p className="text-sm text-grey-600">
+                <b className="text-grey-900">{listings.length}</b> verified PG
+                {listings.length === 1 ? "" : "s"} in {city.name}
+                {pgType ? ` · ${PG_TYPE_LABEL[pgType]}` : ""}
+              </p>
+              <form method="get">
+                {pgType && <input type="hidden" name="type" value={pgType} />}
+                {sp.price && <input type="hidden" name="price" value={sp.price} />}
+                {sp.sharing && (
+                  <input type="hidden" name="sharing" value={sp.sharing} />
+                )}
+                {sp.food && <input type="hidden" name="food" value={sp.food} />}
+                {sp.q && <input type="hidden" name="q" value={sp.q} />}
+                <select
+                  name="sort"
+                  defaultValue={sp.sort ?? ""}
+                  className="rounded-lg border border-grey-100 bg-white px-3 py-2 text-[13.5px] text-grey-700 outline-none"
+                >
+                  <option value="">Sort: Recommended</option>
+                  <option value="price_asc">Price: low to high</option>
+                  <option value="price_desc">Price: high to low</option>
+                  <option value="rating">Top rated</option>
+                </select>
+                <button
+                  type="submit"
+                  className="ml-2 rounded-lg border border-grey-100 bg-white px-3 py-2 text-[13.5px] font-semibold text-grey-700 transition hover:border-primary hover:text-primary"
+                >
+                  Go
+                </button>
+              </form>
+            </div>
+
+            {listings.length > 0 ? (
+              <div className="mt-4 grid grid-cols-1 gap-4.5 sm:grid-cols-2">
+                {listings.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </div>
+            ) : (
+              <div className="mt-8 rounded-[22px] border border-dashed border-grey-100 bg-white p-12 text-center">
+                <p className="font-display text-xl font-semibold text-grey-700">
+                  No {pgType ? `${PG_TYPE_LABEL[pgType].toLowerCase()} ` : ""}PGs
+                  published in {city.name} yet
+                </p>
+                <p className="mt-2 text-sm text-grey-500">
+                  Try clearing filters, or check back soon — new listings are
+                  added regularly.
+                </p>
+                <Link
+                  href="/add-your-pg"
+                  className="mt-4 inline-block rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                >
+                  Own a PG here? List it free →
+                </Link>
+              </div>
+            )}
+
+            {/* FAQ (AEO) — matches the FAQPage JSON-LD above */}
+            <section className="mt-12 max-w-3xl">
+              <h2 className="font-display text-2xl font-bold text-grey-900">
+                PGs in {city.name} — FAQs
+              </h2>
+              <div className="mt-4 space-y-3">
+                {faqs.map((f) => (
+                  <details key={f.q} className="surface-card group p-4.5">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-grey-800 transition group-open:text-primary">
+                      {f.q}
+                      <span className="text-grey-300 transition group-open:rotate-45 group-open:text-primary">
+                        +
+                      </span>
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-grey-600">
+                      {f.a}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
-      </section>
       </div>
     </main>
   );

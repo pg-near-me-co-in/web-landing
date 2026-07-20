@@ -1,19 +1,29 @@
 import type { PgType } from "@/lib/types";
 import { PG_TYPE_LABEL } from "@/lib/format";
 
+/* Ref .badge — mono-font rounded pills on state-color pairings. */
+const BADGE_BASE =
+  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[11.5px] font-semibold";
+
 const PG_TYPE_STYLE: Record<PgType, string> = {
   female: "bg-alert-bg text-alert-fg",
-  male: "bg-accent/25 text-primary",
-  unisex: "bg-success-bg text-success-fg",
+  male: "bg-primary-tint text-primary",
+  unisex: "bg-success-bg text-teal-dark",
 };
 
 export function PgTypeBadge({ type }: { type: PgType | null }) {
   if (!type) return null;
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${PG_TYPE_STYLE[type]}`}
-    >
+    <span className={`${BADGE_BASE} ${PG_TYPE_STYLE[type]}`}>
       {PG_TYPE_LABEL[type]}
+    </span>
+  );
+}
+
+export function VerifiedBadge() {
+  return (
+    <span className={`${BADGE_BASE} bg-success-bg text-teal-dark`}>
+      ✓ Verified
     </span>
   );
 }

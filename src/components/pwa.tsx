@@ -34,30 +34,31 @@ export function Pwa() {
   if (!installEvt) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-grey-50 bg-white p-3 pl-4 shadow-xl">
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-grey-900">Add PG Near Me to your home screen</p>
-        <p className="text-xs text-grey-400">Faster searches, works offline</p>
+    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[420px] items-center justify-between gap-3 rounded-[14px] bg-grey-900 p-3.5 pl-4 text-white shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+      <p className="min-w-0 flex-1 text-[13px] leading-snug">
+        Install PG Near Me for one-tap access to your searches and listings.
+      </p>
+      <div className="flex shrink-0 items-center gap-2">
+        <button
+          onClick={async () => {
+            await installEvt.prompt();
+            setInstallEvt(null);
+          }}
+          className="rounded-[10px] bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-primary-dark"
+        >
+          Install
+        </button>
+        <button
+          onClick={() => {
+            localStorage.setItem(DISMISS_KEY, String(Date.now()));
+            setInstallEvt(null);
+          }}
+          aria-label="Dismiss install prompt"
+          className="p-1 text-lg text-white/50 transition hover:text-white"
+        >
+          ✕
+        </button>
       </div>
-      <button
-        onClick={async () => {
-          await installEvt.prompt();
-          setInstallEvt(null);
-        }}
-        className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white"
-      >
-        Install
-      </button>
-      <button
-        onClick={() => {
-          localStorage.setItem(DISMISS_KEY, String(Date.now()));
-          setInstallEvt(null);
-        }}
-        aria-label="Dismiss install prompt"
-        className="shrink-0 rounded-full p-2 text-grey-400 hover:text-grey-600"
-      >
-        ✕
-      </button>
     </div>
   );
 }

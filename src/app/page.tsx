@@ -1,49 +1,70 @@
 import Link from "next/link";
 import { getCitiesByState, getFeaturedListings } from "@/lib/queries";
-import { SearchBar } from "@/components/search-bar";
+import { SearchCard } from "@/components/search-card";
 import { ListingCard } from "@/components/listing-card";
-import { PG_TYPE_LABEL } from "@/lib/format";
-import type { PgType } from "@/lib/types";
 
 export const revalidate = 3600;
 
-const QUICK_TYPES: PgType[] = ["female", "male", "unisex"];
-
-const BENEFITS = [
+const STEPS = [
   {
-    icon: "₹0",
-    title: "Zero brokerage",
-    text: "No commissions, no hidden fees. Seekers browse free, owners list free — always.",
+    idx: "01 / SEARCH",
+    title: "Tell us where and what",
+    text: "Pick a city, area, or landmark. Filter by budget, gender preference, and sharing type.",
   },
   {
-    icon: "✓",
-    title: "Verified listings",
-    text: "Every listing is checked by our team before it goes live, and re-checked for staleness.",
+    idx: "02 / COMPARE",
+    title: "See verified options",
+    text: "Every listing is checked for photos, amenities, and accurate pricing before it goes live.",
   },
   {
-    icon: "☎",
-    title: "Direct owner contact",
-    text: "Get the owner's number and WhatsApp directly — no middlemen relaying messages.",
-  },
-  {
-    icon: "★",
-    title: "Honest reviews",
-    text: "Ratings and reviews from real residents, summarised so you can decide faster.",
+    idx: "03 / CONNECT",
+    title: "Talk to the owner directly",
+    text: "Reveal the owner's number and call or WhatsApp them straight from the listing. No broker fee, ever.",
   },
 ];
 
-const STEPS = [
+const TYPES = [
   {
-    title: "Search your city",
-    text: "Pick your city and area — we cover PGs, hostels and shared flats across India.",
+    icon: "♀",
+    title: "PG for women",
+    text: "Verified, secure PGs with women-only floors and strict entry rules where available.",
+    query: "?type=female",
   },
   {
-    title: "Filter & compare",
-    text: "Narrow by budget, sharing type, food and house rules. Compare prices side by side.",
+    icon: "♂",
+    title: "PG for men",
+    text: "Single, double & triple sharing with food and housekeeping included.",
+    query: "?type=male",
   },
   {
-    title: "Contact the owner",
-    text: "Reveal the owner's number and call or WhatsApp them directly. Done — no broker in between.",
+    icon: "⌂",
+    title: "Co-living spaces",
+    text: "Mixed co-living PGs and hostels for professionals and students.",
+    query: "?type=unisex",
+  },
+  {
+    icon: "⇄",
+    title: "Shared rooms",
+    text: "Split rent in double, triple or 4-bed sharing — fully furnished.",
+    query: "?sharing=Double",
+  },
+];
+
+const WHY = [
+  {
+    n: "01",
+    title: "Verified listings only",
+    text: "Every property is checked for accurate photos, pricing and amenities — and re-checked for staleness.",
+  },
+  {
+    n: "02",
+    title: "Zero brokerage",
+    text: "Talk to owners directly. No hidden commission, ever — free for seekers and owners.",
+  },
+  {
+    n: "03",
+    title: "Pan-India, always growing",
+    text: "The same simple search, wherever you're headed next — with honest reviews from real residents.",
   },
 ];
 
@@ -62,8 +83,20 @@ const FAQS = [
   },
   {
     q: "How do I list my PG or hostel?",
-    a: "Use the “List your PG — free” button, fill in your property details, and our team will verify and publish it. It takes a few minutes and costs nothing.",
+    a: "Use the “List your property” button, fill in your property details, and our team will verify and publish it. It takes a few minutes and costs nothing.",
   },
+];
+
+/* ref .city-card background rotation (c1..c8) */
+const CITY_CARD_BG = [
+  "bg-primary-tint",
+  "bg-success-bg",
+  "bg-warn-bg",
+  "bg-[#EFE9FB]",
+  "bg-grey-50",
+  "bg-[#E6F6EF]",
+  "bg-[#FDF1DC]",
+  "bg-[#F1EFFB]",
 ];
 
 export default async function HomePage() {
@@ -73,6 +106,7 @@ export default async function HomePage() {
   ]);
   const allCities = Object.values(byState).flat();
   const launched = allCities.filter((c) => c.is_launched);
+  const comingSoon = allCities.filter((c) => !c.is_launched);
   const totalListings = launched.reduce(
     (n, c) => n + (c.listing_count_cache ?? 0),
     0
@@ -83,7 +117,7 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", name: "PG Near Me", url: "https://pgnearme.co.in" },
-      { "@type": "Organization", name: "PG Near Me", url: "https://pgnearme.co.in" },
+      { "@type": "Organization", name: "PG Near Me", url: "https://pgnearme.co.in", logo: "https://pgnearme.co.in/brand/logo-icon.png" },
       {
         "@type": "FAQPage",
         mainEntity: FAQS.map((f) => ({
@@ -95,13 +129,6 @@ export default async function HomePage() {
     ],
   };
 
-  const stats = [
-    { value: `${launched.length}`, label: "cities live" },
-    { value: `${totalListings}+`, label: "PGs & hostels listed" },
-    { value: "₹0", label: "brokerage, ever" },
-    { value: "100%", label: "free for owners" },
-  ];
-
   return (
     <main className="flex-1">
       <script
@@ -109,22 +136,52 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-accent/20 via-grey-5 to-grey-5 px-4 pb-12 pt-14 text-center sm:pt-20">
-        <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl space-y-6">
-          <p className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-teal/30 bg-success-bg px-3 py-1 text-xs font-bold text-success-fg">
-            Verified listings · Zero brokerage · Direct owner contact
-          </p>
-          <h1 className="font-display text-4xl leading-tight text-grey-900 sm:text-5xl">
-            Find your next <span className="text-primary">PG</span>, minus the
-            brokers
-          </h1>
-          <p className="mx-auto max-w-xl text-base text-grey-500 sm:text-lg">
-            Hostels, PGs and shared flats across India — filtered by budget,
-            sharing type and house rules. Free for seekers, free for owners.
-          </p>
-          <SearchBar
+      {/* Hero (ref .hero-grid): copy left, search card right */}
+      <section id="search" className="scroll-mt-20 px-4 pb-5 pt-14 sm:px-6">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <span className="eyebrow mb-4">
+              ● LIVE IN {launched.length} INDIAN {launched.length === 1 ? "CITY" : "CITIES"}
+            </span>
+            <h1 className="max-w-[600px] font-display text-[clamp(32px,5vw,54px)] font-bold leading-[1.05] text-grey-900">
+              Your next room is <span className="text-primary">closer</span>{" "}
+              than you think.
+            </h1>
+            <p className="mt-4 max-w-[460px] text-[16.5px] leading-relaxed text-grey-500">
+              PGs, hostels, and shared rooms — verified, zero brokerage,
+              anywhere in India.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href={defaultCity ? `/pg/${defaultCity.slug}` : "#cities"}
+                className="rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-px hover:bg-primary-dark hover:shadow-[var(--shadow-lift)]"
+              >
+                Browse listings
+              </Link>
+              <Link
+                href="#how"
+                className="rounded-[10px] border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary"
+              >
+                How it works
+              </Link>
+            </div>
+            <div className="mt-9 flex flex-wrap gap-7">
+              {[
+                [`${launched.length}`, "Cities covered"],
+                [`${totalListings}+`, "Verified listings"],
+                ["₹0", "Brokerage, always"],
+              ].map(([num, lbl]) => (
+                <div key={lbl}>
+                  <div className="font-display text-[22px] font-bold text-grey-900">
+                    {num}
+                  </div>
+                  <div className="mt-0.5 text-xs text-grey-500">{lbl}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <SearchCard
             cities={allCities.map(({ name, slug, state, is_launched }) => ({
               name,
               slug,
@@ -132,91 +189,29 @@ export default async function HomePage() {
               is_launched,
             }))}
           />
-          {defaultCity && (
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-              {QUICK_TYPES.map((t) => (
-                <Link
-                  key={t}
-                  href={`/pg/${defaultCity.slug}?type=${t}`}
-                  className="rounded-full border border-grey-100 bg-white px-4 py-1.5 text-sm font-semibold text-grey-600 transition hover:border-primary hover:text-primary"
-                >
-                  {PG_TYPE_LABEL[t]} PGs
-                </Link>
-              ))}
-              <Link
-                href={`/pg/${defaultCity.slug}`}
-                className="rounded-full border border-grey-100 bg-white px-4 py-1.5 text-sm font-semibold text-grey-600 transition hover:border-primary hover:text-primary"
-              >
-                All in {defaultCity.name}
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
-      {/* Trust stats strip */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-grey-50 bg-grey-50 shadow-sm sm:grid-cols-4">
-          {stats.map((s) => (
-            <div key={s.label} className="bg-white px-4 py-5 text-center">
-              <p className="font-display text-2xl text-primary sm:text-3xl">
-                {s.value}
-              </p>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-grey-400">
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured listings */}
-      {featured.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <h2 className="font-display text-2xl text-grey-900 sm:text-3xl">
-                Featured stays
-              </h2>
-              <p className="mt-1 text-grey-500">
-                Hand-picked, recently verified places to start with.
-              </p>
-            </div>
-            {defaultCity && (
-              <Link
-                href={`/pg/${defaultCity.slug}`}
-                className="hidden shrink-0 text-sm font-bold text-primary hover:underline sm:block"
-              >
-                View all →
-              </Link>
-            )}
+      {/* How it works (ref .steps) */}
+      <section id="how" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
+            <span className="eyebrow mb-4">HOW IT WORKS</span>
+            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
+              Three steps between you and move-in day.
+            </h2>
           </div>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((l) => (
-              <ListingCard key={l.id} listing={l} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Why PG Near Me */}
-      <section className="bg-white py-14">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-center font-display text-2xl text-grey-900 sm:text-3xl">
-            Why seekers choose PG Near Me
-          </h2>
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {BENEFITS.map((b) => (
-              <div
-                key={b.title}
-                className="rounded-2xl border border-grey-50 bg-grey-5 p-5 transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-display text-lg text-primary">
-                  {b.icon}
+          <div className="grid gap-5 md:grid-cols-3">
+            {STEPS.map((s) => (
+              <div key={s.idx} className="surface-card px-5.5 py-6.5">
+                <span className="mb-3.5 block font-mono text-[12.5px] font-semibold text-primary">
+                  {s.idx}
                 </span>
-                <h3 className="mt-3 font-bold text-grey-900">{b.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-grey-500">
-                  {b.text}
+                <h3 className="font-display text-[17px] font-semibold text-grey-900">
+                  {s.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-grey-500">
+                  {s.text}
                 </p>
               </div>
             ))}
@@ -224,181 +219,192 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 sm:px-6">
-        <h2 className="text-center font-display text-2xl text-grey-900 sm:text-3xl">
-          How it works
-        </h2>
-        <p className="mx-auto mt-1 max-w-xl text-center text-grey-500">
-          From search to move-in, in three steps — with no broker in between.
-        </p>
-        <ol className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <li
-              key={s.title}
-              className="relative rounded-2xl border border-grey-50 bg-white p-6 shadow-sm"
-            >
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-purple font-display text-white">
-                {i + 1}
-              </span>
-              <h3 className="mt-3 font-bold text-grey-900">{s.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-grey-500">{s.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* Explore citywise */}
-      <section id="explore-cities" className="scroll-mt-20 bg-white py-14">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-display text-2xl text-grey-900 sm:text-3xl">
-            Explore citywise
-          </h2>
-          <p className="mt-1 text-grey-500">
-            Top cities across {Object.keys(byState).length} states — live cities
-            link straight to their listings.
-          </p>
-
-          <div className="mt-6 overflow-hidden rounded-3xl border border-grey-50 shadow-sm">
-            <iframe
-              title="PG Near Me — launched cities across India"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=66.0,6.5,98.0,36.0&layer=mapnik"
-              className="h-64 w-full sm:h-80"
-              loading="lazy"
-            />
-            <div className="flex flex-wrap items-center gap-2 bg-grey-5 px-5 py-4">
-              <span className="text-sm font-semibold text-grey-600">
-                Live in {launched.length} cities:
-              </span>
-              {launched.map((c) => (
-                <Link
+      {/* Cities (ref .cities-grid, real data) */}
+      <section id="cities" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
+            <span className="eyebrow mb-4">PAN-INDIA COVERAGE</span>
+            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
+              Wherever the move is, we&apos;re already there.
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {launched.map((c, i) => (
+              <Link
+                key={c.slug}
+                href={`/pg/${c.slug}`}
+                className={`flex min-h-[118px] flex-col justify-between rounded-[14px] p-5 transition duration-200 hover:-translate-y-[3px] ${CITY_CARD_BG[i % CITY_CARD_BG.length]}`}
+              >
+                <div>
+                  <h3 className="font-display text-[15.5px] font-semibold text-grey-900">
+                    {c.name}
+                  </h3>
+                  <div className="mt-1 font-mono text-[11.5px] text-grey-500">
+                    {c.listing_count_cache} listing
+                    {c.listing_count_cache === 1 ? "" : "s"}
+                  </div>
+                </div>
+                <div className="self-end text-[17px] text-primary" aria-hidden>
+                  →
+                </div>
+              </Link>
+            ))}
+          </div>
+          {/* {comingSoon.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-grey-400">Coming soon:</span>
+              {comingSoon.map((c) => (
+                <span
                   key={c.slug}
-                  href={`/pg/${c.slug}`}
-                  className="rounded-full bg-white px-3 py-1 text-xs font-bold text-grey-600 shadow-sm transition hover:bg-primary hover:text-white"
+                  className="rounded-full border border-dashed border-grey-100 bg-white px-3 py-1 text-xs font-semibold text-grey-400"
                 >
                   {c.name}
+                </span>
+              ))}
+            </div>
+          )} */}
+        </div>
+      </section>
+
+      {/* Featured listings (live data, ref listing-card styling) */}
+      {featured.length > 0 && (
+        <section className="px-4 py-10 sm:px-6 sm:py-14">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div>
+                <span className="eyebrow mb-4">FRESHLY VERIFIED</span>
+                <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
+                  Featured stays to start with.
+                </h2>
+              </div>
+              {defaultCity && (
+                <Link
+                  href={`/pg/${defaultCity.slug}`}
+                  className="hidden shrink-0 text-sm font-semibold text-primary hover:underline sm:block"
+                >
+                  View all →
                 </Link>
+              )}
+            </div>
+            <div className="grid gap-4.5 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.map((l) => (
+                <ListingCard key={l.id} listing={l} />
               ))}
             </div>
           </div>
+        </section>
+      )}
 
-          <div className="mt-8 space-y-8">
-            {Object.entries(byState).map(([state, cities]) => {
-              const live = cities.filter((c) => c.is_launched);
-              const soon = cities.filter((c) => !c.is_launched);
-              return (
-                <div key={state}>
-                  <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-grey-400">
-                    {state}
-                  </h3>
-                  {live.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                      {live.map((c) => (
-                        <Link
-                          key={c.slug}
-                          href={`/pg/${c.slug}`}
-                          className="group rounded-2xl bg-gradient-to-br from-primary to-purple p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                        >
-                          <p className="font-bold">{c.name}</p>
-                          <p className="mt-1 text-xs text-white/75">
-                            {c.listing_count_cache} PG
-                            {c.listing_count_cache === 1 ? "" : "s"} listed
-                          </p>
-                          <p className="mt-2 text-xs font-bold uppercase tracking-wide text-white/0 transition group-hover:text-white/90">
-                            Explore →
-                          </p>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                  {soon.length > 0 && (
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="text-xs text-grey-300">Coming soon:</span>
-                      {soon.map((c) => (
-                        <span
-                          key={c.slug}
-                          className="rounded-full border border-dashed border-grey-100 px-3 py-1 text-xs font-semibold text-grey-400"
-                        >
-                          {c.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+      {/* Property types (ref .types-grid) */}
+      <section id="types" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
+            <span className="eyebrow mb-4">PROPERTY TYPES</span>
+            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
+              Every kind of stay, one search away.
+            </h2>
+          </div>
+          <div className="grid gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
+            {TYPES.map((t) => (
+              <Link
+                key={t.title}
+                href={defaultCity ? `/pg/${defaultCity.slug}${t.query}` : "#cities"}
+                className="surface-card p-5 transition duration-200 hover:border-accent hover:shadow-[var(--shadow-lift)]"
+              >
+                <div
+                  className="mb-3.5 flex h-[42px] w-[42px] items-center justify-center rounded-[10px] bg-primary text-lg text-white"
+                  aria-hidden
+                >
+                  {t.icon}
                 </div>
-              );
-            })}
+                <h3 className="font-display text-base font-semibold text-grey-900">
+                  {t.title}
+                </h3>
+                <p className="mt-1.5 text-[13.5px] leading-relaxed text-grey-500">
+                  {t.text}
+                </p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Story / about */}
-      <section id="our-story" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 text-center sm:px-6">
-        <h2 className="font-display text-2xl text-grey-900 sm:text-3xl">
-          Why PG Near Me is free
-        </h2>
-        <p className="mt-4 leading-relaxed text-grey-500">
-          Finding a PG in a new city usually means broker fees, WhatsApp-group
-          chaos and stale listings. We&apos;re building one trustworthy,
-          filterable directory for PGs, hostels and shared flats — where owners
-          list for free and seekers contact them directly. No commissions, no
-          middlemen, just verified information and honest reviews.
-        </p>
+      {/* Why (ref dark .why-wrap) */}
+      <section className="px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-6xl rounded-3xl bg-grey-900 px-6 py-9 text-grey-5/90 sm:px-11 sm:py-13">
+          <span className="eyebrow mb-4 !bg-accent/15 !text-accent">
+            WHY PG NEAR ME
+          </span>
+          <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-white">
+            Built for people who move, a lot.
+          </h2>
+          <p className="mt-3 max-w-[520px] text-[15.5px] leading-relaxed text-grey-5/55">
+            Students relocating for college, professionals starting new jobs —
+            one platform, no matter the city.
+          </p>
+          <div className="mt-8 grid gap-px overflow-hidden rounded-[14px] bg-white/10 md:grid-cols-3">
+            {WHY.map((w) => (
+              <div key={w.n} className="bg-grey-900 px-6 py-6.5">
+                <span className="mb-3 block font-mono text-xs text-highlight">
+                  {w.n}
+                </span>
+                <h3 className="font-display text-base font-semibold text-white">
+                  {w.title}
+                </h3>
+                <p className="mt-1.5 text-[13.5px] leading-relaxed text-grey-5/55">
+                  {w.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 bg-white py-14">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <h2 className="text-center font-display text-2xl text-grey-900 sm:text-3xl">
-            Frequently asked questions
-          </h2>
-          <div className="mt-6 space-y-3">
+      {/* FAQ (AEO — matches FAQPage JSON-LD above) */}
+      <section id="faq" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-6 text-center">
+            <span className="eyebrow mb-4">FAQ</span>
+            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
+              Frequently asked questions.
+            </h2>
+          </div>
+          <div className="space-y-3">
             {FAQS.map((f) => (
-              <details
-                key={f.q}
-                className="group rounded-2xl border border-grey-50 bg-grey-5 p-4"
-              >
+              <details key={f.q} className="surface-card group p-4.5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-grey-800 transition group-open:text-primary">
                   {f.q}
                   <span className="text-grey-300 transition group-open:rotate-45 group-open:text-primary">
                     +
                   </span>
                 </summary>
-                <p className="mt-2 text-sm leading-relaxed text-grey-600">{f.a}</p>
+                <p className="mt-2 text-sm leading-relaxed text-grey-600">
+                  {f.a}
+                </p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Dual CTA band */}
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="rounded-3xl bg-gradient-to-br from-primary to-purple p-8 text-white">
-            <h2 className="font-display text-2xl">Looking for a PG?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-white/80">
-              Search {totalListings}+ verified PGs and hostels across{" "}
-              {launched.length} cities — free, no brokers.
+      {/* CTA banner (ref .cta-banner) */}
+      <section className="px-4 pb-14 pt-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-7 rounded-3xl bg-gradient-to-br from-primary to-purple px-7 py-10 sm:px-10">
+          <div>
+            <h2 className="max-w-[440px] font-display text-[clamp(20px,3vw,30px)] font-bold text-white">
+              Own a PG or a room sitting empty?
+            </h2>
+            <p className="mt-2 max-w-[400px] text-sm leading-relaxed text-white/75">
+              List it in under five minutes and start getting genuine
+              inquiries — no brokerage taken.
             </p>
-            <Link
-              href={defaultCity ? `/pg/${defaultCity.slug}` : "/#explore-cities"}
-              className="mt-5 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-grey-10"
-            >
-              Start searching →
-            </Link>
           </div>
-          <div className="rounded-3xl bg-gradient-to-br from-teal to-highlight p-8 text-white">
-            <h2 className="font-display text-2xl">Own a PG or hostel?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-white/85">
-              List it free and get direct enquiries from seekers — no
-              commission, ever.
-            </p>
-            <Link
-              href="/add-your-pg"
-              className="mt-5 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-teal transition hover:bg-grey-10"
-            >
-              List your PG free →
-            </Link>
-          </div>
+          <Link
+            href="/add-your-pg"
+            className="rounded-[10px] bg-white px-5 py-2.5 text-sm font-semibold text-primary transition hover:-translate-y-px"
+          >
+            List your property
+          </Link>
         </div>
       </section>
     </main>
