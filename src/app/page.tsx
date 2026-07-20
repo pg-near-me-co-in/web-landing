@@ -250,7 +250,7 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
-          {comingSoon.length > 0 && (
+          {/* {comingSoon.length > 0 && (
             <div className="mt-5 flex flex-wrap items-center gap-2">
               <span className="text-xs text-grey-400">Coming soon:</span>
               {comingSoon.map((c) => (
@@ -262,7 +262,7 @@ export default async function HomePage() {
                 </span>
               ))}
             </div>
-          )}
+          )} */}
         </div>
       </section>
 
