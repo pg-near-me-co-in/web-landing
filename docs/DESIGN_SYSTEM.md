@@ -2,6 +2,23 @@
 
 UI/UX conventions. Tech: Tailwind CSS on Next.js (see [PRD.md](PRD.md) for stack decision).
 
+## Reference theme (implemented 2026-07 — current source of truth)
+
+The public UI is built from the static reference mockups in [`ref/pg-near-me-site/`](../ref/pg-near-me-site/) (index, search, property, list-property, login, dashboard). Everything below the fold of this section describes the earlier brand exploration; where the two disagree, **the reference theme wins**. The only asset carried over from the earlier pass is the app-icon logo (`public/brand/logo-icon.png`), paired with a "PG Near Me" wordmark set in Space Grotesk (the Cherry Bomb wordmark is retired from the UI).
+
+Key decisions, as implemented in `src/app/globals.css` + components:
+
+- **Fonts** (next/font, self-hosted): **Space Grotesk** 500–700 for display/headings (`--font-display`), **Inter** for body/UI (`--font-sans`), **JetBrains Mono** 500–600 for eyebrows, badges, prices and stat labels (`--font-mono`).
+- **Colors**: same Figma palette as below (`--brand-primary #534AB7` etc.). Derived shades are computed with `color-mix` from `--brand-primary` (`--brand-primary-dark`, `--brand-primary-tint`, `--brand-teal-dark`) so the Phase 3 runtime theme editor (`site_settings`) keeps working with **no schema/data change** — admin overrides recolor the derived shades automatically.
+- **Surfaces**: body on `grey-10`; cards are white, 1px `grey-50` border, 14px radius, `--shadow-card` (utility class `.surface-card`); hover lift uses `--shadow-lift`. Section eyebrows use the `.eyebrow` mono pill.
+- **Buttons**: 10px radius, semibold 13–14px; primary (`primary` → `primary-dark` hover), outline (white + `grey-100` border → primary), teal for submit-success actions.
+- **Header**: sticky, blurred `grey-5/90`, logo left, nav centre (Find a PG / Cities / List your PG), primary CTA + hamburger drawer on mobile. **No admin/dashboard/login links anywhere in the public UI** — `/admin` is URL-only, `noindex` (robots meta + `X-Robots-Tag` header + robots.txt disallow).
+- **Footer**: dark `grey-900` band — brand blurb, Explore / Owners / per-city SEO columns, OSM attribution.
+- **Listing card**: image band (gradient placeholder when no photo) with mono badges overlaid, Space Grotesk title + mono purple price, location line, sharing meta row.
+- **Detail page**: ref gallery (2fr/1fr main + side tiles, "+N photos" overlay, thumb strip for the rest — full multi-image support from `listing_images`), amenity tiles on `primary-tint`, house-rules list, OSM embed map, sticky contact card with mono price, similar-PGs strip.
+- **Owner form**: 4-step wizard (Basics → Location → Pricing & amenities → Photos & review) with mono step labels, progress pills and a live sticky summary card, per the ref list-property page.
+- **PWA/OG**: manifest background `#F4F6F8`, portrait-primary; dark ref-style install banner; OG image (1200×630) generated from the logo by `scripts/make-og-image.js` → `public/brand/og-image.png`.
+
 Brand source of truth: [Figma — PG Near Me](https://www.figma.com/design/uQEpBnI0qbFeYN1NF2vHtj/PG-Near-Me) ("Logo & Stuff" page). Exported assets live in [`docs/assets/brand/`](assets/brand/). This file is a brand-exploration doc (logo lockups + color palette) — it does not yet contain UI screens, so the homepage/component sections below are still driven by the founder's notebook wireframe, not Figma frames.
 
 ## Logo
@@ -56,7 +73,9 @@ These are plain color swatches in Figma, not formal Figma Variables — there's 
 
 ## Typography
 
-Logo/display face: **Cherry Bomb** (used for the "PG NEAR ME" wordmark only — it's a heavy display face, not meant for body copy). The Figma file doesn't specify a body/UI font — pick a complementary readable sans (system font stack or a Google Font like Inter/Manrope) for body text and form UI at Phase 0 scaffolding time; track as an open item.
+**Current (reference theme):** Space Grotesk (display/headings), Inter (body/UI), JetBrains Mono (eyebrows/badges/prices) — see the Reference theme section above.
+
+*Historical:* the Figma brand exploration used **Cherry Bomb** for the "PG NEAR ME" wordmark; it's retired from the UI (the app-icon PNG still carries it inside the icon artwork).
 
 ## Responsive approach
 

@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllPublishedSlugs, getListingBySlug, getSeoOverride } from "@/lib/queries";
+import {
+  getAllPublishedSlugs,
+  getListingBySlug,
+  getListingsForCity,
+  getSeoOverride,
+} from "@/lib/queries";
 import { ContactReveal } from "@/components/contact-reveal";
 import { ReviewForm } from "@/components/review-form";
-import { PgTypeBadge, RatingStars } from "@/components/badges";
+import { PgTypeBadge, RatingStars, VerifiedBadge } from "@/components/badges";
+import { ListingCard } from "@/components/listing-card";
 import {
   FOOD_LABEL,
   PG_TYPE_LABEL,
@@ -57,13 +63,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: seo?.og_title ?? title,
       description: seo?.og_description ?? description,
-      ...(l.cover_image ? { images: [l.cover_image] } : {}),
+      ...(l.cover_image ? { images: [resolveImageUrl(l.cover_image)] } : {}),
     },
   };
 }
 
-/* Icon-first amenities (reference-site pattern): match on icon_key or slug,
-   fall back to a neutral check. */
+/* Icon-first amenities (ref .amenity): match on icon_key or slug, fall back
+   to a neutral check. */
 const AMENITY_EMOJI: [string, string][] = [
   ["wifi", "📶"],
   ["internet", "📶"],
@@ -79,9 +85,9 @@ const AMENITY_EMOJI: [string, string][] = [
   ["cctv", "📹"],
   ["security", "🛡️"],
   ["guard", "🛡️"],
-  ["power", "🔌"],
-  ["backup", "🔌"],
-  ["electric", "🔌"],
+  ["power", "⚡"],
+  ["backup", "⚡"],
+  ["electric", "⚡"],
   ["housekeeping", "🧹"],
   ["clean", "🧹"],
   ["gym", "🏋️"],
@@ -110,6 +116,14 @@ function FactRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function SectionHead({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mb-3.5 font-display text-lg font-semibold text-grey-900">
+      {children}
+    </h2>
+  );
+}
+
 export default async function ListingPage({ params }: Props) {
   const { city, slug } = await params;
   const l = await getListingBySlug(slug);
@@ -123,6 +137,21 @@ export default async function ListingPage({ params }: Props) {
       : l.pg_type === "male"
         ? "men"
         : "women";
+
+  // "Similar PGs nearby" (ref .similar-strip): same city, current excluded
+  let similar: Awaited<ReturnType<typeof getListingsForCity>> = [];
+  try {
+    similar = (await getListingsForCity(l.city_slug, { pgType: l.pg_type ?? undefined }))
+      .filter((s) => s.id !== l.id)
+      .slice(0, 3);
+    if (similar.length === 0) {
+      similar = (await getListingsForCity(l.city_slug, {}))
+        .filter((s) => s.id !== l.id)
+        .slice(0, 3);
+    }
+  } catch {
+    // strip is optional — never break the page for it
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -140,7 +169,7 @@ export default async function ListingPage({ params }: Props) {
       ? { geo: { "@type": "GeoCoordinates", latitude: l.lat, longitude: l.lng } }
       : {}),
     ...(l.images.length
-      ? { image: l.images.map((i) => i.storage_path) }
+      ? { image: l.images.map((i) => resolveImageUrl(i.storage_path)) }
       : {}),
     ...(l.price_min
       ? {
@@ -164,14 +193,17 @@ export default async function ListingPage({ params }: Props) {
       : {}),
   };
 
+  const gallery = l.images;
+  const extraCount = Math.max(0, gallery.length - 3);
+
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-14 pt-6 sm:px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav className="text-sm text-grey-400" aria-label="Breadcrumb">
+      <nav className="mb-4 text-sm text-grey-400" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-primary">
           Home
         </Link>{" "}
@@ -182,132 +214,195 @@ export default async function ListingPage({ params }: Props) {
         / <span className="text-grey-600">{l.name}</span>
       </nav>
 
-      {/* Gallery */}
-      {l.images.length > 0 && (
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {l.images.slice(0, 3).map((img, i) => (
+      <div className="grid items-start gap-9 lg:grid-cols-[1.6fr_1fr]">
+        <div>
+          {/* Gallery (ref .gallery): main + two side tiles, +N overlay */}
+          {gallery.length > 0 && (
             <div
-              key={img.storage_path + i}
-              className={`relative overflow-hidden rounded-2xl bg-grey-10 ${
-                i === 0 ? "aspect-[4/3] sm:col-span-2 sm:row-span-2" : "aspect-[4/3]"
+              className={`grid h-[220px] gap-2 overflow-hidden rounded-[14px] sm:h-[340px] ${
+                gallery.length > 1 ? "grid-cols-[2fr_1fr]" : ""
               }`}
             >
-              <Image
-                src={resolveImageUrl(img.storage_path)}
-                alt={img.alt_text}
-                fill
-                sizes={i === 0 ? "(max-width: 640px) 100vw, 66vw" : "33vw"}
-                className="object-cover"
-                priority={i === 0}
-              />
+              <div className="relative bg-gradient-to-br from-primary to-purple">
+                <Image
+                  src={resolveImageUrl(gallery[0].storage_path)}
+                  alt={gallery[0].alt_text || l.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              {gallery.length > 1 && (
+                <div className="grid grid-rows-2 gap-2">
+                  {gallery.slice(1, 3).map((img, i) => (
+                    <div
+                      key={img.storage_path + i}
+                      className="relative bg-gradient-to-br from-accent to-teal"
+                    >
+                      <Image
+                        src={resolveImageUrl(img.storage_path)}
+                        alt={img.alt_text || `${l.name} photo ${i + 2}`}
+                        fill
+                        sizes="28vw"
+                        className="object-cover"
+                      />
+                      {i === 1 && extraCount > 0 && (
+                        <span className="absolute bottom-2 right-2 rounded-full bg-grey-900/80 px-2.5 py-1 font-mono text-[11.5px] font-semibold text-white">
+                          +{extraCount} photos
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-3xl text-grey-900">{l.name}</h1>
-            <PgTypeBadge type={l.pg_type} />
-            {l.verified_at && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2.5 py-0.5 text-xs font-bold text-success-fg">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-3.5 w-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>
-                Verified
-              </span>
-            )}
-          </div>
-          <p className="mt-1 flex items-center gap-1.5 text-grey-500">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4 w-4 text-primary"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            {[l.address_line, l.area_name, l.city_name].filter(Boolean).join(", ")}
-            {l.lat && l.lng && (
-              <a
-                href={`https://www.openstreetmap.org/?mlat=${l.lat}&mlon=${l.lng}#map=16/${l.lat}/${l.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 text-sm font-semibold text-primary hover:underline"
-              >
-                View on map
-              </a>
-            )}
-          </p>
-          <div className="mt-2">
-            <RatingStars rating={l.rating_avg} count={l.rating_count} />
-          </div>
-
-          {/* AEO factual summary block */}
-          <p className="mt-5 rounded-2xl bg-grey-10 p-4 text-[15px] leading-relaxed text-grey-600">
-            {l.name} is a {l.pg_type ? `${PG_TYPE_LABEL[l.pg_type].toLowerCase()} ` : ""}
-            PG/hostel in {l.area_name ?? l.city_name}, {l.city_name}
-            {l.sharing_types.length > 0 &&
-              ` offering ${l.sharing_types.join(", ").toLowerCase()} sharing rooms`}
-            {genderText && l.sharing_types.length > 0 ? ` for ${genderText}` : ""}
-            {price ? `, priced ${price} per month` : ""}.{" "}
-            {l.food_preference && l.food_preference !== "not_provided"
-              ? `Food: ${FOOD_LABEL[l.food_preference].toLowerCase()}.`
-              : l.food_preference === "not_provided"
-                ? "Food is not provided."
-                : ""}
-          </p>
-
-          {l.description && (
-            <section className="mt-6">
-              <h2 className="text-lg font-bold text-grey-900">About this PG</h2>
-              <p className="mt-2 leading-relaxed text-grey-600">{l.description}</p>
-            </section>
           )}
 
-          {/* Amenities */}
+          {/* Remaining photos: horizontal thumb strip (multi-image support) */}
+          {extraCount > 0 && (
+            <div className="mt-2 flex gap-2 overflow-x-auto pb-1.5">
+              {gallery.slice(3).map((img, i) => (
+                <div
+                  key={img.storage_path + i}
+                  className="relative h-20 w-28 flex-none overflow-hidden rounded-[10px] bg-grey-10"
+                >
+                  <Image
+                    src={resolveImageUrl(img.storage_path)}
+                    alt={img.alt_text || `${l.name} photo ${i + 4}`}
+                    fill
+                    sizes="112px"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Header (ref .pd-header) */}
+          <div className="mt-5">
+            <h1 className="font-display text-[26px] font-bold text-grey-900">
+              {l.name}
+            </h1>
+            <p className="mt-1.5 text-[14.5px] text-grey-500">
+              {[l.address_line, l.area_name, l.city_name]
+                .filter(Boolean)
+                .join(", ")}
+              {l.lat && l.lng && (
+                <a
+                  href={`https://www.openstreetmap.org/?mlat=${l.lat}&mlon=${l.lng}#map=16/${l.lat}/${l.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-sm font-semibold text-primary hover:underline"
+                >
+                  View on map
+                </a>
+              )}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {l.verified_at && <VerifiedBadge />}
+              <PgTypeBadge type={l.pg_type} />
+              {l.trust_score != null && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary-tint px-2.5 py-1 font-mono text-[11.5px] font-semibold text-primary">
+                  Trust {l.trust_score}/100
+                </span>
+              )}
+              <RatingStars rating={l.rating_avg} count={l.rating_count} />
+            </div>
+          </div>
+
+          {/* Overview (AEO factual summary + description) */}
+          <div className="mt-6 border-t border-grey-50 py-6">
+            <SectionHead>Overview</SectionHead>
+            <p className="text-[14.5px] leading-[1.7] text-grey-600">
+              {l.name} is a{" "}
+              {l.pg_type ? `${PG_TYPE_LABEL[l.pg_type].toLowerCase()} ` : ""}
+              PG/hostel in {l.area_name ?? l.city_name}, {l.city_name}
+              {l.sharing_types.length > 0 &&
+                ` offering ${l.sharing_types.join(", ").toLowerCase()} sharing rooms`}
+              {genderText && l.sharing_types.length > 0
+                ? ` for ${genderText}`
+                : ""}
+              {price ? `, priced ${price} per month` : ""}.{" "}
+              {l.food_preference && l.food_preference !== "not_provided"
+                ? `Food: ${FOOD_LABEL[l.food_preference].toLowerCase()}.`
+                : l.food_preference === "not_provided"
+                  ? "Food is not provided."
+                  : ""}
+            </p>
+            {l.description && (
+              <p className="mt-3 text-[14.5px] leading-[1.7] text-grey-600">
+                {l.description}
+              </p>
+            )}
+          </div>
+
+          {/* Amenities (ref .amenity-grid) */}
           {l.amenities.length > 0 && (
-            <section className="mt-8">
-              <h2 className="text-lg font-bold text-grey-900">Amenities</h2>
-              <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="border-t border-grey-50 py-6">
+              <SectionHead>Amenities</SectionHead>
+              <ul className="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
                 {l.amenities.map((a) => (
                   <li
                     key={a.slug}
-                    className="flex items-center gap-2.5 rounded-xl border border-grey-50 bg-white px-3 py-2.5 text-sm font-medium text-grey-600 shadow-sm"
+                    className="flex items-center gap-2.5 text-[13.5px] text-grey-700"
                   >
-                    <span className="text-base" aria-hidden>
+                    <span
+                      className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-primary-tint text-[15px]"
+                      aria-hidden
+                    >
                       {amenityEmoji(a)}
                     </span>
                     {a.name}
                   </li>
                 ))}
               </ul>
-            </section>
+            </div>
           )}
 
-          {/* Reviews */}
-          <section className="mt-8">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-grey-900">Reviews</h2>
+          {/* House rules (ref .rules-list) */}
+          {(l.house_rules_strictness || l.curfew_time || l.religion_preference) && (
+            <div className="border-t border-grey-50 py-6">
+              <SectionHead>House rules</SectionHead>
+              <div className="space-y-2.5 text-sm text-grey-600">
+                {l.house_rules_strictness && (
+                  <div>
+                    • {STRICTNESS_LABEL[l.house_rules_strictness]} house rules
+                  </div>
+                )}
+                {l.curfew_time && (
+                  <div>• Entry gate closes at {l.curfew_time.slice(0, 5)}</div>
+                )}
+                {l.religion_preference && (
+                  <div>• Preference: {l.religion_preference}</div>
+                )}
+              </div>
             </div>
+          )}
+
+          {/* Location (ref .map-block) */}
+          <div className="border-t border-grey-50 py-6">
+            <SectionHead>Location</SectionHead>
+            {l.lat && l.lng ? (
+              <iframe
+                title={`Map — ${l.name}`}
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(l.lng) - 0.01},${Number(l.lat) - 0.006},${Number(l.lng) + 0.01},${Number(l.lat) + 0.006}&layer=mapnik&marker=${l.lat},${l.lng}`}
+                className="h-[200px] w-full rounded-[14px] border border-grey-50"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-[200px] items-center justify-center rounded-[14px] bg-grey-10 text-[13px] text-grey-400">
+                Exact location shared by the owner after contact
+              </div>
+            )}
+          </div>
+
+          {/* Reviews */}
+          <div className="border-t border-grey-50 py-6">
+            <SectionHead>Reviews</SectionHead>
             {l.ai_review_summary && (
-              <div className="mt-3 rounded-2xl border border-accent/40 bg-accent/10 p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-primary">
+              <div className="mb-3 rounded-[14px] border border-accent/40 bg-primary-tint p-4">
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-primary">
                   AI summary of reviews
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-grey-600">
@@ -315,18 +410,15 @@ export default async function ListingPage({ params }: Props) {
                 </p>
               </div>
             )}
-            <div className="mt-3">
-              <ReviewForm listingId={l.id} />
-            </div>
+            <ReviewForm listingId={l.id} />
             {l.reviews.length > 0 ? (
               <ul className="mt-3 space-y-3">
                 {l.reviews.map((r, i) => (
-                  <li
-                    key={i}
-                    className="rounded-2xl border border-grey-50 bg-white p-4 shadow-sm"
-                  >
+                  <li key={i} className="surface-card p-4">
                     <div className="flex items-center justify-between">
-                      <p className="font-semibold text-grey-800">{r.reviewer_name}</p>
+                      <p className="font-semibold text-grey-800">
+                        {r.reviewer_name}
+                      </p>
                       <RatingStars rating={r.rating} />
                     </div>
                     {r.review_text && (
@@ -340,50 +432,54 @@ export default async function ListingPage({ params }: Props) {
             ) : (
               <p className="mt-2 text-sm text-grey-400">No reviews yet.</p>
             )}
-          </section>
+          </div>
+
+          {/* Similar PGs nearby (ref .similar-strip) */}
+          {similar.length > 0 && (
+            <div className="border-t border-grey-50 py-6">
+              <SectionHead>Similar PGs nearby</SectionHead>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {similar.map((s) => (
+                  <ListingCard key={s.id} listing={s} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Sidebar: price + facts + contact */}
+        {/* Contact card (ref .contact-card, sticky) */}
         <aside
           id="contact"
-          className="h-fit scroll-mt-24 space-y-4 lg:sticky lg:top-24"
+          className="h-fit scroll-mt-24 space-y-4 lg:sticky lg:top-20"
         >
-          <div className="rounded-2xl border border-grey-50 bg-white p-5 shadow-sm">
+          <div className="surface-card p-6">
             {price ? (
-              <p className="text-2xl font-bold text-grey-900">
-                {price}
-                <span className="text-sm font-normal text-grey-400"> /month approx</span>
+              <p className="font-mono text-2xl font-bold text-primary">
+                {price}{" "}
+                <span className="text-[13px] font-normal text-grey-400">
+                  / month
+                </span>
               </p>
             ) : (
-              <p className="text-lg font-bold text-grey-700">
-                Price on request
-              </p>
+              <p className="text-lg font-bold text-grey-700">Price on request</p>
             )}
             <dl className="mt-4">
-              {l.pg_type && <FactRow label="PG type" value={PG_TYPE_LABEL[l.pg_type]} />}
+              {l.pg_type && (
+                <FactRow label="PG type" value={PG_TYPE_LABEL[l.pg_type]} />
+              )}
               {l.sharing_types.length > 0 && (
                 <FactRow label="Sharing" value={l.sharing_types.join(", ")} />
               )}
               {l.food_preference && (
                 <FactRow label="Food" value={FOOD_LABEL[l.food_preference]} />
               )}
-              {l.house_rules_strictness && (
-                <FactRow
-                  label="House rules"
-                  value={STRICTNESS_LABEL[l.house_rules_strictness]}
-                />
-              )}
-              {l.curfew_time && (
-                <FactRow label="Curfew" value={l.curfew_time.slice(0, 5)} />
-              )}
               {l.road_access && (
                 <FactRow
                   label="Road access"
-                  value={l.road_access === "with_road" ? "On main road" : "Interior lane"}
+                  value={
+                    l.road_access === "with_road" ? "On main road" : "Interior lane"
+                  }
                 />
-              )}
-              {l.religion_preference && (
-                <FactRow label="Preference" value={l.religion_preference} />
               )}
               {l.verified_at && (
                 <FactRow
@@ -394,20 +490,22 @@ export default async function ListingPage({ params }: Props) {
                   })}
                 />
               )}
-              {l.trust_score != null && (
-                <FactRow label="Trust score" value={`${l.trust_score}/100`} />
-              )}
             </dl>
+            <div className="mt-4">
+              <ContactReveal listingId={l.id} />
+            </div>
+            <p className="mt-3.5 text-center text-[11.5px] text-grey-400">
+              No brokerage. Ever.
+            </p>
           </div>
-          <ContactReveal listingId={l.id} />
         </aside>
       </div>
 
-      {/* Mobile sticky contact bar (reference-site pattern) */}
+      {/* Mobile sticky contact bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-grey-50 bg-white/95 p-3 backdrop-blur-md lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-1">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-grey-900">
+            <p className="truncate font-mono text-sm font-bold text-grey-900">
               {price ?? "Price on request"}
               {price && (
                 <span className="text-xs font-normal text-grey-400"> /mo</span>
@@ -417,7 +515,7 @@ export default async function ListingPage({ params }: Props) {
           </div>
           <a
             href="#contact"
-            className="shrink-0 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/25 transition hover:bg-purple"
+            className="shrink-0 rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
           >
             Contact owner
           </a>

@@ -3,8 +3,8 @@
  * - network-first with cache fallback for pages (listing/city HTML)
  * - never touch non-GET requests (lead/owner submissions must hit the network)
  */
-const STATIC_CACHE = "pgnm-static-v1";
-const PAGE_CACHE = "pgnm-pages-v1";
+const STATIC_CACHE = "pgnm-static-v2";
+const PAGE_CACHE = "pgnm-pages-v2";
 const OFFLINE_URL = "/offline";
 
 self.addEventListener("install", (event) => {

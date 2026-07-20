@@ -5,11 +5,13 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "PG Near Me",
     short_name: "PG Near Me",
     description:
-      "Free directory of PGs, hostels and shared flats across India — no brokers.",
+      "Find verified PGs, hostels and shared rooms across India with zero brokerage.",
     start_url: "/",
+    scope: "/",
     display: "standalone",
+    orientation: "portrait-primary",
     theme_color: "#534AB7",
-    background_color: "#FFFFFF",
+    background_color: "#F4F6F8",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
