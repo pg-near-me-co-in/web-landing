@@ -9,6 +9,8 @@ import {
   getSeoOverride,
 } from "@/lib/queries";
 import { ListingCard } from "@/components/listing-card";
+import { MobileFilterSheet } from "@/components/mobile-filter-sheet";
+import { resolveSeo } from "@/lib/seo";
 import { PG_TYPE_LABEL } from "@/lib/format";
 import type { PgType } from "@/lib/types";
 
@@ -36,19 +38,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const city = await getCityBySlug(citySlug);
   if (!city) return {};
   // fallback precedence: page_seo_meta override -> computed entity default
+  // (see src/lib/seo.ts::resolveSeo, documented in SEO_AEO_GEO_STRATEGY.md §2)
   const seo = await getSeoOverride("city", city.id);
-  const title =
-    seo?.meta_title ?? `PGs & Hostels in ${city.name} — Prices, Photos & Reviews`;
-  const description =
-    seo?.meta_description ??
-    `Browse ${city.listing_count_cache}+ verified PGs, hostels and shared flats in ${city.name}, ${city.state}. Compare prices, sharing types and amenities — contact owners directly for free.`;
+  const { title, description, ogTitle, ogDescription } = resolveSeo(seo, {
+    title: `PGs & Hostels in ${city.name} — Prices, Photos & Reviews`,
+    description: `Browse ${city.listing_count_cache}+ verified PGs, hostels and shared flats in ${city.name}, ${city.state}. Compare prices, sharing types and amenities — contact owners directly for free.`,
+  });
   return {
     title,
     description,
     alternates: { canonical: `/pg/${city.slug}` },
     openGraph: {
-      title: seo?.og_title ?? title,
-      description: seo?.og_description ?? description,
+      title: ogTitle,
+      description: ogDescription,
     },
   };
 }
@@ -61,7 +63,7 @@ const TYPE_CHIPS: { value: PgType | ""; label: string }[] = [
 ];
 
 const fieldCls =
-  "w-full rounded-[10px] border border-grey-100 bg-grey-5 px-3 py-2.5 text-sm text-grey-900 outline-none transition focus:border-primary focus:bg-white";
+  "w-full rounded-md border border-grey-100 bg-grey-5 px-3 py-2.5 text-sm text-grey-900 outline-none transition focus:border-primary focus:bg-white";
 const groupHead =
   "mb-3 font-mono text-[12.5px] font-semibold uppercase tracking-wider text-grey-500";
 
@@ -178,12 +180,18 @@ export default async function CityPage({ params, searchParams }: Props) {
           name="q"
           defaultValue={sp.q ?? ""}
           placeholder="PG or area name"
+          aria-label="Search by PG or area name"
           className={fieldCls}
         />
       </div>
       <div className="mb-5">
         <h3 className={groupHead}>Budget</h3>
-        <select name="price" defaultValue={sp.price ?? ""} className={fieldCls}>
+        <select
+          name="price"
+          defaultValue={sp.price ?? ""}
+          aria-label="Budget"
+          className={fieldCls}
+        >
           <option value="">Any</option>
           <option value="5000">Under ₹5,000</option>
           <option value="8000">Under ₹8,000</option>
@@ -197,6 +205,7 @@ export default async function CityPage({ params, searchParams }: Props) {
         <select
           name="sharing"
           defaultValue={sp.sharing ?? ""}
+          aria-label="Sharing type"
           className={fieldCls}
         >
           <option value="">Any</option>
@@ -207,7 +216,12 @@ export default async function CityPage({ params, searchParams }: Props) {
       </div>
       <div className="mb-5">
         <h3 className={groupHead}>Food</h3>
-        <select name="food" defaultValue={sp.food ?? ""} className={fieldCls}>
+        <select
+          name="food"
+          defaultValue={sp.food ?? ""}
+          aria-label="Food preference"
+          className={fieldCls}
+        >
           <option value="">Any</option>
           <option value="veg">Veg only</option>
           <option value="non_veg">Non-veg ok</option>
@@ -216,14 +230,14 @@ export default async function CityPage({ params, searchParams }: Props) {
       {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
       <button
         type="submit"
-        className="w-full rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+        className="w-full rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
       >
         Apply filters
       </button>
       {(sp.price || sp.sharing || sp.food || sp.q) && (
         <Link
           href={`/pg/${citySlug}${pgType ? `?type=${pgType}` : ""}`}
-          className="mt-3 block text-center text-sm font-semibold text-grey-400 hover:text-grey-600"
+          className="mt-3 block text-center text-sm font-semibold text-grey-500 hover:text-grey-600"
         >
           Clear filters
         </Link>
@@ -245,7 +259,7 @@ export default async function CityPage({ params, searchParams }: Props) {
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         {/* City head + AEO factual summary */}
         <div className="pt-7">
-          <nav className="text-sm text-grey-400" aria-label="Breadcrumb">
+          <nav className="text-sm text-grey-500" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-primary">
               Home
             </Link>{" "}
@@ -307,16 +321,12 @@ export default async function CityPage({ params, searchParams }: Props) {
               })}
             </div>
 
-            {/* Mobile filters (collapsible, same GET form) */}
-            <details className="mt-3 lg:hidden">
-              <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-[10px] border border-grey-100 bg-white px-4 py-2 text-[13px] font-semibold text-grey-800">
-                Filters
-                {(sp.price || sp.sharing || sp.food || sp.q) && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
-                )}
-              </summary>
-              <div className="mt-3">{filterForm}</div>
-            </details>
+            {/* Mobile filters (Sheet drawer wrapping the same GET form) */}
+            <div className="mt-3 lg:hidden">
+              <MobileFilterSheet hasActiveFilters={!!(sp.price || sp.sharing || sp.food || sp.q)}>
+                {filterForm}
+              </MobileFilterSheet>
+            </div>
 
             {/* Results head: count + sort (ref .results-head) */}
             <div className="mt-5 flex flex-wrap items-center justify-between gap-2.5">
@@ -336,6 +346,7 @@ export default async function CityPage({ params, searchParams }: Props) {
                 <select
                   name="sort"
                   defaultValue={sp.sort ?? ""}
+                  aria-label="Sort results"
                   className="rounded-lg border border-grey-100 bg-white px-3 py-2 text-[13.5px] text-grey-700 outline-none"
                 >
                   <option value="">Sort: Recommended</option>
@@ -359,7 +370,7 @@ export default async function CityPage({ params, searchParams }: Props) {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 rounded-[22px] border border-dashed border-grey-100 bg-white p-12 text-center">
+              <div className="mt-8 rounded-2xl border border-dashed border-grey-100 bg-white p-12 text-center">
                 <p className="font-display text-xl font-semibold text-grey-700">
                   No {pgType ? `${PG_TYPE_LABEL[pgType].toLowerCase()} ` : ""}PGs
                   published in {city.name} yet
@@ -370,7 +381,7 @@ export default async function CityPage({ params, searchParams }: Props) {
                 </p>
                 <Link
                   href="/add-your-pg"
-                  className="mt-4 inline-block rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                  className="mt-4 inline-block rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
                 >
                   Own a PG here? List it free →
                 </Link>
