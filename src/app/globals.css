@@ -1,10 +1,14 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-/* Brand tokens per ref/pg-near-me-site (reference theme) + docs/DESIGN_SYSTEM.md.
-   Kept as CSS custom properties so Phase 3 `site_settings` theming can
-   override them at runtime without restyling components. Derived shades
-   (dark/tint) are computed from --brand-primary so runtime theme overrides
-   stay coherent. */
+/* Bento theme (2026-07): softer 20px radius, Sora/Manrope, elevated-shadow
+   cards — visual system ported from ref/make-joyful-moments-main. Brand
+   tokens below keep their *names* from the earlier reference theme
+   (docs/DESIGN_SYSTEM.md) so `src/lib/theme.ts`'s `site_settings`-driven
+   admin override keeps working with zero code change; only values that
+   aren't part of that override contract (radius, shadow, new utilities)
+   actually change. Derived shades (dark/tint) stay computed from
+   --brand-primary via color-mix so runtime overrides remain coherent. */
 :root {
   --brand-primary: #534ab7;
   --brand-purple: #7f77dd;
@@ -14,7 +18,11 @@
 
   --brand-primary-dark: color-mix(in srgb, var(--brand-primary), #16191c 18%);
   --brand-primary-tint: color-mix(in srgb, var(--brand-primary), #ffffff 90%);
-  --brand-teal-dark: color-mix(in srgb, var(--brand-teal), #16191c 18%);
+  /* 35% (not 18%, like --brand-primary-dark) — the lighter mix failed WCAG
+     AA (4.01:1) as badge text on --state-success-bg; found via computed
+     contrast, see e2e/a11y.spec.ts. */
+  --brand-teal-dark: color-mix(in srgb, var(--brand-teal), #16191c 35%);
+  --brand-teal-tint: color-mix(in srgb, var(--brand-teal), #ffffff 90%);
 
   --grey-5: #fafbfc;
   --grey-10: #f4f6f8;
@@ -30,15 +38,51 @@
   --grey-900: #16191c;
   --grey-950: #0c0e10;
 
+  /* fg values darkened from the original Figma palette — the originals
+     (warn-fg 1.71:1, success-fg 2.64:1, alert-fg 3.44:1 against their own
+     -bg pairing) failed WCAG AA's 4.5:1 for normal text; these pass with a
+     safety margin while keeping the same hue. Found via e2e/a11y.spec.ts. */
   --state-warn-bg: #fdeab8;
-  --state-warn-fg: #efa820;
+  --state-warn-fg: #805509;
   --state-success-bg: #e8f4f0;
-  --state-success-fg: #1faa72;
+  --state-success-fg: #13724c;
   --state-alert-bg: #fce8e8;
-  --state-alert-fg: #d94f4f;
+  --state-alert-fg: #b83333;
 
-  --shadow-card: 0 2px 10px rgba(22, 25, 28, 0.06);
+  /* Softer, more diffuse "bento" shadows (values only — the reference's
+     oklch equivalents are re-expressed in rgba/grey-900 so no new color
+     space is introduced and existing hex-based contrast is unaffected). */
+  --shadow-card: 0 1px 2px rgba(22, 25, 28, 0.04), 0 6px 20px -14px rgba(22, 25, 28, 0.15);
+  --shadow-elevated: 0 12px 32px -18px rgba(22, 25, 28, 0.18);
   --shadow-lift: 0 20px 44px -20px rgba(83, 74, 183, 0.35);
+
+  /* 20px base radius (was 14px) — --radius-card/-lg stay as aliases so
+     existing `var(--radius-card)` usages don't need a find/replace pass.
+     The derived --radius-sm..3xl scale is registered as Tailwind theme
+     tokens below (@theme inline), which is what actually turns
+     `rounded-md`/`rounded-lg`/etc into the softer bento radius everywhere,
+     including inside ported shadcn/Radix primitives. */
+  --radius: 1.25rem;
+  --radius-card: var(--radius);
+  --radius-card-lg: calc(var(--radius) + 12px);
+
+  /* shadcn/ui semantic tokens (Phase 3 primitives) — distinct `--surface-*`
+     names (not `--color-*`) so the @theme inline mapping below can point
+     at them without a self-referential `--color-x: var(--color-x)`.
+     Mapped onto our existing brand/grey scale. NOTE: deliberately no
+     --accent/--accent-foreground here — `accent` already means "brand
+     accent purple" throughout this app (search-card, badges, page.tsx);
+     ported primitives use --muted/--foreground for generic hover states
+     instead to avoid silently recoloring existing brand-accent usages. */
+  --surface-white: #ffffff;
+  --surface-foreground: var(--grey-900);
+  --surface-secondary: var(--grey-10);
+  --surface-secondary-foreground: var(--grey-900);
+  --surface-muted: var(--grey-10);
+  --surface-muted-foreground: var(--grey-500);
+  --surface-destructive: var(--state-alert-fg);
+  --surface-destructive-foreground: #ffffff;
+  --surface-border: var(--grey-100);
 }
 
 @theme inline {
@@ -49,7 +93,37 @@
   --color-accent: var(--brand-accent);
   --color-teal: var(--brand-teal);
   --color-teal-dark: var(--brand-teal-dark);
+  --color-teal-tint: var(--brand-teal-tint);
   --color-highlight: var(--brand-highlight);
+
+  /* shadcn/ui semantic tokens — see the :root block above for the mapping
+     rationale (esp. why --accent-foreground is deliberately absent). */
+  --color-background: var(--surface-white);
+  --color-foreground: var(--surface-foreground);
+  --color-card: var(--surface-white);
+  --color-card-foreground: var(--surface-foreground);
+  --color-popover: var(--surface-white);
+  --color-popover-foreground: var(--surface-foreground);
+  --color-primary-foreground: var(--surface-white);
+  --color-secondary: var(--surface-secondary);
+  --color-secondary-foreground: var(--surface-secondary-foreground);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--surface-muted-foreground);
+  --color-destructive: var(--surface-destructive);
+  --color-destructive-foreground: var(--surface-destructive-foreground);
+  --color-border: var(--surface-border);
+  --color-input: var(--surface-border);
+  --color-ring: var(--brand-primary);
+
+  /* Overrides Tailwind's built-in default radius scale so `rounded-sm/md/
+     lg/xl/2xl/3xl` — used throughout the ported shadcn/Radix primitives —
+     render at the bento radius instead of Tailwind's stock small default. */
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 20px);
 
   --color-grey-5: var(--grey-5);
   --color-grey-10: var(--grey-10);
@@ -72,15 +146,16 @@
   --color-alert-bg: var(--state-alert-bg);
   --color-alert-fg: var(--state-alert-fg);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-manrope), sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
   --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
   --shadow-lift: var(--shadow-lift);
 
-  --radius-card: 14px;
-  --radius-card-lg: 22px;
+  --radius-card: var(--radius-card);
+  --radius-card-lg: var(--radius-card-lg);
 }
 
 html {
@@ -93,6 +168,17 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom);
+  background-image: radial-gradient(
+      60rem 40rem at 10% -10%,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      50rem 40rem at 100% 0%,
+      color-mix(in srgb, var(--brand-teal) 6%, transparent),
+      transparent 60%
+    );
+  background-attachment: fixed;
 }
 
 h1,
@@ -143,4 +229,42 @@ textarea:focus-visible {
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
   }
+}
+
+/* Bento-theme utilities (ported from ref/make-joyful-moments-main's
+   @utility blocks, re-pointed at our own token names). */
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  max-width: 76rem;
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--brand-primary-tint);
+  color: var(--grey-900);
+  border: 1px solid var(--grey-50);
+}
+
+/* Larger-radius sibling of .surface-card, for hero/CTA-scale panels. */
+@utility bento-card {
+  background: #fff;
+  border: 1px solid var(--grey-50);
+  border-radius: var(--radius-card-lg);
+  box-shadow: var(--shadow-elevated);
+}
+
+@utility glow-primary {
+  box-shadow: 0 0 40px -10px var(--brand-primary);
 }

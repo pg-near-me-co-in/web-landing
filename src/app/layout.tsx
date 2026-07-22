@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@/components/analytics";
 import { Pwa } from "@/components/pwa";
+import { Toaster } from "@/components/ui/sonner";
 import { getThemeSettings, themeCss } from "@/lib/theme";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  weight: ["500", "600", "700"],
+// Bento theme (2026-07): Sora/Manrope display+body pairing, self-hosted via
+// next/font. JetBrains Mono is kept for eyebrows/badges/prices — a
+// deliberate deviation from the reference (which has no mono face).
+const sora = Sora({
+  variable: "--font-sora",
+  weight: ["500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -35,7 +40,7 @@ export const metadata: Metadata = {
     template: "%s | PG Near Me",
   },
   description:
-    "Free directory of PGs, hostels and flatmate-sharing accommodation across India. Filter by city, budget, sharing type and gender — contact owners directly, no brokers.",
+    "Free directory of PGs, hostels and shared flats across India. Filter by city, budget, sharing type and gender — contact owners directly, no brokers.",
   openGraph: {
     siteName: "PG Near Me",
     type: "website",
@@ -57,8 +62,14 @@ export const metadata: Metadata = {
     images: ["/brand/og-image.png"],
   },
   icons: {
-    icon: "/icons/icon-192.png",
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
     apple: "/icons/apple-touch-icon.png",
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
@@ -76,7 +87,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${sora.variable} ${manrope.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         {themeOverride && <style>{themeOverride}</style>}
@@ -84,6 +95,7 @@ export default async function RootLayout({
         {children}
         <Footer />
         <Pwa />
+        <Toaster position="top-center" richColors />
         <Analytics />
         <SpeedInsights />
       </body>
