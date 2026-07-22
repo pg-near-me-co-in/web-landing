@@ -14,7 +14,7 @@ export default async function ReviewsModerationPage() {
         Pending reviews ({rows.length})
       </h1>
       {rows.length === 0 && (
-        <p className="mt-4 text-sm text-grey-400">Nothing waiting. 🎉</p>
+        <p className="mt-4 text-sm text-grey-500">Nothing waiting. 🎉</p>
       )}
       <ul className="mt-6 space-y-4">
         {rows.map((r) => (
@@ -37,7 +37,7 @@ export default async function ReviewsModerationPage() {
                 {r.review_text && (
                   <p className="mt-2 max-w-2xl text-sm text-grey-600">{r.review_text}</p>
                 )}
-                <p className="mt-1 text-xs text-grey-400">
+                <p className="mt-1 text-xs text-grey-500">
                   {new Date(r.created_at).toLocaleString("en-IN")}
                 </p>
               </div>

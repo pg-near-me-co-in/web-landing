@@ -9,6 +9,8 @@ export interface City {
   lng: number | null;
   is_launched: boolean;
   listing_count_cache: number;
+  tagline: string | null;
+  hero_image_url: string | null;
 }
 
 export interface Area {
@@ -16,6 +18,41 @@ export interface Area {
   city_id: string;
   name: string;
   slug: string;
+}
+
+export interface Owner {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  whatsapp_number: string | null;
+  status: "pending" | "active" | "blocked";
+  notes: string | null;
+  created_at: string;
+}
+
+export interface Amenity {
+  id: string;
+  name: string;
+  slug: string;
+  icon_key: string | null;
+  category: string | null;
+  is_active: boolean;
+}
+
+export interface AdminListingRow {
+  id: string;
+  name: string;
+  slug: string;
+  city_name: string;
+  city_slug: string;
+  area_name: string | null;
+  pg_type: PgType | null;
+  status: string;
+  price_min: number | null;
+  price_max: number | null;
+  trust_score: number | null;
+  updated_at: string;
 }
 
 export interface ListingCard {
@@ -37,6 +74,12 @@ export interface ListingCard {
   sharing_types: string[];
 }
 
+export interface ListingImage {
+  storage_path: string;
+  alt_text: string;
+  is_cover: boolean;
+}
+
 export interface ListingDetail extends ListingCard {
   description: string | null;
   address_line: string | null;
@@ -51,7 +94,7 @@ export interface ListingDetail extends ListingCard {
   ai_review_summary: string | null;
   verified_at: string | null;
   published_at: string | null;
-  images: { storage_path: string; alt_text: string; is_cover: boolean }[];
+  images: ListingImage[];
   amenities: { name: string; slug: string; icon_key: string | null }[];
   reviews: {
     reviewer_name: string;

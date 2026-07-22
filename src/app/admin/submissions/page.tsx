@@ -20,7 +20,7 @@ export default async function SubmissionsPage() {
         Pending submissions ({rows.length})
       </h1>
       {rows.length === 0 && (
-        <p className="mt-4 text-sm text-grey-400">Queue is empty. 🎉</p>
+        <p className="mt-4 text-sm text-grey-500">Queue is empty. 🎉</p>
       )}
       <ul className="mt-6 space-y-4">
         {rows.map((r) => (
@@ -38,7 +38,7 @@ export default async function SubmissionsPage() {
                     ` · ${formatPriceRange(r.price_min, r.price_max)}/mo`}
                   {r.sharing_types?.length > 0 && ` · ${r.sharing_types.join("/")}`}
                 </p>
-                <p className="mt-1 text-xs text-grey-400">
+                <p className="mt-1 text-xs text-grey-500">
                   {r.source} · {new Date(r.created_at).toLocaleString("en-IN")}
                   {r.owner_name && ` · owner: ${r.owner_name} (${r.owner_phone})`}
                 </p>

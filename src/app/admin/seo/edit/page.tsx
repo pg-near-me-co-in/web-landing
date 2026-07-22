@@ -89,7 +89,7 @@ export default async function SeoEditPage({
         ← All pages
       </Link>
       <h1 className="mt-2 font-display text-2xl text-grey-900">{label}</h1>
-      <p className="mt-1 text-sm text-grey-400">
+      <p className="mt-1 text-sm text-grey-500">
         Route: <code>{values.route_pattern}</code>
       </p>
       <SeoForm initial={values} />
