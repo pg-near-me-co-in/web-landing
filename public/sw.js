@@ -3,8 +3,11 @@
  * - network-first with cache fallback for pages (listing/city HTML)
  * - never touch non-GET requests (lead/owner submissions must hit the network)
  */
-const STATIC_CACHE = "pgnm-static-v2";
-const PAGE_CACHE = "pgnm-pages-v2";
+// v3 (2026-07 bento re-skin): bumped so existing installs drop stale
+// cached CSS/fonts/icons from before the token/logo refresh instead of
+// serving them indefinitely.
+const STATIC_CACHE = "pgnm-static-v3";
+const PAGE_CACHE = "pgnm-pages-v3";
 const OFFLINE_URL = "/offline";
 
 self.addEventListener("install", (event) => {

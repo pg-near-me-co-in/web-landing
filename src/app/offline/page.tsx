@@ -19,7 +19,7 @@ export default function OfflinePage() {
       </p>
       <Link
         href="/"
-        className="mt-6 rounded-[10px] bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
+        className="mt-6 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
       >
         Try again
       </Link>
