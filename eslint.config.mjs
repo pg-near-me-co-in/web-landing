@@ -12,7 +12,19 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored reference project — not part of the shipped app, not our code style.
+    "ref/**",
+    // Playwright's own generated output.
+    "playwright-report/**",
+    "test-results/**",
   ]),
+  {
+    // Plain Node CommonJS utility scripts — not bundled by Next, `require()` is correct here.
+    files: ["scripts/**/*.js", "supabase/seed/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
