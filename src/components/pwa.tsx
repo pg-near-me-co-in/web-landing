@@ -34,7 +34,7 @@ export function Pwa() {
   if (!installEvt) return null;
 
   return (
-    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[420px] items-center justify-between gap-3 rounded-[14px] bg-grey-900 p-3.5 pl-4 text-white shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-[420px] items-center justify-between gap-3 rounded-2xl bg-grey-900 p-3.5 pl-4 text-white shadow-elevated">
       <p className="min-w-0 flex-1 text-[13px] leading-snug">
         Install PG Near Me for one-tap access to your searches and listings.
       </p>
@@ -44,7 +44,7 @@ export function Pwa() {
             await installEvt.prompt();
             setInstallEvt(null);
           }}
-          className="rounded-[10px] bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-primary-dark"
+          className="rounded-md bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-primary-dark"
         >
           Install
         </button>

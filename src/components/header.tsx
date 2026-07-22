@@ -4,8 +4,9 @@ import { MobileNav } from "./mobile-nav";
 
 const NAV_LINKS: [string, string][] = [
   ["/#search", "Find a PG"],
-  ["/#cities", "Cities"],
-  ["/add-your-pg", "List your PG"],
+  ["/cities", "Cities"],
+  ["/about", "About"],
+  ["/for-owners", "For owners"],
 ];
 
 /** Sticky blurred header (ref .site-header): logo left, nav centre-right,
@@ -29,13 +30,13 @@ export function Header() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/add-your-pg"
-            className="hidden rounded-[10px] border border-grey-100 bg-white px-3.5 py-2 text-[13px] font-semibold text-grey-800 transition hover:border-primary hover:text-primary md:block"
+            className="hidden rounded-md border border-grey-100 bg-white px-3.5 py-2 text-[13px] font-semibold text-grey-800 transition hover:border-primary hover:text-primary md:block"
           >
             List property — free
           </Link>
           <Link
             href="/#search"
-            className="rounded-[10px] bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-primary-dark"
+            className="rounded-md bg-primary px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-primary-dark"
           >
             Find a PG
           </Link>

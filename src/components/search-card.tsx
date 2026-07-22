@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { PgType } from "@/lib/types";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface CityOption {
   name: string;
@@ -63,35 +64,34 @@ export function SearchCard({ cities }: { cities: CityOption[] }) {
   }
 
   const fieldCls =
-    "w-full rounded-[10px] border border-grey-100 bg-grey-5 px-3.5 py-3 text-[14.5px] text-grey-900 outline-none transition focus:border-primary focus:bg-white";
+    "w-full rounded-md border border-grey-100 bg-grey-5 px-3.5 py-3 text-[14.5px] text-grey-900 outline-none transition focus:border-primary focus:bg-white";
 
   return (
     <form
       onSubmit={submit}
-      className="rounded-[22px] border border-grey-50 bg-white p-6 shadow-[0_30px_60px_-24px_rgba(83,74,183,0.28)]"
+      className="rounded-2xl border border-grey-50 bg-white p-6 shadow-[0_30px_60px_-24px_rgba(83,74,183,0.28)]"
     >
       <span className="mb-3.5 block font-mono text-[11px] font-semibold tracking-wider text-primary">
         FIND A PLACE →
       </span>
 
-      <div className="mb-4 flex flex-wrap gap-2" role="radiogroup" aria-label="PG type">
+      <ToggleGroup
+        type="single"
+        value={type}
+        onValueChange={(v) => setType((v as PgType | "") ?? "")}
+        className="mb-4 flex-wrap gap-2"
+        aria-label="PG type"
+      >
         {TYPE_TOGGLES.map((t) => (
-          <button
+          <ToggleGroupItem
             key={t.label}
-            type="button"
-            role="radio"
-            aria-checked={type === t.value}
-            onClick={() => setType(t.value)}
-            className={`min-w-[72px] flex-1 rounded-[10px] border px-1.5 py-2.5 text-[13px] font-semibold transition ${
-              type === t.value
-                ? "border-primary bg-primary text-white"
-                : "border-grey-50 bg-grey-10 text-grey-500 hover:text-grey-700"
-            }`}
+            value={t.value}
+            className="min-w-[72px] flex-1 rounded-md border border-grey-50 bg-grey-10 px-1.5 py-2.5 text-[13px] font-semibold text-grey-500 hover:text-grey-700 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-white"
           >
             {t.label}
-          </button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
 
       <div className="relative mb-3.5">
         <label
@@ -114,7 +114,7 @@ export function SearchCard({ cities }: { cities: CityOption[] }) {
           autoComplete="off"
         />
         {open && matches.length > 0 && (
-          <ul className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-[14px] border border-grey-50 bg-white py-1 text-left shadow-xl">
+          <ul className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-xl border border-grey-50 bg-white py-1 text-left shadow-xl">
             {matches.map((c) => (
               <li key={c.slug}>
                 <button
@@ -123,7 +123,7 @@ export function SearchCard({ cities }: { cities: CityOption[] }) {
                   className="flex w-full items-center justify-between px-4 py-2.5 text-sm transition hover:bg-grey-5"
                 >
                   <span className="font-semibold text-grey-800">{c.name}</span>
-                  <span className="text-xs text-grey-400">
+                  <span className="text-xs text-grey-500">
                     {c.state}
                     {!c.is_launched && " · coming soon"}
                   </span>
@@ -157,7 +157,7 @@ export function SearchCard({ cities }: { cities: CityOption[] }) {
 
       <button
         type="submit"
-        className="w-full rounded-[10px] bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
+        className="w-full rounded-md bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
       >
         Search listings
       </button>

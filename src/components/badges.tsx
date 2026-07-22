@@ -36,7 +36,7 @@ export function RatingStars({
   count?: number;
 }) {
   if (!rating) {
-    return <span className="text-xs text-grey-400">No ratings yet</span>;
+    return <span className="text-xs text-grey-500">No ratings yet</span>;
   }
   return (
     <span className="inline-flex items-center gap-1 text-sm font-semibold text-grey-700">
@@ -45,7 +45,7 @@ export function RatingStars({
       </svg>
       {Number(rating).toFixed(1)}
       {count != null && count > 0 && (
-        <span className="font-normal text-grey-400">({count})</span>
+        <span className="font-normal text-grey-500">({count})</span>
       )}
     </span>
   );

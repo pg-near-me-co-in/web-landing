@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCitiesByState, getFeaturedListings } from "@/lib/queries";
 import { SearchCard } from "@/components/search-card";
 import { ListingCard } from "@/components/listing-card";
+import { CITY_CARD_BG, cityHeroTreatment } from "@/lib/placeholder-images";
 
 export const revalidate = 3600;
 
@@ -87,17 +88,6 @@ const FAQS = [
   },
 ];
 
-/* ref .city-card background rotation (c1..c8) */
-const CITY_CARD_BG = [
-  "bg-primary-tint",
-  "bg-success-bg",
-  "bg-warn-bg",
-  "bg-[#EFE9FB]",
-  "bg-grey-50",
-  "bg-[#E6F6EF]",
-  "bg-[#FDF1DC]",
-  "bg-[#F1EFFB]",
-];
 
 export default async function HomePage() {
   const [byState, featured] = await Promise.all([
@@ -154,13 +144,13 @@ export default async function HomePage() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href={defaultCity ? `/pg/${defaultCity.slug}` : "#cities"}
-                className="rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-px hover:bg-primary-dark hover:shadow-[var(--shadow-lift)]"
+                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-px hover:bg-primary-dark hover:shadow-[var(--shadow-lift)]"
               >
                 Browse listings
               </Link>
               <Link
                 href="#how"
-                className="rounded-[10px] border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary"
+                className="rounded-md border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary"
               >
                 How it works
               </Link>
@@ -229,17 +219,17 @@ export default async function HomePage() {
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {launched.map((c, i) => (
+            {launched.map((c) => (
               <Link
                 key={c.slug}
                 href={`/pg/${c.slug}`}
-                className={`flex min-h-[118px] flex-col justify-between rounded-[14px] p-5 transition duration-200 hover:-translate-y-[3px] ${CITY_CARD_BG[i % CITY_CARD_BG.length]}`}
+                className={`flex min-h-[118px] flex-col justify-between rounded-xl p-5 transition duration-200 hover:-translate-y-[3px] ${CITY_CARD_BG[cityHeroTreatment(c.slug)]}`}
               >
                 <div>
                   <h3 className="font-display text-[15.5px] font-semibold text-grey-900">
                     {c.name}
                   </h3>
-                  <div className="mt-1 font-mono text-[11.5px] text-grey-500">
+                  <div className="mt-1 font-mono text-[11.5px] text-grey-600">
                     {c.listing_count_cache} listing
                     {c.listing_count_cache === 1 ? "" : "s"}
                   </div>
@@ -250,19 +240,27 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
-          {/* {comingSoon.length > 0 && (
+          {comingSoon.length > 0 && (
             <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-grey-400">Coming soon:</span>
-              {comingSoon.map((c) => (
+              <span className="text-xs text-grey-500">
+                Rolling out next:
+              </span>
+              {comingSoon.slice(0, 8).map((c) => (
                 <span
                   key={c.slug}
-                  className="rounded-full border border-dashed border-grey-100 bg-white px-3 py-1 text-xs font-semibold text-grey-400"
+                  className="rounded-full border border-dashed border-grey-100 bg-white px-3 py-1 text-xs font-semibold text-grey-500"
                 >
                   {c.name}
                 </span>
               ))}
+              <Link
+                href="/cities"
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                See all cities →
+              </Link>
             </div>
-          )} */}
+          )}
         </div>
       </section>
 
@@ -312,7 +310,7 @@ export default async function HomePage() {
                 className="surface-card p-5 transition duration-200 hover:border-accent hover:shadow-[var(--shadow-lift)]"
               >
                 <div
-                  className="mb-3.5 flex h-[42px] w-[42px] items-center justify-center rounded-[10px] bg-primary text-lg text-white"
+                  className="mb-3.5 flex h-[42px] w-[42px] items-center justify-center rounded-md bg-primary text-lg text-white"
                   aria-hidden
                 >
                   {t.icon}
@@ -342,7 +340,7 @@ export default async function HomePage() {
             Students relocating for college, professionals starting new jobs —
             one platform, no matter the city.
           </p>
-          <div className="mt-8 grid gap-px overflow-hidden rounded-[14px] bg-white/10 md:grid-cols-3">
+          <div className="mt-8 grid gap-px overflow-hidden rounded-xl bg-white/10 md:grid-cols-3">
             {WHY.map((w) => (
               <div key={w.n} className="bg-grey-900 px-6 py-6.5">
                 <span className="mb-3 block font-mono text-xs text-highlight">
@@ -401,7 +399,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/add-your-pg"
-            className="rounded-[10px] bg-white px-5 py-2.5 text-sm font-semibold text-primary transition hover:-translate-y-px"
+            className="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-primary transition hover:-translate-y-px"
           >
             List your property
           </Link>
