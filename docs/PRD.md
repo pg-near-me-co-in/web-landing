@@ -50,6 +50,8 @@ The founder's notebook is explicit: **"In 1st Phase there should be only listing
 - **Phase 3** — scraper/data pipeline, CMS-grade admin (SEO fields, theme/fonts editable), AEO/GEO, PWA, fuller analytics.
 - **Phase 4** — AI features layered on top of a mature data + admin foundation.
 
+**Always-on marketing/IA surfaces** (added 2026-07, not phase-gated — no new data model): `/about` (positioning/what-we-are-not), `/cities` (full live + rolling-out city directory), `/for-owners` (owner-acquisition landing), `/privacy-policy`, `/terms`. The legal pages exist because the product genuinely collects personal data (contact-reveal name+phone, owner-submission contact details + photos, review submitter name, GA4/Clarity analytics) — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for the underlying tables.
+
 ## 5. Success metrics (indicative, refine per phase)
 
 | Phase | Primary metric |

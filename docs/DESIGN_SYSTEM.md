@@ -2,24 +2,31 @@
 
 UI/UX conventions. Tech: Tailwind CSS on Next.js (see [PRD.md](PRD.md) for stack decision).
 
-## Reference theme (implemented 2026-07 — current source of truth)
+## Bento theme (implemented 2026-07 — current source of truth)
 
-The public UI is built from the static reference mockups in [`ref/pg-near-me-site/`](../ref/pg-near-me-site/) (index, search, property, list-property, login, dashboard). Everything below the fold of this section describes the earlier brand exploration; where the two disagree, **the reference theme wins**. The only asset carried over from the earlier pass is the app-icon logo (`public/brand/logo-icon.png`), paired with a "PG Near Me" wordmark set in Space Grotesk (the Cherry Bomb wordmark is retired from the UI).
+The public UI is a hand-port of the visual system and component architecture from the Lovable-generated reference app in [`ref/make-joyful-moments-main/`](../ref/make-joyful-moments-main/) (a TanStack Start project — only its design tokens, `src/components/ui/*` shadcn/Radix primitives, and page copy transferred; routing/data-loading stays Next.js App Router). This **supersedes** the "Reference theme" section below — where the two disagree, the bento theme wins. Same brand palette throughout (`--brand-primary #534AB7` etc. unchanged), only fonts/radius/shadows/component architecture changed.
 
 Key decisions, as implemented in `src/app/globals.css` + components:
 
-- **Fonts** (next/font, self-hosted): **Space Grotesk** 500–700 for display/headings (`--font-display`), **Inter** for body/UI (`--font-sans`), **JetBrains Mono** 500–600 for eyebrows, badges, prices and stat labels (`--font-mono`).
-- **Colors**: same Figma palette as below (`--brand-primary #534AB7` etc.). Derived shades are computed with `color-mix` from `--brand-primary` (`--brand-primary-dark`, `--brand-primary-tint`, `--brand-teal-dark`) so the Phase 3 runtime theme editor (`site_settings`) keeps working with **no schema/data change** — admin overrides recolor the derived shades automatically.
-- **Surfaces**: body on `grey-10`; cards are white, 1px `grey-50` border, 14px radius, `--shadow-card` (utility class `.surface-card`); hover lift uses `--shadow-lift`. Section eyebrows use the `.eyebrow` mono pill.
-- **Buttons**: 10px radius, semibold 13–14px; primary (`primary` → `primary-dark` hover), outline (white + `grey-100` border → primary), teal for submit-success actions.
-- **Header**: sticky, blurred `grey-5/90`, logo left, nav centre (Find a PG / Cities / List your PG), primary CTA + hamburger drawer on mobile. **No admin/dashboard/login links anywhere in the public UI** — `/admin` is URL-only, `noindex` (robots meta + `X-Robots-Tag` header + robots.txt disallow).
-- **Footer**: dark `grey-900` band — brand blurb, Explore / Owners / per-city SEO columns, OSM attribution.
-- **Listing card**: image band (gradient placeholder when no photo) with mono badges overlaid, Space Grotesk title + mono purple price, location line, sharing meta row.
-- **Detail page**: ref gallery (2fr/1fr main + side tiles, "+N photos" overlay, thumb strip for the rest — full multi-image support from `listing_images`), amenity tiles on `primary-tint`, house-rules list, OSM embed map, sticky contact card with mono price, similar-PGs strip.
-- **Owner form**: 4-step wizard (Basics → Location → Pricing & amenities → Photos & review) with mono step labels, progress pills and a live sticky summary card, per the ref list-property page.
-- **PWA/OG**: manifest background `#F4F6F8`, portrait-primary; dark ref-style install banner; OG image (1200×630) generated from the logo by `scripts/make-og-image.js` → `public/brand/og-image.png`.
+- **Fonts** (next/font, self-hosted): **Sora** 500–800 for display/headings (`--font-display`), **Manrope** 400–700 for body/UI (`--font-sans`), **JetBrains Mono** 500–600 kept for eyebrows/badges/prices/stat labels (`--font-mono`) — a deliberate deviation from the reference, which has no mono face.
+- **Colors**: unchanged Figma palette (`--brand-primary #534AB7` etc.). Derived shades still computed with `color-mix` from `--brand-primary`, so the runtime theme editor (`site_settings`) keeps working with **zero code change**.
+- **Radius**: softer 20px base (`--radius`, was 14px) — `--radius-sm/md/lg/xl/2xl/3xl` derived via `calc()` and registered in `@theme inline`, so Tailwind's `rounded-sm..3xl` utilities (including inside every ported shadcn/Radix primitive) render at the new scale globally. `--radius-card`/`--radius-card-lg` kept as aliases so existing usages didn't need a find/replace.
+- **Shadows**: added `--shadow-elevated` (softer, more diffuse) alongside the existing `--shadow-card`/`--shadow-lift`.
+- **Background**: subtle two-tone radial gradient (indigo top-left, teal top-right) via `color-mix`, no new color space introduced.
+- **Component library**: shadcn/ui + Radix primitives in `src/components/ui/` (see [Component library](#component-library) below) — `Sheet` for mobile nav/filters, `Dialog`/`ToggleGroup`/`Select`/`Accordion`/`Carousel`/`DropdownMenu`/`Table` used throughout, `react-hook-form` + `zod` for the review form (admin CRUD forms use plain `useActionState` + server actions with native validation, not react-hook-form).
+- **Header**: sticky, blurred `grey-5/90`, logo left, nav (Find a PG / Cities / About / For owners), primary CTA + `Sheet`-based mobile drawer (real focus-trap/Escape/scroll-lock, replacing the old hand-rolled overlay). **No admin/dashboard/login links anywhere in the public UI** — `/admin` is URL-only, `noindex` (robots meta + `X-Robots-Tag` header + robots.txt disallow).
+- **Footer**: dark `grey-900` band — brand blurb (now including the reference's "Made with care for movers, students & first-jobbers" tagline), Explore / Owners / per-city SEO columns, OSM attribution, Privacy/Terms links.
+- **Listing card**: image band (gradient placeholder when no photo, evolving to `placeholderPhotoFor()` deterministic stock photos) with mono badges overlaid, display-font title + mono purple price, location line, sharing meta row.
+- **Detail page**: gallery now uses `Carousel` (embla) for the mobile/thumb-strip experience, keeping the existing 2fr/1fr desktop "+N photos" hero layout; amenity tiles on `primary-tint`, house-rules list, OSM embed map, sticky contact card with mono price, similar-PGs strip.
+- **Owner form**: 4-step wizard, bento re-skin only — kept native `checkValidity()`/`reportValidity()` per-step validation rather than migrating to `react-hook-form` (deliberate scope call: the wizard's mounted-all-steps-at-once structure made a full form-library migration disproportionate to the ask), mono step labels, progress pills, live sticky summary card. Each step's Continue/Submit button carries a distinct `key` so React mounts them as separate DOM nodes — without it, the same-position ternary gets patched in place and a `type` flip mid-click can trigger a premature native submit.
+- **Admin panel**: sidebar shell (was a flat top pill nav) + full CRUD for Listings/Cities/Areas/Amenities/Owners — see [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md).
+- **PWA/OG**: manifest background `#F4F6F8`, portrait-primary; dark install banner; OG image (1200×630) generated by `scripts/make-og-image.js` → `public/brand/og-image.png`; icons regenerated by `scripts/make-app-icons.js` from an icon-only mark (see [Logo](#logo)).
 
-Brand source of truth: [Figma — PG Near Me](https://www.figma.com/design/uQEpBnI0qbFeYN1NF2vHtj/PG-Near-Me) ("Logo & Stuff" page). Exported assets live in [`docs/assets/brand/`](assets/brand/). This file is a brand-exploration doc (logo lockups + color palette) — it does not yet contain UI screens, so the homepage/component sections below are still driven by the founder's notebook wireframe, not Figma frames.
+Brand source of truth: [Figma — PG Near Me](https://www.figma.com/design/uQEpBnI0qbFeYN1NF2vHtj/PG-Near-Me) ("Logo & Stuff" page). Exported assets live in [`docs/assets/brand/`](assets/brand/).
+
+## Reference theme (implemented 2026-07 — superseded by the bento theme above)
+
+Historical: the public UI was previously built from the static reference mockups in [`ref/pg-near-me-site/`](../ref/pg-near-me-site/) (Space Grotesk/Inter, 14px radius, hand-rolled components). Kept here for history; the bento theme above is current.
 
 ## Logo
 
@@ -33,7 +40,15 @@ The file also explores this same lockup as a rounded-square app-icon tile in thr
 | App icon — dark | Black | [`app-icon-black.png`](assets/brand/app-icon-black.png) |
 | App icon — light | White | [`app-icon-white.png`](assets/brand/app-icon-white.png) |
 
-Note: the Figma file also contains a second, unused type treatment (a bolder slab-serif "PG") shown in the same three background tiles — the standalone/primary lockup outside that comparison grid uses Cherry Bomb, which is why Cherry Bomb is treated here as the chosen wordmark. Worth a quick confirmation with the founder that this reading is correct. Exported for reference/comparison, not for use, as [`app-icon-purple-alt-serif.png`](assets/brand/app-icon-purple-alt-serif.png), [`app-icon-black-alt-serif.png`](assets/brand/app-icon-black-alt-serif.png), and [`app-icon-white-alt-serif.png`](assets/brand/app-icon-white-alt-serif.png) — see [open question #11](GLOSSARY_AND_OPEN_QUESTIONS.md).
+Note: the Figma file also contains a second, unused type treatment (a bolder slab-serif "PG") shown in the same three background tiles, exported for reference/comparison only, not for use, as [`app-icon-purple-alt-serif.png`](assets/brand/app-icon-purple-alt-serif.png), [`app-icon-black-alt-serif.png`](assets/brand/app-icon-black-alt-serif.png), and [`app-icon-white-alt-serif.png`](assets/brand/app-icon-white-alt-serif.png). Moot in practice ([open question #11](GLOSSARY_AND_OPEN_QUESTIONS.md), resolved) — the app never renders either wordmark as an image; "PG Near Me" is always live text next to the icon mark.
+
+**Icon-only mark** (resolves [open question #12](GLOSSARY_AND_OPEN_QUESTIONS.md)): [`scripts/make-app-icons.js`](../scripts/make-app-icons.js) isolates just the roofline glyph — the `Group 14` chevron paths inside `pg-near-me-logo.svg`, with no wordmark — renders it at high resolution, trims it to its true bounds, and composites it centered on the brand gradient tile at every required size. This is the canonical icon-only mark: legible at 16px specifically *because* it carries no text. It generates:
+- `public/icons/icon-{192,512}.png` — `purpose: any`, glyph at ~62% of tile width.
+- `public/icons/maskable-{192,512}.png` — glyph shrunk to ~42% of tile width so it survives Android's adaptive-icon safe-zone cropping (the previous maskable files were unpadded copies of the flat icon — a latent PWA bug this fixes).
+- `public/icons/apple-touch-icon.png` (180×180) — opaque background, no alpha (iOS ignores/mishandles transparency).
+- `src/app/favicon.ico` — a real 16/32/48 multi-frame ICO (PNG-encoded frames), hand-assembled in the script rather than via an extra dependency.
+
+Re-run with `npm run icons:generate` after any change to the source SVG.
 
 **Open item**: every exported lockup pairs the roof icon with the full "NEAR ME" wordmark — there's no icon-only mark. At favicon size (16–32px) the wordmark won't be legible, so an icon-only variant (roof + "PG" only, or roof alone) is needed before Phase 3 PWA icons ship. Track this alongside [GLOSSARY_AND_OPEN_QUESTIONS.md](GLOSSARY_AND_OPEN_QUESTIONS.md).
 
@@ -98,8 +113,12 @@ PG Card (used on city listing pages): cover image, PG name, location, price (app
 
 ## Component library
 
-Recommend Tailwind + a headless/unstyled primitives library (e.g. shadcn/ui or Radix) rather than a heavy pre-styled UI kit — keeps the brand distinct and gives full control over the theme tokens that eventually live in `site_settings` (Phase 3 dynamic theming, see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#site_settings-themefontsglobal-config--phase-3)). Exact library choice can be finalized at Phase 0 scaffolding time.
+Implemented (2026-07 bento re-skin): shadcn/ui ("new-york" style) on Radix primitives, hand-adapted from `ref/make-joyful-moments-main` into `src/components/ui/` as Next.js Client Components (each carries its own `"use client"` — the reference's own `components.json` sets `rsc: false` since its TanStack Start base has no server-component concept; ours does, so every ported primitive is explicitly marked). Primitives in the repo: `button`, `sheet` (mobile nav + filter drawers), `dialog`, `accordion`, `tabs`, `carousel` (wraps `embla-carousel-react`), `select`, `checkbox`, `radio-group`, `separator`, `label`, `input`, `textarea`, `badge`, `form` (react-hook-form + zod wiring — used by the review form; ported but not currently imported by the admin CRUD forms, which use plain server actions instead), `sonner` (toasts, mounted once in `layout.tsx`), `dropdown-menu`, `table`, `pagination` (the latter three for the admin CRUD screens).
+
+Deliberately not ported: `vaul` (Radix `Dialog`-based `Sheet` already covers the drawer need), `cmdk`, `recharts`, `input-otp`, `react-day-picker`, and the sidebar/resizable/menubar/context-menu shadcn primitives — no corresponding use case in this app.
+
+**Token mapping note**: the ported primitives use shadcn's generic semantic tokens (`background`/`foreground`/`card`/`popover`/`secondary`/`muted`/`destructive`/`border`/`input`/`ring`), added fresh in `globals.css` with no prior meaning in this codebase. The one deliberate exception is `accent`/`accent-foreground` — shadcn's own templates use these for generic hover-state backgrounds, but this app already uses `accent` to mean "brand accent purple" (`--brand-accent`, used in `search-card.tsx`, `badges.tsx`, `page.tsx`, etc.). To avoid silently recoloring existing brand-accent usages, every ported primitive uses `muted`/`foreground` instead of `accent`/`accent-foreground` for hover/focus states.
 
 ## Theming (Phase 3)
 
-Once `site_settings` is live, brand color and heading/body fonts become admin-editable without a redeploy (see [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md#theme--font-settings)) — seed it with the Figma palette above (`theme.primary_color = #534AB7`, etc.). Build the Tailwind theme with CSS custom properties from the start (even in Phase 1), sourced from the palette in this doc, so wiring them to `site_settings` later doesn't require restyling every component.
+Once `site_settings` is live, brand color and heading/body fonts become admin-editable without a redeploy (see [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md)) — seed it with the Figma palette above (`theme.primary_color = #534AB7`, etc.). Build the Tailwind theme with CSS custom properties from the start (even in Phase 1), sourced from the palette in this doc, so wiring them to `site_settings` later doesn't require restyling every component.

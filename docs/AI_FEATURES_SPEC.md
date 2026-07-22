@@ -14,7 +14,7 @@ Cross-cutting rule for every feature below: **AI suggests, a human approves.** N
 
 4. **AI-based review summarization** — a short synthesized summary shown above raw reviews on detail pages once a listing has enough reviews to make raw browsing tedious. Summary is regenerated periodically, not on every page load.
 
-5. **AI SEO copilot** — in the admin's SEO field editor ([ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md#seo-field-editor)), suggests titles/descriptions/FAQ content per page. Writes to `page_seo_meta.ai_generated = true` only after admin approval — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#page_seo_meta-dynamic-per-route-seo--phase-3). Long-tail, question-shaped FAQ content is a good target here, feeding directly into the AEO/GEO strategy ([SEO_AEO_GEO_STRATEGY.md](SEO_AEO_GEO_STRATEGY.md#5-geo--being-well-cited-by-llm-search)).
+5. **AI SEO copilot** — in the admin's SEO field editor ([ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md)), suggests titles/descriptions/FAQ content per page. Writes to `page_seo_meta.ai_generated = true` only after admin approval — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#page_seo_meta-dynamic-per-route-seo--phase-3). Long-tail, question-shaped FAQ content is a good target here, feeding directly into the AEO/GEO strategy ([SEO_AEO_GEO_STRATEGY.md](SEO_AEO_GEO_STRATEGY.md#5-geo--being-well-cited-by-llm-search)).
 
 6. **"What's trending near you" suggestions** — surfaces popular/high-lead-volume listings near a user's searched area. Sequenced last deliberately: needs enough traffic and `leads` data to be a meaningful signal rather than noise.
 
