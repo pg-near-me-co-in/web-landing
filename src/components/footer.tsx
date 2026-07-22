@@ -24,8 +24,9 @@ export async function Footer() {
               <Logo inverted />
             </div>
             <p className="max-w-[280px] text-[13.5px] leading-relaxed text-grey-5/55">
-              Pan-India platform to find verified PGs, hostels and shared rooms
-              — no brokerage, ever.
+              Verified PGs, hostels and shared rooms across India. Zero
+              brokerage. Direct owner contact. Made with care for movers,
+              students & first-jobbers.
             </p>
             <a
               href="mailto:hello@pgnearme.co.in"
@@ -46,13 +47,18 @@ export async function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/#cities" className="text-grey-5/60 transition hover:text-white">
+                <Link href="/cities" className="text-grey-5/60 transition hover:text-white">
                   Cities
                 </Link>
               </li>
               <li>
                 <Link href="/#types" className="text-grey-5/60 transition hover:text-white">
                   Property types
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-grey-5/60 transition hover:text-white">
+                  Our story
                 </Link>
               </li>
               <li>
@@ -68,6 +74,11 @@ export async function Footer() {
               Owners
             </h4>
             <ul className="space-y-2 text-[13.5px]">
+              <li>
+                <Link href="/for-owners" className="text-grey-5/60 transition hover:text-white">
+                  Why list with us
+                </Link>
+              </li>
               <li>
                 <Link href="/add-your-pg" className="text-grey-5/60 transition hover:text-white">
                   List your property
@@ -110,7 +121,7 @@ export async function Footer() {
           )}
         </div>
 
-        <div className="mt-9 flex flex-wrap justify-between gap-2.5 border-t border-white/10 pt-5 text-xs text-grey-5/40">
+        <div className="mt-9 flex flex-wrap justify-between gap-2.5 border-t border-white/10 pt-5 text-xs text-grey-5/55">
           <span>© {new Date().getFullYear()} PG Near Me. All rights reserved.</span>
           <span>
             Some listing locations ©{" "}
@@ -124,7 +135,14 @@ export async function Footer() {
             </a>{" "}
             (ODbL)
           </span>
-          <span>Made for people on the move, across India.</span>
+          <span className="flex gap-3">
+            <Link href="/privacy-policy" className="transition hover:text-grey-5/70">
+              Privacy
+            </Link>
+            <Link href="/terms" className="transition hover:text-grey-5/70">
+              Terms
+            </Link>
+          </span>
         </div>
       </div>
     </footer>

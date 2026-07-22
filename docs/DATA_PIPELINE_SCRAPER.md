@@ -20,7 +20,7 @@ scrape_sources ──▶ scrape_jobs ──▶ ingested_raw_listings ──▶ (
    - **Approve as merge** → updates the matched existing listing with any new/better data (e.g. filling a missing price or image) rather than creating a duplicate
    - **Reject** → discarded, stays in the queue for audit history
 
-Scraped rows never auto-publish — they enter exactly like an owner submission does, at `pending_review`, and go through the same admin approval path documented in [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md#scrape-review-queue).
+Scraped rows never auto-publish — they enter exactly like an owner submission does, at `pending_review`, and go through the same admin approval path documented in [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md).
 
 ## Seasonal re-verification
 
@@ -30,7 +30,13 @@ Independent of scraping, listings need periodic accuracy checks (prices, availab
 
 The first (and so far only) approved source is **OpenStreetMap via the Overpass API** (`scripts/scrape-osm.js`): ODbL-licensed open data, so the legal gate was cleared with the conditions that (a) the site displays "© OpenStreetMap contributors" attribution (footer) and (b) ODbL share-alike is understood to apply to the derived listing database. It ingests `tourism=hostel` and PG-named places for the launched cities, inferring `pg_type` from explicit OSM gender tags or unambiguous name keywords ("Ladies PG" → female), leaving it null otherwise; price/food/rules stay null pending verification.
 
-**Deviation from the rule above, at founder direction**: this bootstrap batch was published directly (`status='published'`, `review_status='approved_new'`) rather than parked at `pending_review`, because no admin UI exists yet and the founder wanted real data live. Descriptions state that details are pending verification. Future sources — and future OSM re-runs once the admin panel exists — should revert to the normal `pending_review` path.
+**Deviation from the rule above, at founder direction**: this bootstrap batch was published directly (`status='published'`, `review_status='approved_new'`) rather than parked at `pending_review`, because no admin UI exists yet and the founder wanted real data live. Descriptions state that details are pending verification. Future sources — and future OSM re-runs once the admin panel exists — should revert to the normal `pending_review` path. (Note: a real admin panel now exists as of the 2026-07 CRUD pass — see [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md) — so any future re-run of this script should reconsider reverting to `pending_review`.)
+
+### Image ingestion (2026-07)
+
+`normalize()` also reads the OSM `wikimedia_commons` tag when present (format `File:Something.jpg`) and resolves it server-side to a final `upload.wikimedia.org` asset URL (one `HEAD` request following the Commons `Special:FilePath` redirect, verified to actually land on Wikimedia's own CDN before trusting it) — stored as a `listing_images` row (`storage_path` = the resolved URL, non-empty `alt_text`, `is_cover=true`). Wikimedia Commons content is CC-licensed, consistent with the existing OSM/ODbL attribution already in the site footer.
+
+Deliberately **not** ingested: the free-text OSM `image=` tag (could point at any arbitrary third-party host — exactly the uncontrolled-hotlinking risk `scrape_sources.legal_review_status` exists to gate) and `Category:`-prefixed Commons refs (would need a second API call to resolve to a specific file, out of scope for this pass). Listings without a resolvable image keep using the deterministic local placeholder tiles (`src/lib/placeholder-images.ts`) instead of a bare gradient.
 
 ## What this document deliberately does not do
 

@@ -8,6 +8,11 @@ Discoverability strategy across three layers: classic **SEO** (Google/Bing searc
 pgnearme.co.in/pg/[city]
 pgnearme.co.in/pg/[city]/[area]
 pgnearme.co.in/pg/[city]/[area]/[listing-slug]
+pgnearme.co.in/cities
+pgnearme.co.in/about
+pgnearme.co.in/for-owners
+pgnearme.co.in/privacy-policy
+pgnearme.co.in/terms
 ```
 
 e.g. `pgnearme.co.in/pg/bangalore/koramangala/sunrise-pg-for-women`
@@ -34,18 +39,19 @@ City and area pages are the core **programmatic SEO** surface — they scale wit
 ## 4. AEO — being citable by answer engines
 
 - Every listing/city page carries a short, extractable **factual summary block** near the top (2–3 plain-language sentences, no marketing fluff): *"Sunrise PG in Koramangala, Bangalore offers single and double sharing for women, priced ₹8,000–₹12,000/month, with food included and AC rooms."* Both human-readable and machine-extractable.
-- `FAQPage` schema (above) is the single highest-leverage AEO tactic for a Q&A-shaped product like PG search.
+- `FAQPage` schema (above) is the single highest-leverage AEO tactic for a Q&A-shaped product like PG search — extended in 2026-07 to `/cities` and `/for-owners` (own FAQ blocks + JSON-LD), matching the pattern already used on the homepage and city pages.
 - Keep factual data in structured HTML (definition lists / tables), not only images — parseable by answer engines.
 
 ## 5. GEO — being well-cited by LLM search
 
-- Publish an `llms.txt` at the domain root summarizing site purpose, key page categories, and links to canonical city/listing index pages — an emerging convention LLM crawlers reportedly use to understand site structure.
+- Publish an `llms.txt` at the domain root summarizing site purpose, key page categories, and links to canonical city/listing index pages — an emerging convention LLM crawlers reportedly use to understand site structure. Expanded 2026-07 with a "How search and filtering works" plain-language paragraph and links to `/about`/`/cities`/`/for-owners`.
 - Favor clear, self-contained paragraphs over JS-only rendered content — ISR/SSG (§2) ensures crawlable HTML, not client-only rendering.
 - Maintain consistent facts (name, area, price) across a page — LLM summarizers tend to prefer pages with unambiguous, non-conflicting facts.
 - Long-tail, question-shaped content ("Is there a girls-only PG near Koramangala under ₹10,000?") maps well to both AEO FAQ schema and natural LLM query phrasing — a strong candidate for the Phase 4 AI SEO copilot to generate at scale, though hand-written FAQ blocks in Phase 3 already help.
 
 ## 6. Implementation notes
 
-- Document the exact `generateMetadata` fallback precedence order (§2) directly in code comments where it's implemented.
-- Canonical URLs: an area page and its parent city page can list overlapping PGs — use canonical tags carefully to avoid the two pages competing with each other in search results.
+- The `generateMetadata` fallback precedence order is now a single documented function — `src/lib/seo.ts`'s `resolveSeo()` — used by both `pg/[city]/page.tsx` and `pg/[city]/[area]/[slug]/page.tsx`'s `generateMetadata`, rather than duplicated inline `??` chains. Unit-tested in `src/lib/__tests__/seo.test.ts`.
+- Canonical URLs: an area page and its parent city page can list overlapping PGs — use canonical tags carefully to avoid the two pages competing with each other in search results. The root layout now also sets a homepage canonical (`alternates.canonical: "/"`) — safe only because every other route either sets its own canonical or is `noindex`, verified before adding it.
 - Image `alt_text` is enforced at the data layer (see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#listing_images)), not just recommended in the UI.
+- **Accessibility/Lighthouse-100 pass (2026-07)**: `e2e/a11y.spec.ts` (axe-core) and `e2e/seo.spec.ts` run against every public page plus a live city/listing page pulled from the real sitemap. This found and fixed real pre-existing contrast bugs (footer text at 40% opacity, several `--state-*-fg`/`--state-*-bg` pairs sitewide, `grey-400` on white) and missing `<select>` accessible names on the city filter form — see `src/app/globals.css`'s state-color comments for the corrected values.

@@ -110,7 +110,7 @@ export function ContactReveal({ listingId }: { listingId: string }) {
       >
         {pending ? "Revealing…" : "Reveal number"}
       </button>
-      <p className="text-xs text-grey-400">
+      <p className="text-xs text-grey-500">
         We only share your number with this PG&apos;s owner.
       </p>
     </form>

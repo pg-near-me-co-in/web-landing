@@ -33,8 +33,8 @@
 
 10. ~~**Repo structure**~~ — resolved: the repo now lives in `web-landing/` (docs + git root), so the Next.js app scaffolds directly there in Phase 0.
 
-11. **Logo type-treatment confirmation** — the brand Figma file ([DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#logo)) contains two wordmark styles (a rounded "Cherry Bomb" treatment and a bolder slab-serif alternative) shown side by side. The standalone lockup outside that comparison grid uses Cherry Bomb, which is why it's documented as the chosen primary logo — but this is an inference, not an explicit label in the file. Confirm Cherry Bomb is final before it's wired into the codebase.
+11. ~~**Logo type-treatment confirmation**~~ — resolved, moot: the app never renders a Figma-exported wordmark image — "PG Near Me" is live text (self-hosted display font) next to the icon mark, so the Cherry Bomb vs. slab-serif comparison doesn't apply to the shipped product either way.
 
-12. **Icon-only favicon/app-icon mark** — every exported logo lockup pairs the roof icon with the full "NEAR ME" wordmark; there's no icon-only mark for small sizes (16–32px favicon, app-icon glyph). Needed before Phase 3 PWA icons ([PWA_SPEC.md](PWA_SPEC.md)) ship — either the founder provides one or it gets derived (roof + "PG" only) and sent back for approval.
+12. ~~**Icon-only favicon/app-icon mark**~~ — resolved: `scripts/make-app-icons.js` derives an icon-only mark (just the roofline glyph, no wordmark) from `docs/assets/brand/pg-near-me-logo.svg`'s isolated icon group, and generates the full favicon/PWA-icon/maskable/apple-touch-icon set from it. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#logo).
 
-13. **Body/UI font pairing** — the Figma file only specifies Cherry Bomb for the logo wordmark (a heavy display face, not meant for body copy). A body/UI font still needs picking at Phase 0 scaffolding time — see [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#typography).
+13. ~~**Body/UI font pairing**~~ — resolved: the Figma file only specified Cherry Bomb for the logo wordmark (a heavy display face, not meant for body copy); shipped pairing is Sora (display/headings) + Manrope (body/UI), both self-hosted via `next/font`, with JetBrains Mono kept for eyebrows/badges/prices. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#typography).

@@ -1,6 +1,6 @@
 # PG Near Me — Database Schema (Supabase / Postgres)
 
-Documented schema for planning purposes — not yet migrated. When Phase 0 implementation starts, translate this into version-controlled SQL migrations via the Supabase CLI (`supabase/migrations/0001_init.sql`).
+Live schema, migrated via the Supabase CLI as version-controlled SQL in [`supabase/migrations/`](../supabase/migrations/) (`0001_init.sql` through `0004_city_directory_content.sql` — see per-table migration notes below).
 
 **Conventions**: UUID primary keys (`gen_random_uuid()`), `created_at`/`updated_at timestamptz` on every table, Row Level Security (RLS) enabled from day one — public/anon role gets read-only access to `status='published'` rows only; all writes go through the admin/service role or a validated server action.
 
@@ -16,7 +16,11 @@ Documented schema for planning purposes — not yet migrated. When Phase 0 imple
 | lat, lng | numeric | map centering |
 | is_launched | boolean | gates public visibility — Phase 0 research feeds this |
 | listing_count_cache | int | denormalized, refreshed via trigger/cron, powers homepage city cards |
+| tagline | text nullable | short marketing line for city cards (migration `0004`), admin-editable via `/admin/cities` |
+| hero_image_url | text nullable | optional hero photo URL (migration `0004`) — same "URL, not necessarily an uploaded binary" convention as `listing_images.storage_path`; null falls back to a deterministic gradient tile (`src/lib/placeholder-images.ts`) |
 | created_at, updated_at | timestamptz | |
+
+Migrations: `0001_init.sql` (this shape, minus `tagline`/`hero_image_url`), `0002_real_data.sql` (nullable `pg_listings.pg_type` + `listing-images` Storage bucket), `0003_trust_score_ai.sql` (`ai_review_summary` + `compute_trust_score()`), `0004_city_directory_content.sql` (`tagline`/`hero_image_url` above).
 
 ### `areas` (localities within a city)
 | Column | Type | Notes |
@@ -84,7 +88,7 @@ Phase 1 has no owner login — this is a lightweight contact record captured at 
 |---|---|---|
 | id | uuid PK | |
 | listing_id | uuid FK → pg_listings | |
-| storage_path | text | Supabase Storage object path |
+| storage_path | text | Supabase Storage object path, **or** a full external `http(s)://` URL — `src/lib/images.ts`'s `resolveImageUrl()` passes external URLs through untouched. Used by `scripts/scrape-osm.js` to store resolved `upload.wikimedia.org` asset URLs (see [DATA_PIPELINE_SCRAPER.md](DATA_PIPELINE_SCRAPER.md#image-ingestion-2026-07)) without a Storage upload step. |
 | alt_text | text | **enforce non-empty** — free SEO/accessibility value |
 | sort_order | int | |
 | is_cover | boolean | |
@@ -169,8 +173,8 @@ Key-value/jsonb table, more extensible than fixed columns:
 
 Approving a row here creates/updates the corresponding `pg_listings` row (`source='scrape'`). Full pipeline design: [DATA_PIPELINE_SCRAPER.md](DATA_PIPELINE_SCRAPER.md).
 
-### `admin_audit_log` (consider adding in Phase 2)
-Given how moderation-heavy this product is, add an audit table: id, actor (FK admin_users), action, entity_type, entity_id, before jsonb, after jsonb, created_at. Every admin write action should be attributable — `updated_by`/`reviewed_by` columns above are the per-row version of this; a dedicated log gives a full history.
+### `admin_audit_log`
+Shipped in `0001_init.sql` (id, actor FK `admin_users`, action, entity_type, entity_id, before jsonb, after jsonb, created_at) but sat unwritten-to until the 2026-07 admin CRUD pass — `src/lib/audit.ts`'s `logAdminAction()` now writes a row on every Listings/Cities/Areas/Amenities/Owners create/update/soft-delete. `actor` stays `null` on every row today: there's no real per-account admin identity (`admin_users` requires a Supabase Auth `auth.users` row, and admin login is still the shared `ADMIN_ACCESS_CODE` cookie, not per-account auth) — resolve once that migration happens. Pre-existing actions (submissions/reviews/theme/SEO) don't call it yet.
 
 ## Indexes
 

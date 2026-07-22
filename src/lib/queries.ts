@@ -1,10 +1,21 @@
 import "server-only";
 import { db } from "./db";
-import type { Area, City, ListingCard, ListingDetail, PgType } from "./types";
+import type {
+  AdminListingRow,
+  Amenity,
+  Area,
+  City,
+  ListingCard,
+  ListingDetail,
+  Owner,
+  PgType,
+} from "./types";
+
+const ADMIN_PAGE_SIZE = 20;
 
 export async function getLaunchedCities(): Promise<City[]> {
   const { rows } = await db.query(
-    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url
        from cities where is_launched order by listing_count_cache desc, name`
   );
   return rows;
@@ -13,7 +24,7 @@ export async function getLaunchedCities(): Promise<City[]> {
 /** All cities grouped by state, launched first within each state. */
 export async function getCitiesByState(): Promise<Record<string, City[]>> {
   const { rows } = await db.query(
-    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url
        from cities order by state, is_launched desc, listing_count_cache desc, name`
   );
   const grouped: Record<string, City[]> = {};
@@ -23,7 +34,7 @@ export async function getCitiesByState(): Promise<Record<string, City[]>> {
 
 export async function getCityBySlug(slug: string): Promise<City | null> {
   const { rows } = await db.query(
-    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url
        from cities where slug = $1`,
     [slug]
   );
@@ -63,12 +74,17 @@ export interface ListingFilters {
   sort?: "rating" | "price_asc" | "price_desc";
 }
 
-export async function getListingsForCity(
-  citySlug: string,
-  filters: ListingFilters = {}
-): Promise<ListingCard[]> {
-  const params: unknown[] = [citySlug];
-  let sql = `${CARD_SELECT} and c.slug = $1`;
+/**
+ * Builds the dynamic `and ...` WHERE-clause fragment for the filters below,
+ * mutating `params` in place (appending each filter's value) and returning
+ * the SQL fragment to append after an existing base query. Pure and
+ * DB-free — extracted so it's unit-testable without a live connection (see
+ * src/lib/__tests__/query-filters.test.ts). `params` is expected to already
+ * contain whatever positional params precede these filters (e.g. citySlug
+ * as $1), so placeholder numbering continues correctly.
+ */
+export function buildListingFilterSql(filters: ListingFilters, params: unknown[]): string {
+  let sql = "";
   const add = (clause: string, value: unknown) => {
     params.push(value);
     sql += ` and ${clause.replace("?", `$${params.length}`)}`;
@@ -87,6 +103,16 @@ export async function getListingsForCity(
     const n = `$${params.length}`;
     sql += ` and (l.name ilike '%' || ${n} || '%' or a.name ilike '%' || ${n} || '%')`;
   }
+  return sql;
+}
+
+export async function getListingsForCity(
+  citySlug: string,
+  filters: ListingFilters = {}
+): Promise<ListingCard[]> {
+  const params: unknown[] = [citySlug];
+  const sql =
+    `${CARD_SELECT} and c.slug = $1` + buildListingFilterSql(filters, params);
 
   const sort =
     filters.sort === "price_asc"
@@ -94,8 +120,8 @@ export async function getListingsForCity(
       : filters.sort === "price_desc"
         ? `l.price_min desc nulls last`
         : `l.rating_avg desc nulls last, (img.storage_path is not null) desc`;
-  sql += ` order by ${sort}, l.name`;
-  const { rows } = await db.query(sql, params);
+  const finalSql = sql + ` order by ${sort}, l.name`;
+  const { rows } = await db.query(finalSql, params);
   return rows;
 }
 
@@ -293,8 +319,235 @@ export async function getCityStats(cityId: string) {
 /** City list for the owner-submission form (all cities, launched or not). */
 export async function getAllCities(): Promise<City[]> {
   const { rows } = await db.query(
-    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url
        from cities order by state, name`
   );
   return rows;
+}
+
+// ---------------------------------------------------------------------------
+// Admin CRUD (Phase 7b) — Listings, Cities, Areas, Amenities, Owners.
+// Paginated/filterable via GET searchParams (same crawlable-URL convention
+// as the public /pg/[city] filters). All admin-only; callers must already
+// have checked isAdminSession().
+// ---------------------------------------------------------------------------
+
+export interface AdminListingFilters {
+  q?: string;
+  status?: string;
+  cityId?: string;
+  pgType?: PgType;
+  page?: number;
+}
+
+export async function getAdminListings(
+  filters: AdminListingFilters = {}
+): Promise<{ rows: AdminListingRow[]; total: number }> {
+  const params: unknown[] = [];
+  const add = (clause: string, value: unknown) => {
+    params.push(value);
+    return clause.replace("?", `$${params.length}`);
+  };
+  const clauses: string[] = [];
+  if (filters.q) clauses.push(add(`l.name ilike '%' || ? || '%'`, filters.q));
+  if (filters.status) clauses.push(add(`l.status = ?`, filters.status));
+  if (filters.cityId) clauses.push(add(`l.city_id = ?`, filters.cityId));
+  if (filters.pgType) clauses.push(add(`l.pg_type = ?`, filters.pgType));
+  const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+
+  const page = Math.max(1, filters.page ?? 1);
+  const offset = (page - 1) * ADMIN_PAGE_SIZE;
+  const limitParam = `$${params.length + 1}`;
+  const offsetParam = `$${params.length + 2}`;
+
+  const { rows } = await db.query(
+    `select l.id, l.name, l.slug, c.name as city_name, c.slug as city_slug,
+            a.name as area_name, l.pg_type, l.status, l.price_min, l.price_max,
+            l.trust_score, l.updated_at,
+            count(*) over()::int as total_count
+       from pg_listings l
+       join cities c on c.id = l.city_id
+       left join areas a on a.id = l.area_id
+       ${where}
+      order by l.updated_at desc
+      limit ${limitParam} offset ${offsetParam}`,
+    [...params, ADMIN_PAGE_SIZE, offset]
+  );
+  return { rows, total: rows[0]?.total_count ?? 0 };
+}
+
+export async function getAdminListingById(id: string) {
+  const { rows } = await db.query(
+    `select l.*, c.name as city_name, a.name as area_name, o.name as owner_name, o.phone as owner_phone
+       from pg_listings l
+       join cities c on c.id = l.city_id
+       left join areas a on a.id = l.area_id
+       left join owners o on o.id = l.owner_id
+      where l.id = $1`,
+    [id]
+  );
+  if (!rows[0]) return null;
+  const { rows: amenityRows } = await db.query(
+    `select amenity_id from listing_amenities where listing_id = $1`,
+    [id]
+  );
+  return { ...rows[0], amenity_ids: amenityRows.map((r) => r.amenity_id) };
+}
+
+export interface AdminCityFilters {
+  q?: string;
+  page?: number;
+}
+
+export async function getAdminCities(
+  filters: AdminCityFilters = {}
+): Promise<{ rows: City[]; total: number }> {
+  const params: unknown[] = [];
+  const where = filters.q
+    ? (() => {
+        params.push(filters.q);
+        return `where name ilike '%' || $${params.length} || '%'`;
+      })()
+    : "";
+  const page = Math.max(1, filters.page ?? 1);
+  const offset = (page - 1) * ADMIN_PAGE_SIZE;
+  const { rows } = await db.query(
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url,
+            count(*) over()::int as total_count
+       from cities
+       ${where}
+      order by state, name
+      limit $${params.length + 1} offset $${params.length + 2}`,
+    [...params, ADMIN_PAGE_SIZE, offset]
+  );
+  return { rows, total: rows[0]?.total_count ?? 0 };
+}
+
+export async function getAdminCityById(id: string): Promise<City | null> {
+  const { rows } = await db.query(
+    `select id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url
+       from cities where id = $1`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+
+export interface AdminAreaFilters {
+  cityId?: string;
+  q?: string;
+  page?: number;
+}
+
+export async function getAdminAreas(
+  filters: AdminAreaFilters = {}
+): Promise<{ rows: (Area & { city_name: string; is_active: boolean })[]; total: number }> {
+  const params: unknown[] = [];
+  const add = (clause: string, value: unknown) => {
+    params.push(value);
+    return clause.replace("?", `$${params.length}`);
+  };
+  const clauses: string[] = [];
+  if (filters.cityId) clauses.push(add(`ar.city_id = ?`, filters.cityId));
+  if (filters.q) clauses.push(add(`ar.name ilike '%' || ? || '%'`, filters.q));
+  const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+  const page = Math.max(1, filters.page ?? 1);
+  const offset = (page - 1) * ADMIN_PAGE_SIZE;
+
+  const { rows } = await db.query(
+    `select ar.id, ar.city_id, ar.name, ar.slug, ar.is_active, c.name as city_name,
+            count(*) over()::int as total_count
+       from areas ar
+       join cities c on c.id = ar.city_id
+       ${where}
+      order by c.name, ar.name
+      limit $${params.length + 1} offset $${params.length + 2}`,
+    [...params, ADMIN_PAGE_SIZE, offset]
+  );
+  return { rows, total: rows[0]?.total_count ?? 0 };
+}
+
+export async function getAdminAreaById(id: string) {
+  const { rows } = await db.query(
+    `select ar.id, ar.city_id, ar.name, ar.slug, ar.is_active, c.name as city_name
+       from areas ar join cities c on c.id = ar.city_id
+      where ar.id = $1`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+
+export async function getAdminAmenities(): Promise<
+  (Amenity & { listing_count: number })[]
+> {
+  const { rows } = await db.query(
+    `select am.id, am.name, am.slug, am.icon_key, am.category, am.is_active,
+            count(la.listing_id)::int as listing_count
+       from amenities am
+       left join listing_amenities la on la.amenity_id = am.id
+      group by am.id
+      order by am.category nulls last, am.name`
+  );
+  return rows;
+}
+
+export async function getAdminAmenityById(id: string): Promise<Amenity | null> {
+  const { rows } = await db.query(
+    `select id, name, slug, icon_key, category, is_active from amenities where id = $1`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+
+export interface AdminOwnerFilters {
+  q?: string;
+  status?: string;
+  page?: number;
+}
+
+export async function getAdminOwners(
+  filters: AdminOwnerFilters = {}
+): Promise<{ rows: (Owner & { listing_count: number })[]; total: number }> {
+  const params: unknown[] = [];
+  const add = (clause: string, value: unknown) => {
+    params.push(value);
+    return clause.replace("?", `$${params.length}`);
+  };
+  const clauses: string[] = [];
+  if (filters.q) {
+    params.push(filters.q, filters.q);
+    clauses.push(
+      `(o.name ilike '%' || $${params.length - 1} || '%' or o.phone ilike '%' || $${params.length} || '%')`
+    );
+  }
+  if (filters.status) clauses.push(add(`o.status = ?`, filters.status));
+  const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+  const page = Math.max(1, filters.page ?? 1);
+  const offset = (page - 1) * ADMIN_PAGE_SIZE;
+
+  const { rows } = await db.query(
+    `select o.id, o.name, o.phone, o.email, o.whatsapp_number, o.status, o.notes, o.created_at,
+            count(l.id)::int as listing_count,
+            count(*) over()::int as total_count
+       from owners o
+       left join pg_listings l on l.owner_id = o.id
+       ${where}
+      group by o.id
+      order by o.created_at desc
+      limit $${params.length + 1} offset $${params.length + 2}`,
+    [...params, ADMIN_PAGE_SIZE, offset]
+  );
+  return { rows, total: rows[0]?.total_count ?? 0 };
+}
+
+export async function getAdminOwnerById(id: string) {
+  const { rows } = await db.query(
+    `select id, name, phone, email, whatsapp_number, status, notes, created_at from owners where id = $1`,
+    [id]
+  );
+  if (!rows[0]) return null;
+  const { rows: listings } = await db.query(
+    `select id, name, slug, status from pg_listings where owner_id = $1 order by updated_at desc`,
+    [id]
+  );
+  return { ...rows[0], listings };
 }

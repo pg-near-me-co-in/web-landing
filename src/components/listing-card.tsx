@@ -3,10 +3,12 @@ import Link from "next/link";
 import type { ListingCard as ListingCardType } from "@/lib/types";
 import { formatPriceRange } from "@/lib/format";
 import { resolveImageUrl } from "@/lib/images";
+import { placeholderPhotoFor } from "@/lib/placeholder-images";
 import { PgTypeBadge } from "./badges";
 
 /** Ref .listing-card: image band with badge overlay, title + mono price,
- *  location line, meta row. Gradient placeholder when no photo yet. */
+ *  location line, meta row. Deterministic placeholder tile when no real
+ *  photo exists yet (src/lib/placeholder-images.ts). */
 export function ListingCard({ listing }: { listing: ListingCardType }) {
   const href = `/pg/${listing.city_slug}/${listing.area_slug ?? "all"}/${listing.slug}`;
   const price = formatPriceRange(listing.price_min, listing.price_max);
@@ -17,15 +19,17 @@ export function ListingCard({ listing }: { listing: ListingCardType }) {
       className="surface-card group flex flex-col overflow-hidden transition duration-200 hover:-translate-y-[3px] hover:shadow-[var(--shadow-lift)]"
     >
       <div className="relative h-[150px] bg-gradient-to-br from-accent to-primary">
-        {listing.cover_image && (
-          <Image
-            src={resolveImageUrl(listing.cover_image)}
-            alt={listing.cover_alt ?? listing.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition duration-300 group-hover:scale-[1.03]"
-          />
-        )}
+        <Image
+          src={
+            listing.cover_image
+              ? resolveImageUrl(listing.cover_image)
+              : placeholderPhotoFor(listing.id)
+          }
+          alt={listing.cover_alt ?? listing.name}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+        />
         <div className="absolute left-2.5 top-2.5 flex gap-1.5">
           <PgTypeBadge type={listing.pg_type} />
         </div>
@@ -36,7 +40,7 @@ export function ListingCard({ listing }: { listing: ListingCardType }) {
             </svg>
             {Number(listing.rating_avg).toFixed(1)}
             {listing.rating_count > 0 && (
-              <span className="font-normal text-grey-400">
+              <span className="font-normal text-grey-500">
                 ({listing.rating_count})
               </span>
             )}
@@ -52,10 +56,10 @@ export function ListingCard({ listing }: { listing: ListingCardType }) {
           {price ? (
             <span className="whitespace-nowrap font-mono text-[15px] font-semibold text-primary">
               {price}
-              <span className="font-normal text-grey-400">/mo</span>
+              <span className="font-normal text-grey-500">/mo</span>
             </span>
           ) : (
-            <span className="whitespace-nowrap text-xs font-semibold text-grey-400">
+            <span className="whitespace-nowrap text-xs font-semibold text-grey-500">
               Ask for price
             </span>
           )}

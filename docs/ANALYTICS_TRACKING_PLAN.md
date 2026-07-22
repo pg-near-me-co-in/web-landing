@@ -27,8 +27,10 @@ Note: Plausible's free tier is trial-only, not perpetual — excluded from the "
 
 Phase 1 ships pageviews only (`listing_view`, `city_page_view` as basic page_view events); the full custom-event taxonomy above is a Phase 2 build-out — see [ROADMAP.md](ROADMAP.md).
 
+**2026-07 UI overhaul**: the 5 new routes (`/about`, `/cities`, `/for-owners`, `/privacy-policy`, `/terms`) are covered by GA4's existing global `page_view` tracking (`src/components/analytics.tsx`) automatically — no new custom events were needed for them.
+
 ## Privacy
 
 - Phone numbers are captured via the lead form (`leads.phone` — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#leads-the-notebooks-ip--interested-party--capture)). Never pass raw phone numbers (or any other PII) into GA4 event params — only IDs (`listing_id`, etc.).
-- Add a basic privacy policy / consent notice near the lead-capture form given phone numbers are collected.
+- ~~Add a basic privacy policy / consent notice near the lead-capture form given phone numbers are collected.~~ **Done (2026-07)**: `/privacy-policy` documents exactly what's collected (contact-reveal, owner submission, reviews, GA4/Clarity) and why; linked from the footer on every page.
 - If/when EU or otherwise privacy-regulation-sensitive traffic becomes relevant, revisit consent-mode requirements for GA4 — out of scope for initial India-only launch but worth a placeholder note.

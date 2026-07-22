@@ -12,6 +12,8 @@ import { ContactReveal } from "@/components/contact-reveal";
 import { ReviewForm } from "@/components/review-form";
 import { PgTypeBadge, RatingStars, VerifiedBadge } from "@/components/badges";
 import { ListingCard } from "@/components/listing-card";
+import { ListingGalleryMobile } from "@/components/listing-gallery-mobile";
+import { placeholderPhotoFor } from "@/lib/placeholder-images";
 import {
   FOOD_LABEL,
   PG_TYPE_LABEL,
@@ -19,6 +21,7 @@ import {
   formatPriceRange,
 } from "@/lib/format";
 import { resolveImageUrl } from "@/lib/images";
+import { resolveSeo } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -49,11 +52,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]
     .filter(Boolean)
     .join(", ");
-  const title =
-    seo?.meta_title ?? `${l.name} — ${l.area_name ?? l.city_name}, ${l.city_name}`;
-  const description =
-    seo?.meta_description ??
-    `${l.name} in ${l.area_name ?? l.city_name}, ${l.city_name}: ${traits}. Photos, amenities, reviews and direct owner contact on PG Near Me.`;
+  const { title, description, ogTitle, ogDescription } = resolveSeo(seo, {
+    title: `${l.name} — ${l.area_name ?? l.city_name}, ${l.city_name}`,
+    description: `${l.name} in ${l.area_name ?? l.city_name}, ${l.city_name}: ${traits}. Photos, amenities, reviews and direct owner contact on PG Near Me.`,
+  });
   return {
     title,
     description,
@@ -61,8 +63,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `/pg/${l.city_slug}/${l.area_slug ?? "all"}/${l.slug}`,
     },
     openGraph: {
-      title: seo?.og_title ?? title,
-      description: seo?.og_description ?? description,
+      title: ogTitle,
+      description: ogDescription,
       ...(l.cover_image ? { images: [resolveImageUrl(l.cover_image)] } : {}),
     },
   };
@@ -110,7 +112,7 @@ function amenityEmoji(a: { slug: string; icon_key: string | null }): string {
 function FactRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-grey-50 py-2.5 last:border-0">
-      <dt className="text-sm text-grey-400">{label}</dt>
+      <dt className="text-sm text-grey-500">{label}</dt>
       <dd className="text-sm font-semibold text-grey-700">{value}</dd>
     </div>
   );
@@ -203,7 +205,7 @@ export default async function ListingPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav className="mb-4 text-sm text-grey-400" aria-label="Breadcrumb">
+      <nav className="mb-4 text-sm text-grey-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-primary">
           Home
         </Link>{" "}
@@ -216,10 +218,13 @@ export default async function ListingPage({ params }: Props) {
 
       <div className="grid items-start gap-9 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          {/* Gallery (ref .gallery): main + two side tiles, +N overlay */}
+          {/* Mobile: swipeable carousel (embla). Desktop: hero-tile grid below. */}
+          <ListingGalleryMobile images={gallery} listingName={l.name} />
+
+          {/* Gallery (ref .gallery): main + two side tiles, +N overlay — desktop only */}
           {gallery.length > 0 && (
             <div
-              className={`grid h-[220px] gap-2 overflow-hidden rounded-[14px] sm:h-[340px] ${
+              className={`hidden h-[340px] gap-2 overflow-hidden rounded-xl sm:grid ${
                 gallery.length > 1 ? "grid-cols-[2fr_1fr]" : ""
               }`}
             >
@@ -259,13 +264,29 @@ export default async function ListingPage({ params }: Props) {
             </div>
           )}
 
-          {/* Remaining photos: horizontal thumb strip (multi-image support) */}
+          {/* No real photos yet — deterministic placeholder tile, same
+              treatment on mobile and desktop (no swipeable carousel needed
+              for a single image). */}
+          {gallery.length === 0 && (
+            <div className="relative h-[220px] overflow-hidden rounded-xl sm:h-[340px]">
+              <Image
+                src={placeholderPhotoFor(l.id)}
+                alt={`${l.name} — photo coming soon`}
+                fill
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
+
+          {/* Remaining photos: horizontal thumb strip (multi-image support) — desktop only, mobile has the full swipeable carousel above */}
           {extraCount > 0 && (
-            <div className="mt-2 flex gap-2 overflow-x-auto pb-1.5">
+            <div className="mt-2 hidden gap-2 overflow-x-auto pb-1.5 sm:flex">
               {gallery.slice(3).map((img, i) => (
                 <div
                   key={img.storage_path + i}
-                  className="relative h-20 w-28 flex-none overflow-hidden rounded-[10px] bg-grey-10"
+                  className="relative h-20 w-28 flex-none overflow-hidden rounded-md bg-grey-10"
                 >
                   <Image
                     src={resolveImageUrl(img.storage_path)}
@@ -387,11 +408,11 @@ export default async function ListingPage({ params }: Props) {
               <iframe
                 title={`Map — ${l.name}`}
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(l.lng) - 0.01},${Number(l.lat) - 0.006},${Number(l.lng) + 0.01},${Number(l.lat) + 0.006}&layer=mapnik&marker=${l.lat},${l.lng}`}
-                className="h-[200px] w-full rounded-[14px] border border-grey-50"
+                className="h-[200px] w-full rounded-xl border border-grey-50"
                 loading="lazy"
               />
             ) : (
-              <div className="flex h-[200px] items-center justify-center rounded-[14px] bg-grey-10 text-[13px] text-grey-400">
+              <div className="flex h-[200px] items-center justify-center rounded-xl bg-grey-10 text-[13px] text-grey-500">
                 Exact location shared by the owner after contact
               </div>
             )}
@@ -401,7 +422,7 @@ export default async function ListingPage({ params }: Props) {
           <div className="border-t border-grey-50 py-6">
             <SectionHead>Reviews</SectionHead>
             {l.ai_review_summary && (
-              <div className="mb-3 rounded-[14px] border border-accent/40 bg-primary-tint p-4">
+              <div className="mb-3 rounded-xl border border-accent/40 bg-primary-tint p-4">
                 <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-primary">
                   AI summary of reviews
                 </p>
@@ -430,7 +451,7 @@ export default async function ListingPage({ params }: Props) {
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-grey-400">No reviews yet.</p>
+              <p className="mt-2 text-sm text-grey-500">No reviews yet.</p>
             )}
           </div>
 
@@ -456,7 +477,7 @@ export default async function ListingPage({ params }: Props) {
             {price ? (
               <p className="font-mono text-2xl font-bold text-primary">
                 {price}{" "}
-                <span className="text-[13px] font-normal text-grey-400">
+                <span className="text-[13px] font-normal text-grey-500">
                   / month
                 </span>
               </p>
@@ -494,7 +515,7 @@ export default async function ListingPage({ params }: Props) {
             <div className="mt-4">
               <ContactReveal listingId={l.id} />
             </div>
-            <p className="mt-3.5 text-center text-[11.5px] text-grey-400">
+            <p className="mt-3.5 text-center text-[11.5px] text-grey-500">
               No brokerage. Ever.
             </p>
           </div>
@@ -508,14 +529,14 @@ export default async function ListingPage({ params }: Props) {
             <p className="truncate font-mono text-sm font-bold text-grey-900">
               {price ?? "Price on request"}
               {price && (
-                <span className="text-xs font-normal text-grey-400"> /mo</span>
+                <span className="text-xs font-normal text-grey-500"> /mo</span>
               )}
             </p>
-            <p className="truncate text-xs text-grey-400">{l.name}</p>
+            <p className="truncate text-xs text-grey-500">{l.name}</p>
           </div>
           <a
             href="#contact"
-            className="shrink-0 rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+            className="shrink-0 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
           >
             Contact owner
           </a>

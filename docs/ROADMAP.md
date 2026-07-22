@@ -73,3 +73,7 @@ Key features:
 - "What's trending near you" suggestions — sequenced last since it needs sufficient traffic/lead volume to be meaningful.
 
 Exit criteria: each AI feature has a human-in-the-loop approval step; no AI output publishes without review.
+
+## Phase 5 — Bento UI overhaul (2026-07)
+
+Full public-UI re-skin on Sora/Manrope + softer 20px radius, shadcn/ui + Radix component architecture (ported from a Lovable reference app), 3 new always-on pages (About/Cities/For Owners) plus Privacy/Terms, admin panel sidebar + full CRUD for Listings/Cities/Areas/Amenities/Owners, additive `cities.tagline`/`hero_image_url` columns, licensed (Wikimedia) image ingestion, Vitest + Playwright test infrastructure (previously nonexistent). See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md#bento-theme-implemented-2026-07--current-source-of-truth) and [ADMIN_PANEL_SPEC.md](ADMIN_PANEL_SPEC.md).

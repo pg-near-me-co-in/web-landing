@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       // owner-uploaded photos served from the Supabase Storage public bucket
       { protocol: "https", hostname: "ggaxffyliyblgqqpapcn.supabase.co" },
+      // OSM-scraped listing photos (scripts/scrape-osm.js resolves a
+      // wikimedia_commons tag to this exact CDN host, nothing broader)
+      { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
   },
   async headers() {

@@ -32,7 +32,7 @@ export default async function SeoIndexPage({
         to computed defaults.
       </p>
 
-      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-400">
+      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-500">
         Static pages
       </h2>
       <div className="mt-2 flex flex-wrap gap-2">
@@ -44,7 +44,7 @@ export default async function SeoIndexPage({
         </Link>
       </div>
 
-      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-400">
+      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-500">
         City pages
       </h2>
       <div className="mt-2 flex flex-wrap gap-2">
@@ -59,7 +59,7 @@ export default async function SeoIndexPage({
         ))}
       </div>
 
-      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-400">
+      <h2 className="mt-8 text-sm font-bold uppercase tracking-wider text-grey-500">
         Listing pages
       </h2>
       <form method="get" className="mt-2 flex max-w-md gap-2">
@@ -82,7 +82,7 @@ export default async function SeoIndexPage({
                 className="block px-4 py-2.5 text-sm transition hover:bg-grey-5"
               >
                 <span className="font-semibold text-grey-800">{l.name}</span>{" "}
-                <span className="text-grey-400">· {l.city_name}</span>
+                <span className="text-grey-500">· {l.city_name}</span>
               </Link>
             </li>
           ))}

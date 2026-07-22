@@ -56,6 +56,31 @@ function buildAddress(tags) {
   return tags['addr:full'] || (parts.length ? parts.join(', ') : null);
 }
 
+// Resolve an OSM `wikimedia_commons` tag (format "File:Something.jpg") to a
+// stable upload.wikimedia.org asset URL, resolved server-side at scrape time
+// so we store the final CDN URL rather than a redirect. Deliberately does
+// NOT touch the free-text `image=` tag (arbitrary third-party hosts) or
+// `Category:` refs (would need a second API call to list members) — only
+// single-file Commons references, which are CC-licensed and consistent with
+// the existing OSM/ODbL attribution pattern already in this site's footer.
+const WIKIMEDIA_FILEPATH_BASE = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+async function resolveWikimediaImageUrl(commonsTag) {
+  if (!commonsTag || !commonsTag.startsWith('File:')) return null;
+  const filename = commonsTag.slice('File:'.length);
+  try {
+    const res = await fetch(WIKIMEDIA_FILEPATH_BASE + encodeURIComponent(filename), {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+    if (!res.ok || !res.url) return null;
+    // Only trust a resolved URL that actually landed on Wikimedia's own CDN.
+    return res.url.startsWith('https://upload.wikimedia.org/') ? res.url : null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchCity(city) {
   const q = `[out:json][timeout:240][maxsize:536870912];
 (
@@ -89,7 +114,7 @@ out center tags ${MAX_PER_CITY * 6};`;
   throw lastErr;
 }
 
-function normalize(elements, city, areas) {
+async function normalize(elements, city, areas) {
   const seen = new Set();
   const out = [];
   for (const el of elements) {
@@ -127,6 +152,7 @@ function normalize(elements, city, areas) {
     }
 
     const phone = tags.phone || tags['contact:phone'] || null;
+    const imageUrl = await resolveWikimediaImageUrl(tags.wikimedia_commons);
     out.push({
       osm: `${el.type}/${el.id}`,
       name,
@@ -137,8 +163,13 @@ function normalize(elements, city, areas) {
       address: buildAddress(tags),
       pg_type: inferPgType(name, tags),
       area,
+      imageUrl,
       raw: { type: el.type, id: el.id, tags },
-      score: (phone ? 2 : 0) + (buildAddress(tags) ? 1 : 0) + (tags.tourism === 'hostel' ? 1 : 0),
+      score:
+        (phone ? 2 : 0) +
+        (buildAddress(tags) ? 1 : 0) +
+        (tags.tourism === 'hostel' ? 1 : 0) +
+        (imageUrl ? 1 : 0),
     });
   }
   // richest records first, cap per city
@@ -202,7 +233,7 @@ async function main() {
         failures.push(`${city.name}: ${e.message}`);
         continue;
       }
-      const records = normalize(elements, city, areasByCity[city.slug]);
+      const records = await normalize(elements, city, areasByCity[city.slug]);
       console.log(`${elements.length} raw -> ${records.length} normalized`);
 
       for (const r of records) {
@@ -237,7 +268,16 @@ async function main() {
            returning id`,
           [city.id, r.area?.id ?? null, r.name, slug, desc, r.address, r.lat, r.lng, r.pg_type, r.phone]
         );
-        if (ins.rows[0]) published++;
+        if (ins.rows[0]) {
+          published++;
+          if (r.imageUrl) {
+            await client.query(
+              `insert into listing_images (listing_id, storage_path, alt_text, sort_order, is_cover)
+               values ($1, $2, $3, 0, true)`,
+              [ins.rows[0].id, r.imageUrl, `${r.name} — exterior photo (OpenStreetMap/Wikimedia Commons)`]
+            );
+          }
+        }
       }
       await sleep(3000); // be polite to Overpass
     }

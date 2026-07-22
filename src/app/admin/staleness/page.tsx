@@ -19,7 +19,7 @@ export default async function StalenessPage() {
       </p>
       <div className="mt-6 overflow-x-auto rounded-2xl border border-grey-50 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-grey-50 text-xs uppercase tracking-wide text-grey-400">
+          <thead className="border-b border-grey-50 text-xs uppercase tracking-wide text-grey-500">
             <tr>
               <th className="px-4 py-3">Listing</th>
               <th className="px-4 py-3">City</th>
@@ -62,7 +62,7 @@ export default async function StalenessPage() {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-grey-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-grey-500">
                   Nothing stale. 🎉
                 </td>
               </tr>

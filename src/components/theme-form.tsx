@@ -29,7 +29,7 @@ export function ThemeForm({ current }: { current: Record<string, string> }) {
               defaultValue={current[f.key]}
               className="h-9 w-14 cursor-pointer rounded border border-grey-100 bg-white"
             />
-            <code className="text-xs text-grey-400">{current[f.key]}</code>
+            <code className="text-xs text-grey-500">{current[f.key]}</code>
           </span>
         </label>
       ))}

@@ -21,7 +21,7 @@ const SHARING_OPTIONS = ["Single", "Double", "Triple", "4-bed", "5-bed"];
 const STEPS = ["Basics", "Location", "Pricing & amenities", "Photos & review"];
 
 const inputCls =
-  "w-full rounded-[10px] border border-grey-100 bg-grey-5 px-3.5 py-3 text-[14.5px] text-grey-900 outline-none transition focus:border-primary focus:bg-white";
+  "w-full rounded-md border border-grey-100 bg-grey-5 px-3.5 py-3 text-[14.5px] text-grey-900 outline-none transition focus:border-primary focus:bg-white";
 const labelCls = "mb-1.5 block text-[12.5px] font-semibold text-grey-600";
 
 /** Ref list-property.html: multi-step wizard (step labels + pills, Back /
@@ -107,7 +107,7 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
 
   if (state?.ok) {
     return (
-      <div className="rounded-[22px] bg-success-bg p-8 text-center">
+      <div className="rounded-2xl bg-success-bg p-8 text-center">
         <p className="text-lg font-bold text-teal-dark">Submission received 🎉</p>
         <p className="mt-2 text-sm leading-relaxed text-grey-600">
           Thanks for listing with us. Our team will verify the details and
@@ -123,7 +123,7 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
   return (
     <div>
       {/* Step labels + pills (ref .step-labels / .stepper) */}
-      <div className="mb-1.5 flex justify-between font-mono text-[11px] text-grey-400">
+      <div className="mb-1.5 flex justify-between font-mono text-[11px] text-grey-500">
         {STEPS.map((s, i) => (
           <span key={s} className={i === step ? "font-semibold text-primary" : ""}>
             {s}
@@ -290,7 +290,7 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
                   ).map(([v, label]) => (
                     <label
                       key={v}
-                      className="flex-1 cursor-pointer rounded-[10px] border border-grey-50 bg-grey-10 px-4 py-2.5 text-center text-[13px] font-semibold text-grey-500 transition has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white"
+                      className="flex-1 cursor-pointer rounded-md border border-grey-50 bg-grey-10 px-4 py-2.5 text-center text-[13px] font-semibold text-grey-500 transition has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white"
                     >
                       <input
                         type="radio"
@@ -388,7 +388,7 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
               <div>
                 <label
                   htmlFor="photos"
-                  className="block cursor-pointer rounded-[14px] border-[1.5px] border-dashed border-grey-200 bg-grey-5 p-8 text-center text-[13.5px] text-grey-400 transition hover:border-primary hover:text-primary"
+                  className="block cursor-pointer rounded-xl border-[1.5px] border-dashed border-grey-200 bg-grey-5 p-8 text-center text-[13.5px] text-grey-500 transition hover:border-primary hover:text-primary"
                 >
                   {photoCount > 0
                     ? `${photoCount} photo${photoCount === 1 ? "" : "s"} selected — tap to change`
@@ -416,14 +416,14 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
                   className={inputCls}
                 />
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-grey-400">
+              <p className="mt-3 text-xs leading-relaxed text-grey-500">
                 Listing is free. Our team reviews every submission before it
                 goes live, and will contact you for verification.
               </p>
             </fieldset>
 
             {(state?.error || uploadError) && (
-              <p className="mt-4 rounded-[10px] bg-alert-bg px-4 py-3 text-sm font-semibold text-alert-fg">
+              <p className="mt-4 rounded-md bg-alert-bg px-4 py-3 text-sm font-semibold text-alert-fg">
                 {uploadError ?? state?.error}
               </p>
             )}
@@ -434,23 +434,25 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
                 type="button"
                 onClick={() => setStep((s) => Math.max(s - 1, 0))}
                 disabled={step === 0}
-                className="rounded-[10px] border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary disabled:invisible"
+                className="rounded-md border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary disabled:invisible"
               >
                 ← Back
               </button>
               {step < STEPS.length - 1 ? (
                 <button
+                  key="continue-btn"
                   type="button"
                   onClick={next}
-                  className="rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                  className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
                 >
                   Continue →
                 </button>
               ) : (
                 <button
+                  key="submit-btn"
                   type="submit"
                   disabled={pending || uploading}
-                  className="rounded-[10px] bg-teal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-dark disabled:opacity-50"
+                  className="rounded-md bg-teal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-dark disabled:opacity-50"
                 >
                   {uploading
                     ? "Uploading photos…"
@@ -489,7 +491,7 @@ export function OwnerForm({ cities, areas }: { cities: CityOpt[]; areas: AreaOpt
                 </div>
               ))}
             </dl>
-            <p className="mt-3.5 text-xs leading-relaxed text-grey-400">
+            <p className="mt-3.5 text-xs leading-relaxed text-grey-500">
               ₹0 listing fee · ₹0 commission · verified before publishing
             </p>
           </aside>
