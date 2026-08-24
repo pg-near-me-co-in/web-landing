@@ -25,6 +25,8 @@ import ingest_listings   # noqa: E402
 import update_single_listing  # noqa: E402
 import bulk_update  # noqa: E402
 import refresh_check  # noqa: E402
+import pincode_lookup  # noqa: E402
+import leads_schema  # noqa: E402
 from schema import dedup_key, now_utc, STATUS_NEEDS_REVIEW  # noqa: E402
 from make_template import build as build_template  # noqa: E402
 
@@ -183,6 +185,64 @@ def main():
         err_rows = list(csv.reader(f))
     assert len(err_rows) - 1 == 3, f"expected 3 error rows logged, got {len(err_rows)-1}"
     print(f"OK: all 3 invalid rows rejected, zero reached Mongo, all 3 logged to bad_rows_errors.csv")
+
+    print("\n=== 8. leads sourcing helpers (pincode_lookup + leads_schema) ===")
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "TestCity"
+    ws.append(["Metro_City", "Pincode", "Locality_PostOffice", "Office_Type",
+               "Delivery_Status", "District", "State", "Latitude", "Longitude"])
+    ws.append(["TestCity", "111111", "Near Station", "PO", "Delivery", "D", "S", "22.30", "73.20"])
+    ws.append(["TestCity", "222222", "Far Suburb", "PO", "Delivery", "D", "S", "22.50", "73.50"])
+    ws.append(["TestCity", "333333", "No Coords BO", "BO", "Delivery", "D", "S", "NA", "NA"])
+    wb.save("fake_pincode.xlsx")
+
+    rows = pincode_lookup.load_city_rows("TestCity", path="fake_pincode.xlsx")
+    assert len(rows) == 2, f"expected 2 rows with usable coords (NA row dropped), got {len(rows)}"
+    print("OK: load_city_rows skips rows with no usable lat/lng")
+
+    nearest = pincode_lookup.nearest_row(22.31, 73.21, rows)
+    assert nearest["locality"] == "Near Station", nearest
+    print("OK: nearest_row picks the geographically closest reference row")
+
+    # the real reference file has rows whose lat/lng doesn't match their stated
+    # city (confirmed: Vadodara's sheet is 69% wrong, clustered near Goa) --
+    # load_city_rows drops anything far from a known city center so a bad row
+    # can't corrupt a bounding box or a locality search. Prove it here with a
+    # deliberately bad row planted under a real KNOWN_CITY_CENTERS name.
+    wb2 = openpyxl.Workbook()
+    ws2 = wb2.active
+    ws2.title = "Vadodara"
+    ws2.append(["Metro_City", "Pincode", "Locality_PostOffice", "Office_Type",
+                "Delivery_Status", "District", "State", "Latitude", "Longitude"])
+    ws2.append(["Vadodara", "390001", "Real Vadodara Row", "PO", "Delivery", "D", "S", "22.30", "73.19"])
+    ws2.append(["Vadodara", "999999", "Mislabeled Row", "PO", "Delivery", "D", "S", "15.60", "73.80"])
+    wb2.save("fake_pincode_baddata.xlsx")
+    rows2 = pincode_lookup.load_city_rows("Vadodara", path="fake_pincode_baddata.xlsx")
+    assert len(rows2) == 1 and rows2[0]["locality"] == "Real Vadodara Row", rows2
+    print("OK: load_city_rows drops rows whose lat/lng is nowhere near their stated city")
+
+    assert leads_schema.is_relevant({"name": "Sunshine PG for Working Women", "types": ["lodging"]})
+    assert leads_schema.is_relevant({"name": "Cozy Hostel for Boys", "types": ["lodging"]})
+    assert not leads_schema.is_relevant({"name": "Hotel Taj Residency", "types": ["lodging"]})
+    assert not leads_schema.is_relevant({"name": "ABC Real Estate Agency", "types": ["real_estate_agency"]})
+    print("OK: is_relevant keeps PG/hostel-shaped results, drops hotels and unrelated businesses")
+
+    fake_place = {
+        "place_id": "abc123",
+        "name": "Sunshine PG",
+        "formatted_address": "12 Sunshine Apts, Near Station, TestCity",
+        "geometry": {"location": {"lat": 22.301, "lng": 73.201}},
+        "types": ["lodging", "point_of_interest"],
+        "rating": 4.2,
+    }
+    lead = leads_schema.to_lead_doc(fake_place, city_hint="TestCity", locality="Near Station", pincode="111111",
+                                     query_used="PG near Near Station, TestCity")
+    assert lead["place_id"] == "abc123"
+    assert lead["locality"] == "Near Station" and lead["pincode"] == "111111"
+    assert lead["status"] == leads_schema.STATUS_LEAD_NEW
+    assert lead["maps_url"] == "https://www.google.com/maps/place/?q=place_id:abc123"
+    print("OK: to_lead_doc maps a raw Places result into the leads document shape")
 
     print("\n=== ALL CHECKS PASSED ===")
 

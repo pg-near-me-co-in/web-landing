@@ -1,3 +1,4 @@
 pymongo>=4.6
 openpyxl>=3.1
+requests>=2.31   # Google Places REST calls in google_places.py
 mongomock>=4.1   # only needed to run test_pipeline.py, not in production
