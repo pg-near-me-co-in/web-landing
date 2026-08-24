@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# data-pipeline: generated/runtime, not source
+data-pipeline/__pycache__/
+data-pipeline/.checkpoints/
+data-pipeline/leads_exports/
