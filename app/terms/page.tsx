@@ -13,7 +13,7 @@ export default function TermsPage() {
       <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
         <span className="eyebrow mb-4">TERMS OF USE</span>
         <h1 className="font-display text-[clamp(26px,3.6vw,38px)] font-bold leading-[1.1] text-grey-900">Terms of Use</h1>
-        <p className="mt-3 text-sm text-grey-500">Last updated: 26 August 2026</p>
+        <p className="mt-3 text-sm text-grey-500">Last updated: 27 August 2026</p>
 
         <h2 className="mt-9 font-display text-xl font-bold text-grey-900">What {SITE.name} is</h2>
         <p className="mt-3 leading-relaxed text-grey-500">
@@ -25,9 +25,11 @@ export default function TermsPage() {
 
         <h2 className="mt-9 font-display text-xl font-bold text-grey-900">Listing content</h2>
         <p className="mt-3 leading-relaxed text-grey-500">
-          Listings are submitted directly by property owners and reviewed by our team before publishing. We make a
-          reasonable effort to verify accuracy, but prices, availability and amenities can change — always confirm
-          directly with the owner before visiting or paying anything.
+          Listings come from two sources: submitted directly by property owners, or aggregated from public
+          directories such as OpenStreetMap and clearly treated as unverified until an owner confirms them. Either
+          way, prices, availability and amenities can change — always confirm directly with the owner before
+          visiting or paying anything. If you own a listing sourced from public data and want it corrected, claimed
+          or removed, email us.
         </p>
 
         <h2 className="mt-9 font-display text-xl font-bold text-grey-900">Your responsibilities</h2>

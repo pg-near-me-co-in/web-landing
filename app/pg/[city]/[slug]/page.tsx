@@ -6,8 +6,9 @@ import { getCityBySlug } from "@/lib/data/cities";
 import { BackButton } from "@/components/back-button";
 import { ListingGallery } from "@/components/listing-gallery";
 import { ContactReveal } from "@/components/contact-reveal";
-import { placeholderPhotoFor } from "@/lib/placeholder-images";
-import { FOOD_LABEL, GENDER_LABEL, RULES_LABEL, formatPriceRange } from "@/lib/format";
+import { GeneratedAvatar } from "@/components/generated-avatar";
+import { formatPriceRange, foodLabel, genderLabel, placeName, rulesLabel } from "@/lib/format";
+import { SITE } from "@/lib/content";
 
 interface Props {
   params: Promise<{ city: string; slug: string }>;
@@ -22,10 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const l = getListingBySlug(slug);
   if (!l) return {};
   const city = getCityBySlug(l.city_slug);
-  const title = `${l.name} — ${l.locality}, ${city?.name} PG | ${formatPriceRange(l.price_min, l.price_max)}`;
+  const where = placeName(l.locality, city?.name ?? l.city_slug);
+  const title = `${l.name} — ${where} PG | ${formatPriceRange(l.price_min, l.price_max)}`;
   const desc =
     l.description?.slice(0, 155) ??
-    `${GENDER_LABEL[l.pg_gender]} PG in ${l.locality}, ${city?.name}. ${formatPriceRange(l.price_min, l.price_max)}. ${FOOD_LABEL[l.food_type]}.`;
+    `${genderLabel(l.pg_gender)} PG in ${where}. ${formatPriceRange(l.price_min, l.price_max)}. ${foodLabel(l.food_type)}.`;
   return {
     title,
     description: desc,
@@ -49,8 +51,7 @@ export default async function ListingDetailPage({ params }: Props) {
   const { city, slug } = await params;
   const l = getListingBySlug(slug);
   if (!l || l.city_slug !== city) notFound();
-
-  const gallery = l.images.length > 0 ? l.images.map((i) => i.storage_path) : [placeholderPhotoFor(l.slug)];
+  const cityObj = getCityBySlug(l.city_slug);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -64,7 +65,7 @@ export default async function ListingDetailPage({ params }: Props) {
       addressCountry: "IN",
     },
     ...(l.lat && l.lng ? { geo: { "@type": "GeoCoordinates", latitude: l.lat, longitude: l.lng } } : {}),
-    priceRange: `₹${l.price_min}–₹${l.price_max}/month`,
+    ...(l.price_min != null && l.price_max != null ? { priceRange: `₹${l.price_min}–₹${l.price_max}/month` } : {}),
     aggregateRating: { "@type": "AggregateRating", ratingValue: l.trust_score, bestRating: 5, ratingCount: 1 },
   };
 
@@ -77,13 +78,21 @@ export default async function ListingDetailPage({ params }: Props) {
       </div>
 
       <section className="container-page">
-        <ListingGallery images={gallery} listingName={l.name} />
+        {l.images.length > 0 ? (
+          <ListingGallery images={l.images.map((i) => i.storage_path)} listingName={l.name} />
+        ) : (
+          <div className="overflow-hidden rounded-2xl border border-grey-50 bg-grey-10">
+            <div className="relative aspect-[16/10] w-full">
+              <GeneratedAvatar id={l.slug} name={l.name} className="h-full w-full" />
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="container-page grid gap-8 pt-8 md:grid-cols-[1fr_360px]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="chip border-primary/20 bg-primary-tint text-primary">{GENDER_LABEL[l.pg_gender]}</span>
+            <span className="chip border-primary/20 bg-primary-tint text-primary">{genderLabel(l.pg_gender)}</span>
             <span className="chip">
               <Star className="h-3 w-3 fill-highlight text-highlight" /> Trust {l.trust_score.toFixed(1)}
             </span>
@@ -100,8 +109,8 @@ export default async function ListingDetailPage({ params }: Props) {
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             <Fact icon={<Users className="h-4 w-4" />} label="Sharing types" value={l.sharing_types.join(" · ") || "—"} />
-            <Fact icon={<Utensils className="h-4 w-4" />} label="Food" value={FOOD_LABEL[l.food_type]} />
-            <Fact icon={<ShieldCheck className="h-4 w-4" />} label="House rules" value={RULES_LABEL[l.house_rules]} />
+            <Fact icon={<Utensils className="h-4 w-4" />} label="Food" value={foodLabel(l.food_type)} />
+            <Fact icon={<ShieldCheck className="h-4 w-4" />} label="House rules" value={rulesLabel(l.house_rules)} />
             <Fact icon={<Home className="h-4 w-4" />} label="Road access" value={l.road_access ? "Vehicle-accessible" : "Behind narrow lane"} />
           </div>
 
@@ -138,7 +147,19 @@ export default async function ListingDetailPage({ params }: Props) {
             <div className="mt-1 text-xs text-grey-500">per bed / month · deposit varies</div>
 
             <div className="mt-6">
-              <ContactReveal listingId={l.id} listingName={l.name} locality={l.locality} phone={l.contact_phone} whatsapp={l.contact_whatsapp} />
+              <ContactReveal
+                listingId={l.id}
+                listingName={l.name}
+                locality={l.locality}
+                cityName={cityObj?.name ?? l.city_slug}
+                pageUrl={`https://${SITE.domain}/pg/${l.city_slug}/${l.slug}`}
+                phone={l.contact_phone}
+                whatsapp={l.contact_whatsapp}
+                priceMin={l.price_min}
+                priceMax={l.price_max}
+                sharingTypes={l.sharing_types}
+                pgGender={l.pg_gender}
+              />
             </div>
           </div>
         </aside>

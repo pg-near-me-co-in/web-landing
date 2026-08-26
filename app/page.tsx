@@ -3,7 +3,7 @@ import { ArrowRight, ShieldCheck, Filter, Zap, Sparkles } from "lucide-react";
 import { getAllCities } from "@/lib/data/cities";
 import { getAllListings } from "@/lib/data/listings";
 import { HomeMapLoader } from "@/components/home-map-loader";
-import { HERO, WHY_US, OWNER_CTA, SITE } from "@/lib/content";
+import { HERO, WHY_US, OWNER_CTA, SITE, OWNER_FORM_URL } from "@/lib/content";
 
 export default function HomePage() {
   const listings = getAllListings();
@@ -38,9 +38,9 @@ export default function HomePage() {
             <Link href="/pg/vadodara" className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-dark">
               {HERO.ctaPrimary} <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/add-your-pg" className="inline-flex h-12 items-center gap-2 rounded-full border border-grey-100 bg-white px-6 text-sm font-semibold text-grey-900 transition hover:border-primary/50 hover:text-primary">
+            <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-full border border-grey-100 bg-white px-6 text-sm font-semibold text-grey-900 transition hover:border-primary/50 hover:text-primary">
               {HERO.ctaSecondary}
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ export default function HomePage() {
             <div className="text-xs font-bold uppercase tracking-widest text-primary">Featured cities</div>
             <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Search by your city, not a random pin.</h2>
             <p className="text-sm text-grey-500">
-              Vadodara is live today. Bengaluru, Pune, Mumbai, Delhi NCR &amp; more are rolling out — tap in to get a head-start.
+              Live in {cityCount} {cityCount === 1 ? "city" : "cities"} today, more rolling out — tap in to get a head-start.
             </p>
           </div>
           <Link href="/cities" className="hidden text-sm font-bold text-primary transition-colors hover:text-primary-dark md:inline-flex md:items-center md:gap-2">
@@ -121,9 +121,9 @@ export default function HomePage() {
               <p className="mt-4 max-w-xl text-white/80">{OWNER_CTA.body}</p>
             </div>
             <div className="md:justify-self-end">
-              <Link href="/add-your-pg" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-grey-900 transition hover:bg-white/90">
+              <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-grey-900 transition hover:bg-white/90">
                 List your PG <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
             </div>
           </div>
         </div>

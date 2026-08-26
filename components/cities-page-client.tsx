@@ -15,6 +15,7 @@ export function CitiesPageClient() {
   const live = CITIES.filter((c) => c.is_launched && matches(c));
   const soon = CITIES.filter((c) => !c.is_launched && matches(c));
   const noMatches = live.length === 0 && soon.length === 0;
+  const liveCount = CITIES.filter((c) => c.is_launched).length;
 
   return (
     <main className="flex-1">
@@ -22,7 +23,7 @@ export function CitiesPageClient() {
         <div className="container-page py-14 md:py-20">
           <div className="chip">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {CITIES.length} CITIES · 1 LIVE · MORE ROLLING OUT
+            {CITIES.length} CITIES · {liveCount} LIVE · MORE ROLLING OUT
           </div>
           <h1 className="mt-5 max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">{CITIES_COPY.title}</h1>
           <p className="mt-4 max-w-xl text-grey-500 md:text-lg">{CITIES_COPY.subtitle}</p>

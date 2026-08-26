@@ -15,6 +15,12 @@ export const SITE = {
     "Explore verified PGs, hostels and shared rooms on a live map — filter by city, budget, gender and sharing. Zero brokerage, direct owner contact.",
 };
 
+/**
+ * TODO: replace with the real Google Form link once it exists — every
+ * "List your PG" CTA points here instead of an in-app form/page.
+ */
+export const OWNER_FORM_URL = "https://forms.gle/REPLACE_WITH_REAL_FORM_ID";
+
 export const HERO = {
   title: "Every verified PG in your city, on ",
   titleHighlight: "one map",
@@ -59,11 +65,11 @@ export const ABOUT_COPY = {
     "None of them enforce structured data at listing time — so filters like gender policy, food type and sharing type either don't exist or are shallow. Seekers waste 3–7 days visiting properties that don't match. Owners either pay brokers 50–100% of a month's rent, or rely on neighborhood word-of-mouth.",
   ],
   approach:
-    "A vertical-specific directory that captures the fields seekers actually filter on — and rewards owners who submit complete, fresh listings. City by city, starting with Vadodara, then expanding only when supply and quality warrant it.",
+    "A vertical-specific directory that captures the fields seekers actually filter on — and rewards owners who submit complete, fresh listings. Live across multiple cities today, growing city by city as supply and data quality warrant it.",
   notList: [
     "Not a booking or payments platform. We surface the owner's number; you visit and decide.",
     "Not affiliated with any managed-living brand.",
-    "Not a scraper of anyone else's listings. Every listing is submitted or verified by us.",
+    "Every listing is either submitted by its owner or sourced from public directories (like OpenStreetMap) and clearly marked — owners can email us anytime to claim, correct or remove theirs.",
   ],
 };
 

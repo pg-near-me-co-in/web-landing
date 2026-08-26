@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Home } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
-import { SITE } from "@/lib/content";
+import { SITE, OWNER_FORM_URL } from "@/lib/content";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
@@ -29,9 +29,9 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Link href="/add-your-pg" className="inline-flex h-10 items-center rounded-full border border-grey-100 bg-white px-4 text-sm font-semibold text-grey-900 transition hover:border-primary/60 hover:text-primary">
+          <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center rounded-full border border-grey-100 bg-white px-4 text-sm font-semibold text-grey-900 transition hover:border-primary/60 hover:text-primary">
             List your PG
-          </Link>
+          </a>
           <Link href="/pg/vadodara" className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark">
             Find a PG
           </Link>

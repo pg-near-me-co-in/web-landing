@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
       <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
         <span className="eyebrow mb-4">PRIVACY POLICY</span>
         <h1 className="font-display text-[clamp(26px,3.6vw,38px)] font-bold leading-[1.1] text-grey-900">Privacy Policy</h1>
-        <p className="mt-3 text-sm text-grey-500">Last updated: 26 August 2026</p>
+        <p className="mt-3 text-sm text-grey-500">Last updated: 27 August 2026</p>
 
         <p className="mt-7 leading-relaxed text-grey-600">
           {SITE.name} (&quot;we&quot;, &quot;us&quot;) operates <span className="font-semibold">{SITE.domain}</span>,
@@ -24,14 +24,19 @@ export default function PrivacyPolicyPage() {
         <h2 className="mt-9 font-display text-xl font-bold text-grey-900">What we collect</h2>
         <ul className="mt-3 space-y-2 leading-relaxed text-grey-500">
           <li>
-            <span className="font-semibold text-grey-700">Contact-reveal requests.</span> When you tap &quot;Show
-            contact number&quot; on a listing, we ask for your name and phone number so the owner can follow up with
-            you directly.
+            <span className="font-semibold text-grey-700">Contact-reveal clicks.</span> When you tap to reveal an
+            owner&apos;s number or message them on WhatsApp, we log that the click happened (not who you are) so
+            owners can see qualified interest.
           </li>
           <li>
-            <span className="font-semibold text-grey-700">Owner submissions.</span> If you list a property via
-            &quot;Add your PG&quot;, the details you enter are sent by email to our team to publish and verify the
-            listing.
+            <span className="font-semibold text-grey-700">Owner submissions.</span> If you list a property with us,
+            the details you enter are sent to our team to publish and verify the listing.
+          </li>
+          <li>
+            <span className="font-semibold text-grey-700">Public directory data.</span> Some listings are sourced
+            from public directories such as OpenStreetMap (© OpenStreetMap contributors, ODbL) rather than submitted
+            by the owner directly. If you own one of these and want it corrected, claimed or removed, email us — see
+            below.
           </li>
           <li>
             <span className="font-semibold text-grey-700">Analytics.</span> We use Google Analytics (GA4) and

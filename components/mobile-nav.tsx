@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { OWNER_FORM_URL } from "@/lib/content";
 
 const LINKS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
@@ -35,9 +36,9 @@ export function MobileNav() {
           </SheetClose>
         ))}
         <SheetClose asChild>
-          <Link href="/add-your-pg" className="mt-2 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white">
+          <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white">
             List your PG
-          </Link>
+          </a>
         </SheetClose>
       </SheetContent>
     </Sheet>

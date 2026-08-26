@@ -31,13 +31,14 @@ export interface Listing {
   lat: number | null;
   lng: number | null;
   description: string;
-  pg_gender: PgType;
+  pg_gender: PgType | null;
   sharing_types: string[];
-  price_min: number;
-  price_max: number;
-  food_type: FoodType;
-  house_rules: HouseRules;
+  price_min: number | null;
+  price_max: number | null;
+  food_type: FoodType | null;
+  house_rules: HouseRules | null;
   road_access: boolean;
+  /** Empty string means unknown — no owner contact captured for this listing yet. */
   contact_phone: string;
   contact_whatsapp: string | null;
   amenities: string[];

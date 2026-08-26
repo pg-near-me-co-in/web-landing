@@ -22,7 +22,7 @@ export interface ListingFilters {
  */
 export function matchesFilters(listing: Listing, filters: ListingFilters): boolean {
   if (filters.gender && listing.pg_gender !== filters.gender) return false;
-  if (filters.maxPrice && listing.price_min > filters.maxPrice) return false;
+  if (filters.maxPrice && listing.price_min != null && listing.price_min > filters.maxPrice) return false;
   if (filters.sharing && !listing.sharing_types.includes(filters.sharing)) return false;
   if (filters.food && listing.food_type !== filters.food) return false;
   if (filters.rules && listing.house_rules !== filters.rules) return false;

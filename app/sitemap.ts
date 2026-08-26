@@ -11,7 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: base, changeFrequency: "daily", priority: 1 },
-    { url: `${base}/add-your-pg`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/cities`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/about`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/for-owners`, changeFrequency: "monthly", priority: 0.6 },

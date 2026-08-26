@@ -19,20 +19,21 @@ test("gender filter narrows results via URL", async ({ page }) => {
 });
 
 test("listing detail page reveals contact instantly, no gate", async ({ page }) => {
-  await page.goto("/pg/vadodara/sunrise-ladies-pg-alkapuri");
-  await expect(page.getByRole("heading", { name: "Sunrise Ladies PG" })).toBeVisible();
+  await page.goto("/pg/vadodara/stanza-living-auckland-house-pg-in-waghodia-road-vadodara");
+  await expect(page.getByRole("heading", { name: /Stanza Living Auckland House/ })).toBeVisible();
   await page.getByRole("button", { name: "Reveal owner number" }).click();
   await expect(page.getByRole("link", { name: /\+91/ })).toBeVisible();
 });
 
 test("cities directory lists both live and upcoming cities", async ({ page }) => {
   await page.goto("/cities");
-  await expect(page.getByText("Live", { exact: true })).toBeVisible();
+  await expect(page.getByText("Live", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Soon", { exact: true }).first()).toBeVisible();
 });
 
-test("add-your-pg form is present with sectioned fields", async ({ page }) => {
-  await page.goto("/add-your-pg");
-  await expect(page.getByRole("button", { name: "Submit for review" })).toBeVisible();
-  await expect(page.getByText("PROPERTY")).toBeVisible();
+test("List your PG CTA points to the external owner form, not a dead page", async ({ page }) => {
+  await page.goto("/for-owners");
+  const link = page.getByRole("link", { name: /List your PG/ });
+  await expect(link).toHaveAttribute("href", /^https:\/\//);
+  await expect(link).toHaveAttribute("target", "_blank");
 });

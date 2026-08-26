@@ -45,7 +45,7 @@ test("city and listing pages carry valid JSON-LD", async ({ page }) => {
   const cityLd = await page.locator('script[type="application/ld+json"]').first().textContent();
   expect(() => JSON.parse(cityLd!)).not.toThrow();
 
-  await page.goto("/pg/vadodara/sunrise-ladies-pg-alkapuri");
+  await page.goto("/pg/vadodara/stanza-living-auckland-house-pg-in-waghodia-road-vadodara");
   const listingLd = await page.locator('script[type="application/ld+json"]').first().textContent();
   const parsed = JSON.parse(listingLd!);
   expect(parsed["@type"]).toBe("LodgingBusiness");

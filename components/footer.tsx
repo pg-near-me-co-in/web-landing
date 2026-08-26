@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Home, Instagram, Linkedin } from "lucide-react";
-import { getLaunchedCities } from "@/lib/data/cities";
-import { SITE } from "@/lib/content";
+import { getAllCities, getLaunchedCities } from "@/lib/data/cities";
+import { SITE, OWNER_FORM_URL } from "@/lib/content";
 
 export function Footer() {
   const launched = getLaunchedCities();
+  const comingSoon = getAllCities().filter((c) => !c.is_launched).slice(0, 2);
 
   return (
     <footer className="border-t border-grey-50 bg-grey-5">
@@ -31,8 +32,9 @@ export function Footer() {
                 </Link>
               </li>
             ))}
-            <li className="text-grey-500">Bengaluru — coming soon</li>
-            <li className="text-grey-500">Pune — coming soon</li>
+            {comingSoon.map((c) => (
+              <li key={c.slug} className="text-grey-500">{c.name} — coming soon</li>
+            ))}
           </ul>
         </div>
 
@@ -43,7 +45,7 @@ export function Footer() {
               <Link href="/for-owners" className="hover:text-primary">For owners</Link>
             </li>
             <li>
-              <Link href="/add-your-pg" className="hover:text-primary">List your PG</Link>
+              <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary">List your PG</a>
             </li>
             <li>
               <Link href="/about" className="hover:text-primary">Our story</Link>
@@ -70,7 +72,13 @@ export function Footer() {
       </div>
       <div className="border-t border-grey-50">
         <div className="container-page flex flex-col items-start justify-between gap-2 py-6 text-xs text-grey-500 md:flex-row md:items-center">
-          <span>© {new Date().getFullYear()} {SITE.name} — independent PG directory for India.</span>
+          <span>
+            © {new Date().getFullYear()} {SITE.name} — independent PG directory for India. Some location data ©{" "}
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700">
+              OpenStreetMap
+            </a>{" "}
+            contributors, ODbL.
+          </span>
           <span className="flex gap-3">
             <Link href="/privacy-policy" className="hover:text-grey-700">Privacy</Link>
             <Link href="/terms" className="hover:text-grey-700">Terms</Link>

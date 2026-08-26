@@ -6,9 +6,21 @@
     "state": "Gujarat",
     "lat": 22.3072,
     "lng": 73.1812,
-    "image": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=70",
+    "image": "/city-icons/vadodara.svg",
     "tagline": "Student hub around MSU, Alkapuri & Sayajigunj",
-    "count": "6 listings",
+    "count": "7 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-mumbai",
+    "slug": "mumbai",
+    "name": "Mumbai",
+    "state": "Maharashtra",
+    "lat": 19.076,
+    "lng": 72.8777,
+    "image": "/city-icons/mumbai.svg",
+    "tagline": "Andheri, Powai & Navi Mumbai shared living",
+    "count": "72 listings",
     "is_launched": true
   },
   {
@@ -18,10 +30,34 @@
     "state": "Karnataka",
     "lat": 12.9716,
     "lng": 77.5946,
-    "image": "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=70",
+    "image": "/city-icons/bengaluru.svg",
     "tagline": "Tech corridors from Koramangala to Whitefield",
-    "count": "2 listings",
-    "is_launched": false
+    "count": "413 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-gurugram",
+    "slug": "gurugram",
+    "name": "Gurugram",
+    "state": "Haryana",
+    "lat": 28.4595,
+    "lng": 77.0266,
+    "image": "/city-icons/gurugram.svg",
+    "tagline": "Cyber City, Sohna Road & Golf Course Road stays",
+    "count": "17 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-noida",
+    "slug": "noida",
+    "name": "Noida",
+    "state": "Uttar Pradesh",
+    "lat": 28.5355,
+    "lng": 77.391,
+    "image": "/city-icons/noida.svg",
+    "tagline": "Sector 62, Greater Noida & Noida Extension PGs",
+    "count": "32 listings",
+    "is_launched": true
   },
   {
     "id": "c-pune",
@@ -30,34 +66,10 @@
     "state": "Maharashtra",
     "lat": 18.5204,
     "lng": 73.8567,
-    "image": "https://images.unsplash.com/photo-1567527207346-3c5cbf6d5b13?auto=format&fit=crop&w=1200&q=70",
+    "image": "/city-icons/pune.svg",
     "tagline": "Kothrud, Baner & Hinjewadi picks for movers",
-    "count": "2 listings",
-    "is_launched": false
-  },
-  {
-    "id": "c-mumbai",
-    "slug": "mumbai",
-    "name": "Mumbai",
-    "state": "Maharashtra",
-    "lat": 19.076,
-    "lng": 72.8777,
-    "image": "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&w=1200&q=70",
-    "tagline": "Andheri, Powai & Navi Mumbai shared living",
-    "count": "Rolling out",
-    "is_launched": false
-  },
-  {
-    "id": "c-delhi",
-    "slug": "delhi",
-    "name": "Delhi NCR",
-    "state": "Delhi",
-    "lat": 28.6139,
-    "lng": 77.209,
-    "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&q=70",
-    "tagline": "Gurgaon, Noida & South Delhi stays",
-    "count": "Rolling out",
-    "is_launched": false
+    "count": "122 listings",
+    "is_launched": true
   },
   {
     "id": "c-hyderabad",
@@ -66,10 +78,10 @@
     "state": "Telangana",
     "lat": 17.385,
     "lng": 78.4867,
-    "image": "https://images.unsplash.com/photo-1626196340104-fcd8b5c1ea24?auto=format&fit=crop&w=1200&q=70",
+    "image": "/city-icons/hyderabad.svg",
     "tagline": "Gachibowli, Madhapur & HITEC City rooms",
-    "count": "Rolling out",
-    "is_launched": false
+    "count": "299 listings",
+    "is_launched": true
   },
   {
     "id": "c-ahmedabad",
@@ -78,21 +90,33 @@
     "state": "Gujarat",
     "lat": 23.0225,
     "lng": 72.5714,
-    "image": "https://images.unsplash.com/photo-1621996659490-3275b4d0d951?auto=format&fit=crop&w=1200&q=70",
+    "image": "/city-icons/ahmedabad.svg",
     "tagline": "SG Highway, Navrangpura & Bopal PGs",
-    "count": "2 listings",
-    "is_launched": false
+    "count": "54 listings",
+    "is_launched": true
   },
   {
-    "id": "c-chennai",
-    "slug": "chennai",
-    "name": "Chennai",
-    "state": "Tamil Nadu",
-    "lat": 13.0827,
-    "lng": 80.2707,
-    "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=70",
-    "tagline": "OMR, Velachery & Adyar shared homes",
-    "count": "Rolling out",
-    "is_launched": false
+    "id": "c-gandhinagar",
+    "slug": "gandhinagar",
+    "name": "Gandhinagar",
+    "state": "Gujarat",
+    "lat": 23.2156,
+    "lng": 72.6369,
+    "image": "/city-icons/gandhinagar.svg",
+    "tagline": "Sector-planned city living near GIFT City",
+    "count": "52 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-kota",
+    "slug": "kota",
+    "name": "Kota",
+    "state": "Rajasthan",
+    "lat": 25.2138,
+    "lng": 75.8648,
+    "image": "/city-icons/kota.svg",
+    "tagline": "Coaching-hub hostels for exam aspirants",
+    "count": "13 listings",
+    "is_launched": true
   }
 ]

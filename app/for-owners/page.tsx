@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { OWNER_BENEFITS } from "@/lib/content";
+import { OWNER_BENEFITS, OWNER_FORM_URL } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "For PG owners — list your property free",
@@ -31,9 +30,9 @@ export default function ForOwnersPage() {
             ))}
           </div>
           <div className="mt-10">
-            <Link href="/add-your-pg" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-medium text-white shadow-[var(--shadow-elevated)] transition hover:bg-primary-dark">
+            <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-medium text-white shadow-[var(--shadow-elevated)] transition hover:bg-primary-dark">
               List your PG <ArrowRight className="h-4 w-4" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

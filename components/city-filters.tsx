@@ -6,6 +6,7 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { CITIES } from "@/lib/data/cities";
 import { SHARING_TYPES } from "@/lib/format";
 import { trackEvent } from "@/lib/gtag";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export interface CitySearch {
   city: string;
@@ -21,8 +22,57 @@ export interface CitySearch {
 
 const AMENITY_FILTERS = ["WiFi", "AC", "Laundry", "Housekeeping", "Parking"] as const;
 
+function activeFilterCount(search: CitySearch): number {
+  return [search.gender, search.food, search.sharing, search.rules, search.maxPrice, search.q, search.verified === "true" ? "1" : undefined, search.amenities].filter(
+    Boolean
+  ).length;
+}
+
 export function CityFilters({ search }: { search: CitySearch }) {
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const activeCount = activeFilterCount(search);
+
+  return (
+    <>
+      {/* Desktop: always-visible sticky sidebar */}
+      <aside className="hidden h-max rounded-2xl border border-grey-50 bg-white p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24 lg:block">
+        <div className="mb-4 flex items-center gap-2 font-display text-sm font-semibold">
+          <SlidersHorizontal className="h-4 w-4" /> Filters
+        </div>
+        <FilterFields search={search} router={router} />
+      </aside>
+
+      {/* Mobile: compact trigger that opens the same filters in a sheet, instead
+          of the full block eating the first screen above the listings. */}
+      <div className="lg:hidden">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
+            <button className="flex w-full items-center justify-between rounded-xl border border-grey-100 bg-white px-4 py-3 text-sm font-semibold shadow-[var(--shadow-card)]">
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" /> Filters
+                {activeCount > 0 && (
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-white">{activeCount}</span>
+                )}
+              </span>
+              <ChevronDown className="h-4 w-4 -rotate-90" />
+            </button>
+          </SheetTrigger>
+          <SheetContent className="w-[88%] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">
+              <FilterFields search={search} router={router} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
+  );
+}
+
+function FilterFields({ search, router }: { search: CitySearch; router: ReturnType<typeof useRouter> }) {
   const [showMore, setShowMore] = useState(false);
 
   const update = (patch: Partial<CitySearch>) => {
@@ -49,11 +99,7 @@ export function CityFilters({ search }: { search: CitySearch }) {
   const moreActive = amenityList.length > 0 || search.verified === "true";
 
   return (
-    <aside className="h-max rounded-2xl border border-grey-50 bg-white p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-24">
-      <div className="mb-4 flex items-center gap-2 font-display text-sm font-semibold">
-        <SlidersHorizontal className="h-4 w-4" /> Filters
-      </div>
-
+    <div>
       <FilterGroup label="City">
         <select value={search.city} onChange={(e) => router.push(`/pg/${e.target.value}`)} aria-label="Filter listings by city" className="w-full rounded-lg border border-grey-100 bg-white px-3 py-2 text-sm">
           {CITIES.map((c) => (
@@ -209,7 +255,7 @@ export function CityFilters({ search }: { search: CitySearch }) {
       <button onClick={() => router.push(`/pg/${search.city}`)} className="mt-3 w-full rounded-lg border border-grey-100 bg-white px-3 py-2 text-xs font-medium text-grey-500 hover:bg-grey-10">
         Reset filters
       </button>
-    </aside>
+    </div>
   );
 }
 

@@ -6,6 +6,7 @@ import { getListingsForCity } from "@/lib/data/listings";
 import { ListingCard } from "@/components/listing-card";
 import { CityFilters } from "@/components/city-filters";
 import type { FoodType, HouseRules, PgType } from "@/lib/types";
+import { OWNER_FORM_URL } from "@/lib/content";
 
 interface Props {
   params: Promise<{ city: string }>;
@@ -115,9 +116,9 @@ export default async function CityPage({ params, searchParams }: Props) {
               <div className="font-display text-lg font-semibold">No matches</div>
               <p className="mt-2 text-sm text-grey-500">
                 Try widening your budget or removing a filter. Or{" "}
-                <Link href="/add-your-pg" className="text-primary underline">
+                <a href={OWNER_FORM_URL} target="_blank" rel="noopener noreferrer" className="text-primary underline">
                   list a PG you know
-                </Link>{" "}
+                </a>{" "}
                 to help another seeker find it.
               </p>
             </div>
