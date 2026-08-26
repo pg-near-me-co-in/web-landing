@@ -1,125 +1,79 @@
 import Link from "next/link";
+import { Home, Instagram, Linkedin } from "lucide-react";
 import { getLaunchedCities } from "@/lib/data/cities";
-import { Logo } from "./logo";
 import { SITE } from "@/lib/content";
 
 export function Footer() {
-  const cities = getLaunchedCities();
+  const launched = getLaunchedCities();
 
   return (
-    <footer className="mt-auto bg-grey-900 pb-6 pt-12 text-grey-5/70">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
-          <div>
-            <div className="mb-3">
-              <Logo inverted />
-            </div>
-            <p className="max-w-[280px] text-[13.5px] leading-relaxed text-grey-5/55">
-              Verified PGs, hostels and shared rooms across India. Zero brokerage. Direct owner contact. Made with
-              care for movers, students &amp; first-jobbers.
-            </p>
-            <a
-              href={`mailto:${SITE.contactEmail}`}
-              className="mt-3 inline-block text-[13.5px] font-semibold text-grey-5/60 transition hover:text-white"
-            >
-              {SITE.contactEmail}
-            </a>
+    <footer className="border-t border-grey-50 bg-grey-5">
+      <div className="container-page grid gap-8 py-12 md:grid-cols-4">
+        <div>
+          <div className="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-white">
+              <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </span>
+            {SITE.name}
           </div>
-
-          <nav aria-label="Explore">
-            <h4 className="mb-3.5 font-display text-[13px] font-bold text-white">Explore</h4>
-            <ul className="space-y-2 text-[13.5px]">
-              <li>
-                <Link href="/#search" className="text-grey-5/60 transition hover:text-white">
-                  Find a PG
-                </Link>
-              </li>
-              <li>
-                <Link href="/cities" className="text-grey-5/60 transition hover:text-white">
-                  Cities
-                </Link>
-              </li>
-              <li>
-                <Link href="/#types" className="text-grey-5/60 transition hover:text-white">
-                  Property types
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-grey-5/60 transition hover:text-white">
-                  Our story
-                </Link>
-              </li>
-              <li>
-                <Link href="/#faq" className="text-grey-5/60 transition hover:text-white">
-                  FAQs
-                </Link>
-              </li>
-            </ul>
-          </nav>
-
-          <nav aria-label="For owners">
-            <h4 className="mb-3.5 font-display text-[13px] font-bold text-white">Owners</h4>
-            <ul className="space-y-2 text-[13.5px]">
-              <li>
-                <Link href="/for-owners" className="text-grey-5/60 transition hover:text-white">
-                  Why list with us
-                </Link>
-              </li>
-              <li>
-                <Link href="/add-your-pg" className="text-grey-5/60 transition hover:text-white">
-                  List your property
-                </Link>
-              </li>
-              <li>
-                <Link href="/#how" className="text-grey-5/60 transition hover:text-white">
-                  How it works
-                </Link>
-              </li>
-              <li>
-                <a href={`mailto:${SITE.contactEmail}`} className="text-grey-5/60 transition hover:text-white">
-                  Contact us
-                </a>
-              </li>
-            </ul>
-          </nav>
-
-          {cities.length > 0 && (
-            <nav aria-label="PGs by city">
-              <h4 className="mb-3.5 font-display text-[13px] font-bold text-white">PGs by city</h4>
-              <ul className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13.5px]">
-                {cities.map((c) => (
-                  <li key={c.slug}>
-                    <Link href={`/pg/${c.slug}`} className="text-grey-5/60 transition hover:text-white">
-                      PGs in {c.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+          <p className="mt-3 text-sm text-grey-500">
+            Verified PGs, hostels and shared rooms across India. Zero brokerage. Direct owner contact.
+          </p>
         </div>
 
-        <div className="mt-9 flex flex-wrap justify-between gap-2.5 border-t border-white/10 pt-5 text-xs text-grey-5/55">
-          <span>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</span>
-          <span>
-            Some listing locations ©{" "}
-            <a
-              href="https://www.openstreetmap.org/copyright"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline transition hover:text-grey-5/70"
-            >
-              OpenStreetMap contributors
-            </a>{" "}
-            (ODbL)
-          </span>
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-grey-500">Cities</div>
+          <ul className="mt-3 space-y-2 text-sm">
+            {launched.map((c) => (
+              <li key={c.slug}>
+                <Link href={`/pg/${c.slug}`} className="hover:text-primary">
+                  PG in {c.name}
+                </Link>
+              </li>
+            ))}
+            <li className="text-grey-500">Bengaluru — coming soon</li>
+            <li className="text-grey-500">Pune — coming soon</li>
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-grey-500">Product</div>
+          <ul className="mt-3 space-y-2 text-sm">
+            <li>
+              <Link href="/for-owners" className="hover:text-primary">For owners</Link>
+            </li>
+            <li>
+              <Link href="/add-your-pg" className="hover:text-primary">List your PG</Link>
+            </li>
+            <li>
+              <Link href="/about" className="hover:text-primary">Our story</Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-grey-500">Contact</div>
+          <p className="mt-3 text-sm text-grey-500">
+            {SITE.contactEmail}
+            <br />
+            Vadodara, Gujarat — India
+          </p>
+          <div className="mt-4 flex items-center gap-2">
+            <a href="#" aria-label={`${SITE.name} on Instagram`} className="grid h-9 w-9 place-items-center rounded-full border border-grey-100 text-grey-500 transition hover:border-primary/50 hover:text-primary">
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label={`${SITE.name} on LinkedIn`} className="grid h-9 w-9 place-items-center rounded-full border border-grey-100 text-grey-500 transition hover:border-primary/50 hover:text-primary">
+              <Linkedin className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-grey-50">
+        <div className="container-page flex flex-col items-start justify-between gap-2 py-6 text-xs text-grey-500 md:flex-row md:items-center">
+          <span>© {new Date().getFullYear()} {SITE.name} — independent PG directory for India.</span>
           <span className="flex gap-3">
-            <Link href="/privacy-policy" className="transition hover:text-grey-5/70">
-              Privacy
-            </Link>
-            <Link href="/terms" className="transition hover:text-grey-5/70">
-              Terms
-            </Link>
+            <Link href="/privacy-policy" className="hover:text-grey-700">Privacy</Link>
+            <Link href="/terms" className="hover:text-grey-700">Terms</Link>
           </span>
         </div>
       </div>

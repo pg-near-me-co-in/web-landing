@@ -1,253 +1,164 @@
 import Link from "next/link";
-import { getCitiesByState, getLaunchedCities } from "@/lib/data/cities";
-import { getFeaturedListings } from "@/lib/data/listings";
-import { SearchCard } from "@/components/search-card";
-import { ListingCard } from "@/components/listing-card";
-import { CITY_CARD_BG, cityHeroTreatment } from "@/lib/placeholder-images";
-import { HERO, HOW_IT_WORKS, PROPERTY_TYPES, WHY_US, HOME_FAQS, SITE } from "@/lib/content";
+import { ArrowRight, ShieldCheck, Filter, Zap, Sparkles } from "lucide-react";
+import { getAllCities } from "@/lib/data/cities";
+import { getAllListings } from "@/lib/data/listings";
+import { HomeMapLoader } from "@/components/home-map-loader";
+import { HERO, WHY_US, OWNER_CTA, SITE } from "@/lib/content";
 
 export default function HomePage() {
-  const byState = getCitiesByState();
-  const allCities = Object.values(byState).flat();
-  const launched = getLaunchedCities();
-  const launchedSlugs = new Set(launched.map((c) => c.slug));
-  const comingSoon = allCities.filter((c) => !launchedSlugs.has(c.slug));
-  const totalListings = launched.reduce((n, c) => n + (c.listing_count_cache ?? 0), 0);
-  const defaultCity = launched[0];
-  const featured = getFeaturedListings(6);
+  const listings = getAllListings();
+  const cityCount = new Set(listings.map((l) => l.city_slug)).size;
+  const featuredCities = getAllCities().slice(0, 4);
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
-      { "@type": "WebSite", name: SITE.name, url: `https://${SITE.domain}` },
-      { "@type": "Organization", name: SITE.name, url: `https://${SITE.domain}`, logo: `https://${SITE.domain}/icons/icon-512.png` },
-      {
-        "@type": "FAQPage",
-        mainEntity: HOME_FAQS.map((f) => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: { "@type": "Answer", text: f.a },
-        })),
-      },
-    ],
+    "@type": "WebSite",
+    name: SITE.name,
+    url: `https://${SITE.domain}`,
+    description: "Vertical-specific directory for PG, hostel and shared-flat accommodation in India.",
   };
 
   return (
     <main className="flex-1">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <section id="search" className="scroll-mt-20 px-4 pb-5 pt-14 sm:px-6">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <span className="eyebrow mb-4">
-              ● {HERO.eyebrowPrefix} {launched.length} INDIAN {launched.length === 1 ? "CITY" : "CITIES"}
-            </span>
-            <h1 className="max-w-[600px] font-display text-[clamp(32px,5vw,54px)] font-bold leading-[1.05] text-grey-900">
-              Your next room is <span className="text-primary">{HERO.titleHighlight}</span> than you think.
-            </h1>
-            <p className="mt-4 max-w-[460px] text-[16.5px] leading-relaxed text-grey-500">{HERO.subtitle}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href={defaultCity ? `/pg/${defaultCity.slug}` : "#cities"}
-                className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-px hover:bg-primary-dark hover:shadow-[var(--shadow-lift)]"
-              >
-                {HERO.ctaPrimary}
-              </Link>
-              <Link
-                href="#how"
-                className="rounded-md border border-grey-100 bg-white px-5 py-2.5 text-sm font-semibold text-grey-800 transition hover:border-primary hover:text-primary"
-              >
-                {HERO.ctaSecondary}
-              </Link>
-            </div>
-            <div className="mt-9 flex flex-wrap gap-7">
-              {[
-                [`${launched.length}`, "Cities covered"],
-                [`${totalListings}+`, "Verified listings"],
-                ["₹0", "Brokerage, always"],
-              ].map(([num, lbl]) => (
-                <div key={lbl}>
-                  <div className="font-display text-[22px] font-bold text-grey-900">{num}</div>
-                  <div className="mt-0.5 text-xs text-grey-500">{lbl}</div>
-                </div>
-              ))}
-            </div>
+      {/* Map hero — centered */}
+      <section className="border-b border-grey-50 bg-white">
+        <div className="container-page flex flex-col items-center pb-10 pt-16 text-center md:pt-20">
+          <div className="chip">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            LIVE IN {cityCount} {cityCount === 1 ? "CITY" : "CITIES"} · MORE ROLLING OUT
           </div>
-
-          <SearchCard cities={allCities.map(({ name, slug, state, is_launched }) => ({ name, slug, state, is_launched }))} />
-        </div>
-      </section>
-
-      <section id="how" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <span className="eyebrow mb-4">HOW IT WORKS</span>
-            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
-              Three steps between you and move-in day.
-            </h2>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {HOW_IT_WORKS.map((s) => (
-              <div key={s.idx} className="surface-card px-5.5 py-6.5">
-                <span className="mb-3.5 block font-mono text-[12.5px] font-semibold text-primary">{s.idx}</span>
-                <h3 className="font-display text-[17px] font-semibold text-grey-900">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-grey-500">{s.text}</p>
-              </div>
-            ))}
+          <h1 className="mt-5 max-w-3xl font-display text-[2.5rem] font-bold leading-[1.05] tracking-tight md:text-6xl">
+            {HERO.title}
+            <span className="text-primary">{HERO.titleHighlight}</span>.
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-grey-500 md:text-lg">{HERO.subtitle}</p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/pg/vadodara" className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-dark">
+              {HERO.ctaPrimary} <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/add-your-pg" className="inline-flex h-12 items-center gap-2 rounded-full border border-grey-100 bg-white px-6 text-sm font-semibold text-grey-900 transition hover:border-primary/50 hover:text-primary">
+              {HERO.ctaSecondary}
+            </Link>
           </div>
         </div>
-      </section>
 
-      <section id="cities" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <span className="eyebrow mb-4">PAN-INDIA COVERAGE</span>
-            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
-              Wherever the move is, we&apos;re already there.
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {launched.map((c) => (
-              <Link
-                key={c.slug}
-                href={`/pg/${c.slug}`}
-                className={`flex min-h-[118px] flex-col justify-between rounded-xl p-5 transition duration-200 hover:-translate-y-[3px] ${CITY_CARD_BG[cityHeroTreatment(c.slug)]}`}
-              >
-                <div>
-                  <h3 className="font-display text-[15.5px] font-semibold text-grey-900">{c.name}</h3>
-                  <div className="mt-1 font-mono text-[11.5px] text-grey-600">
-                    {c.listing_count_cache} listing{c.listing_count_cache === 1 ? "" : "s"}
-                  </div>
-                </div>
-                <div className="self-end text-[17px] text-primary" aria-hidden>→</div>
-              </Link>
-            ))}
-          </div>
-          {comingSoon.length > 0 && (
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-grey-500">Rolling out next:</span>
-              {comingSoon.slice(0, 8).map((c) => (
-                <span key={c.slug} className="rounded-full border border-dashed border-grey-100 bg-white px-3 py-1 text-xs font-semibold text-grey-500">
-                  {c.name}
-                </span>
-              ))}
-              <Link href="/cities" className="text-xs font-semibold text-primary hover:underline">
-                See all cities →
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+        <HomeMapLoader listings={listings} />
 
-      {featured.length > 0 && (
-        <section className="px-4 py-10 sm:px-6 sm:py-14">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-6 flex items-end justify-between gap-4">
-              <div>
-                <span className="eyebrow mb-4">FRESHLY VERIFIED</span>
-                <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
-                  Featured stays to start with.
-                </h2>
-              </div>
-              {defaultCity && (
-                <Link href={`/pg/${defaultCity.slug}`} className="hidden shrink-0 text-sm font-semibold text-primary hover:underline sm:block">
-                  View all →
-                </Link>
-              )}
-            </div>
-            <div className="grid gap-4.5 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((l) => (
-                <ListingCard key={l.id} listing={l} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section id="types" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <span className="eyebrow mb-4">PROPERTY TYPES</span>
-            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
-              Every kind of stay, one search away.
-            </h2>
-          </div>
-          <div className="grid gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
-            {PROPERTY_TYPES.map((t) => (
-              <Link
-                key={t.title}
-                href={defaultCity ? `/pg/${defaultCity.slug}${t.query}` : "#cities"}
-                className="surface-card p-5 transition duration-200 hover:border-accent hover:shadow-[var(--shadow-lift)]"
-              >
-                <div className="mb-3.5 flex h-[42px] w-[42px] items-center justify-center rounded-md bg-primary text-lg text-white" aria-hidden>
-                  {t.icon}
-                </div>
-                <h3 className="font-display text-base font-semibold text-grey-900">{t.title}</h3>
-                <p className="mt-1.5 text-[13.5px] leading-relaxed text-grey-500">{t.text}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-grey-900 px-6 py-9 text-grey-5/90 sm:px-11 sm:py-13">
-          <span className="eyebrow mb-4 !bg-accent/15 !text-accent">WHY {SITE.name.toUpperCase()}</span>
-          <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-white">
-            Built for people who move, a lot.
-          </h2>
-          <p className="mt-3 max-w-[520px] text-[15.5px] leading-relaxed text-grey-5/55">
-            Students relocating for college, professionals starting new jobs — one platform, no matter the city.
+        {/* Server-rendered twin of the map pins so every PG stays crawlable
+            even though Leaflet markers are client-only. */}
+        <div className="container-page py-16 md:py-20">
+          <h2 className="text-center font-display text-2xl font-bold tracking-tight md:text-3xl">Verified PGs plotted on the map</h2>
+          <p className="mx-auto mt-3 max-w-xl text-center text-sm text-grey-500">
+            Every pin above has its own page with photos, pricing and the owner&apos;s number.
           </p>
-          <div className="mt-8 grid gap-px overflow-hidden rounded-xl bg-white/10 md:grid-cols-3">
-            {WHY_US.map((w) => (
-              <div key={w.n} className="bg-grey-900 px-6 py-6.5">
-                <span className="mb-3 block font-mono text-xs text-highlight">{w.n}</span>
-                <h3 className="font-display text-base font-semibold text-white">{w.title}</h3>
-                <p className="mt-1.5 text-[13.5px] leading-relaxed text-grey-5/55">{w.text}</p>
-              </div>
+          <ul className="mx-auto mt-8 grid max-w-5xl gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((l) => (
+              <li key={l.id}>
+                <Link
+                  href={`/pg/${l.city_slug}/${l.slug}`}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-grey-50 bg-white px-4 py-3 text-sm transition hover:border-primary/40 hover:text-primary"
+                >
+                  <span className="truncate font-semibold">{l.name}</span>
+                  <span className="shrink-0 text-xs text-grey-500">{l.locality}</span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      <section id="faq" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-6 text-center">
-            <span className="eyebrow mb-4">FAQ</span>
-            <h2 className="font-display text-[clamp(24px,3.2vw,34px)] font-bold leading-tight text-grey-900">
-              Frequently asked questions.
-            </h2>
-          </div>
-          <div className="space-y-3">
-            {HOME_FAQS.map((f) => (
-              <details key={f.q} className="surface-card group p-4.5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-grey-800 transition group-open:text-primary">
-                  {f.q}
-                  <span className="text-grey-300 transition group-open:rotate-45 group-open:text-primary">+</span>
-                </summary>
-                <p className="mt-2 text-sm leading-relaxed text-grey-600">{f.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 pb-14 pt-4 sm:px-6">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-7 rounded-3xl bg-gradient-to-br from-primary to-purple px-7 py-10 sm:px-10">
-          <div>
-            <h2 className="max-w-[440px] font-display text-[clamp(20px,3vw,30px)] font-bold text-white">
-              Own a PG or a room sitting empty?
-            </h2>
-            <p className="mt-2 max-w-[400px] text-sm leading-relaxed text-white/75">
-              List it in under five minutes and start getting genuine inquiries — no brokerage taken.
+      {/* Featured cities */}
+      <section className="container-page py-16 md:py-20">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div className="max-w-2xl space-y-2">
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">Featured cities</div>
+            <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Search by your city, not a random pin.</h2>
+            <p className="text-sm text-grey-500">
+              Vadodara is live today. Bengaluru, Pune, Mumbai, Delhi NCR &amp; more are rolling out — tap in to get a head-start.
             </p>
           </div>
-          <Link href="/add-your-pg" className="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-primary transition hover:-translate-y-px">
-            List your property
+          <Link href="/cities" className="hidden text-sm font-bold text-primary transition-colors hover:text-primary-dark md:inline-flex md:items-center md:gap-2">
+            Explore more <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {featuredCities.map((c) => (
+            <Link key={c.slug} href={`/pg/${c.slug}`} className="group relative overflow-hidden rounded-2xl border border-grey-50 bg-white transition hover:border-primary/40" style={{ boxShadow: "var(--shadow-card)" }}>
+              <div className="relative aspect-[4/5] overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element -- remote Unsplash city photos, next/image adds no value here */}
+                <img src={c.image} alt={`PGs and shared rooms in ${c.name}, ${c.state}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                {c.is_launched ? (
+                  <div className="absolute right-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Live</div>
+                ) : (
+                  <div className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-grey-500 backdrop-blur">Soon</div>
+                )}
+                <div className="absolute inset-x-4 bottom-4 text-white">
+                  <div className="font-display text-xl font-bold leading-tight">{c.name}</div>
+                  <div className="mt-1 flex items-center justify-between text-xs text-white/85">
+                    <span>{c.count}</span>
+                    <span className="inline-flex items-center gap-1 font-semibold transition group-hover:gap-1.5">
+                      Open <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-8 flex justify-center md:hidden">
+          <Link href="/cities" className="inline-flex h-11 items-center gap-2 rounded-full border border-grey-100 bg-white px-5 text-sm font-semibold text-grey-900 transition hover:border-primary/50 hover:text-primary">
+            Explore more cities <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
+
+      {/* Why */}
+      <section className="container-page py-16 md:py-20">
+        <div className="mb-10 max-w-2xl">
+          <div className="text-xs font-bold uppercase tracking-widest text-primary">Why {SITE.name}</div>
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">Built for the way you actually search.</h2>
+          <p className="mt-3 text-sm text-grey-500">No brokers, no bait-and-switch photos, no &quot;call for price&quot; games. Just the stuff that helps you decide.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <FeatureTile icon={<Filter className="h-5 w-5" />} title={WHY_US[0].title} body={WHY_US[0].body} />
+          <FeatureTile icon={<ShieldCheck className="h-5 w-5" />} title={WHY_US[1].title} body={WHY_US[1].body} />
+          <FeatureTile icon={<Zap className="h-5 w-5" />} title={WHY_US[2].title} body={WHY_US[2].body} />
+        </div>
+      </section>
+
+      {/* For owners CTA */}
+      <section className="container-page py-16 md:py-20">
+        <div className="relative overflow-hidden rounded-3xl border border-grey-50 bg-primary p-10 text-white md:p-14">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative grid gap-6 md:grid-cols-[2fr_1fr] md:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">
+                <Sparkles className="h-3 w-3" /> For owners
+              </div>
+              <h2 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">{OWNER_CTA.title}</h2>
+              <p className="mt-4 max-w-xl text-white/80">{OWNER_CTA.body}</p>
+            </div>
+            <div className="md:justify-self-end">
+              <Link href="/add-your-pg" className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-grey-900 transition hover:bg-white/90">
+                List your PG <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
+  );
+}
+
+function FeatureTile({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-grey-50 bg-white p-6 transition hover:border-primary/40" style={{ boxShadow: "var(--shadow-card)" }}>
+      <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary-tint text-primary">{icon}</div>
+      <h3 className="mt-5 font-display text-lg font-bold">{title}</h3>
+      <p className="mt-2 text-sm text-grey-500">{body}</p>
+    </div>
   );
 }

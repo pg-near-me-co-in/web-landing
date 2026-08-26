@@ -1,23 +1,98 @@
 [
-  { "id": "c-vadodara", "name": "Vadodara", "slug": "vadodara", "state": "Gujarat", "lat": 22.3072, "lng": 73.1812, "is_launched": true, "listing_count_cache": 6, "tagline": "Student hub around MSU, Alkapuri & Sayajigunj", "hero_image_url": null },
-
-  { "id": "c-ahmedabad", "name": "Ahmedabad", "slug": "ahmedabad", "state": "Gujarat", "lat": 23.0225, "lng": 72.5714, "is_launched": false, "listing_count_cache": 2, "tagline": "SG Highway, Navrangpura & Bopal PGs", "hero_image_url": null },
-  { "id": "c-pune", "name": "Pune", "slug": "pune", "state": "Maharashtra", "lat": 18.5204, "lng": 73.8567, "is_launched": false, "listing_count_cache": 2, "tagline": "Kothrud, Baner & Hinjewadi picks for movers", "hero_image_url": null },
-  { "id": "c-bengaluru", "name": "Bengaluru", "slug": "bengaluru", "state": "Karnataka", "lat": 12.9716, "lng": 77.5946, "is_launched": false, "listing_count_cache": 2, "tagline": "Tech corridors from Koramangala to Whitefield", "hero_image_url": null },
-
-  { "id": "c-mumbai", "name": "Mumbai", "slug": "mumbai", "state": "Maharashtra", "lat": 19.076, "lng": 72.8777, "is_launched": false, "listing_count_cache": 0, "tagline": "Andheri, Powai & Navi Mumbai shared living", "hero_image_url": null },
-  { "id": "c-delhi", "name": "Delhi NCR", "slug": "delhi", "state": "Delhi", "lat": 28.6139, "lng": 77.209, "is_launched": false, "listing_count_cache": 0, "tagline": "Gurgaon, Noida & South Delhi stays", "hero_image_url": null },
-  { "id": "c-hyderabad", "name": "Hyderabad", "slug": "hyderabad", "state": "Telangana", "lat": 17.385, "lng": 78.4867, "is_launched": false, "listing_count_cache": 0, "tagline": "Gachibowli, Madhapur & HITEC City rooms", "hero_image_url": null },
-  { "id": "c-chennai", "name": "Chennai", "slug": "chennai", "state": "Tamil Nadu", "lat": 13.0827, "lng": 80.2707, "is_launched": false, "listing_count_cache": 0, "tagline": "OMR, Velachery & Adyar shared homes", "hero_image_url": null },
-
-  { "id": "c-mysuru", "name": "Mysuru", "slug": "mysuru", "state": "Karnataka", "lat": 12.2958, "lng": 76.6394, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-nagpur", "name": "Nagpur", "slug": "nagpur", "state": "Maharashtra", "lat": 21.1458, "lng": 79.0882, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-nashik", "name": "Nashik", "slug": "nashik", "state": "Maharashtra", "lat": 19.9975, "lng": 73.7898, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-coimbatore", "name": "Coimbatore", "slug": "coimbatore", "state": "Tamil Nadu", "lat": 11.0168, "lng": 76.9558, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-madurai", "name": "Madurai", "slug": "madurai", "state": "Tamil Nadu", "lat": 9.9252, "lng": 78.1198, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-warangal", "name": "Warangal", "slug": "warangal", "state": "Telangana", "lat": 17.9689, "lng": 79.5941, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-noida", "name": "Noida", "slug": "noida", "state": "Delhi", "lat": 28.5355, "lng": 77.391, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-gurugram", "name": "Gurugram", "slug": "gurugram", "state": "Delhi", "lat": 28.4595, "lng": 77.0266, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-surat", "name": "Surat", "slug": "surat", "state": "Gujarat", "lat": 21.1702, "lng": 72.8311, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null },
-  { "id": "c-rajkot", "name": "Rajkot", "slug": "rajkot", "state": "Gujarat", "lat": 22.3039, "lng": 70.8022, "is_launched": false, "listing_count_cache": 0, "tagline": "Rolling out next", "hero_image_url": null }
+  {
+    "id": "c-vadodara",
+    "slug": "vadodara",
+    "name": "Vadodara",
+    "state": "Gujarat",
+    "lat": 22.3072,
+    "lng": 73.1812,
+    "image": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Student hub around MSU, Alkapuri & Sayajigunj",
+    "count": "6 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-bengaluru",
+    "slug": "bengaluru",
+    "name": "Bengaluru",
+    "state": "Karnataka",
+    "lat": 12.9716,
+    "lng": 77.5946,
+    "image": "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Tech corridors from Koramangala to Whitefield",
+    "count": "2 listings",
+    "is_launched": false
+  },
+  {
+    "id": "c-pune",
+    "slug": "pune",
+    "name": "Pune",
+    "state": "Maharashtra",
+    "lat": 18.5204,
+    "lng": 73.8567,
+    "image": "https://images.unsplash.com/photo-1567527207346-3c5cbf6d5b13?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Kothrud, Baner & Hinjewadi picks for movers",
+    "count": "2 listings",
+    "is_launched": false
+  },
+  {
+    "id": "c-mumbai",
+    "slug": "mumbai",
+    "name": "Mumbai",
+    "state": "Maharashtra",
+    "lat": 19.076,
+    "lng": 72.8777,
+    "image": "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Andheri, Powai & Navi Mumbai shared living",
+    "count": "Rolling out",
+    "is_launched": false
+  },
+  {
+    "id": "c-delhi",
+    "slug": "delhi",
+    "name": "Delhi NCR",
+    "state": "Delhi",
+    "lat": 28.6139,
+    "lng": 77.209,
+    "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Gurgaon, Noida & South Delhi stays",
+    "count": "Rolling out",
+    "is_launched": false
+  },
+  {
+    "id": "c-hyderabad",
+    "slug": "hyderabad",
+    "name": "Hyderabad",
+    "state": "Telangana",
+    "lat": 17.385,
+    "lng": 78.4867,
+    "image": "https://images.unsplash.com/photo-1626196340104-fcd8b5c1ea24?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "Gachibowli, Madhapur & HITEC City rooms",
+    "count": "Rolling out",
+    "is_launched": false
+  },
+  {
+    "id": "c-ahmedabad",
+    "slug": "ahmedabad",
+    "name": "Ahmedabad",
+    "state": "Gujarat",
+    "lat": 23.0225,
+    "lng": 72.5714,
+    "image": "https://images.unsplash.com/photo-1621996659490-3275b4d0d951?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "SG Highway, Navrangpura & Bopal PGs",
+    "count": "2 listings",
+    "is_launched": false
+  },
+  {
+    "id": "c-chennai",
+    "slug": "chennai",
+    "name": "Chennai",
+    "state": "Tamil Nadu",
+    "lat": 13.0827,
+    "lng": 80.2707,
+    "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=70",
+    "tagline": "OMR, Velachery & Adyar shared homes",
+    "count": "Rolling out",
+    "is_launched": false
+  }
 ]

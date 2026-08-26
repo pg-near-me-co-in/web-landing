@@ -1,20 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { formatPriceRange } from "@/lib/format";
+import { formatINR, formatPriceRange } from "@/lib/format";
+
+describe("formatINR", () => {
+  it("formats a whole rupee amount with no decimals", () => {
+    expect(formatINR(7000)).toBe("₹7,000");
+  });
+});
 
 describe("formatPriceRange", () => {
-  it("formats a full range", () => {
-    expect(formatPriceRange(7000, 9500)).toBe("₹7,000 – ₹9,500");
+  it("formats a range with an en-dash and /mo suffix", () => {
+    expect(formatPriceRange(7000, 9500)).toBe("₹7,000 – ₹9,500/mo");
   });
 
-  it("formats a min-only price as 'from'", () => {
-    expect(formatPriceRange(7000, null)).toBe("from ₹7,000");
-  });
-
-  it("formats a max-only price as 'up to'", () => {
-    expect(formatPriceRange(null, 9500)).toBe("up to ₹9,500");
-  });
-
-  it("returns null when both are missing", () => {
-    expect(formatPriceRange(null, null)).toBeNull();
+  it("formats a single price (min === max) without a range", () => {
+    expect(formatPriceRange(8000, 8000)).toBe("₹8,000/mo");
   });
 });

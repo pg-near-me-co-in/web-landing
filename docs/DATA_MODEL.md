@@ -2,11 +2,11 @@
 
 ## Phase A: JSON files (current)
 
-Source of truth is `data/*.json`, read through `lib/data/cities.ts` and `lib/data/listings.ts` — those two files are the *only* place that knows the data lives in JSON. Every page imports from them, never from `data/*.json` directly, so Phase B can swap the JSON reads for real DB queries behind the exact same function signatures (`getCities`, `getCityBySlug`, `getListingsForCity`, `getListingBySlug`, `getFeaturedListings`, `getCityStats`) without touching a single page component.
+Source of truth is `data/*.json`, read through `lib/data/cities.ts` and `lib/data/listings.ts` — those two files are the *only* place that knows the data lives in JSON. Every page imports from them, never from `data/*.json` directly, so Phase B can swap the JSON reads for real DB queries behind the exact same function signatures (`getAllCities`, `getLaunchedCities`, `getCityBySlug`, `getListingsForCity`, `getListingBySlug`, `getAllListings`) without touching a single page component.
 
 - `data/cities.json` — `id, name, slug, state, lat, lng, is_launched, listing_count_cache, tagline, hero_image_url` (matches `City` in `lib/types.ts`)
-- `data/listings.json` — full listing shape (`Listing` in `lib/types.ts`): identity/location, `pg_type`, `sharing_types`, price range, `food_preference`, `house_rules_strictness`, `road_access`, contact info, `amenities` (slugs), `images`, `trust_score`, `rating_avg`/`rating_count`, seed `reviews`
-- `data/amenities.json` — the amenity catalog (slug/name/icon_key/category)
+- `data/listings.json` — full listing shape (`Listing` in `lib/types.ts`): identity/location, `pg_gender`, `sharing_types`, price range, `food_type` (`veg_only`/`non_veg_allowed`/`no_food`/`jain_only`), `house_rules` (`strict`/`liberal`), `road_access` (boolean), contact info, `amenities` (plain display-name strings, e.g. `"WiFi"`), `images`, `trust_score` (0–5 scale)
+- The amenity pick-list (`AMENITIES_ALL`, 11 items) lives as a constant in `lib/format.ts` rather than a separate JSON file — listings store the amenity names directly, no separate catalog lookup needed at render time.
 
 **Adding new listings/cities today**: edit the relevant JSON file directly (or write a small Node script, same idea as the old `seed-*.js` scripts) and redeploy — there's no admin UI yet because there's no database to persist writes to in production.
 

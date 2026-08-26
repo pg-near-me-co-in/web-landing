@@ -15,7 +15,7 @@ pgnearme.co.in/privacy-policy
 pgnearme.co.in/terms
 ```
 
-**Deliberate deviation from a city/area/listing hierarchy**: an earlier design locked in `/pg/[city]/[area]/[listing-slug]`. With Phase A's seed data (a handful of listings per city), a standalone `/area/` index page would mostly render thin/near-empty content — a real ranking risk that works against the whole point of this strategy. The `area` is still captured on every listing (`area_name`) and shown on cards/detail pages; the `/pg/[city]/[area]` route gets reintroduced in Phase B once real per-area listing density justifies a non-thin page (see [ROADMAP.md](ROADMAP.md)).
+**Deliberate deviation from a city/area/listing hierarchy**: an earlier design locked in `/pg/[city]/[area]/[listing-slug]`. With Phase A's seed data (a handful of listings per city), a standalone `/area/` index page would mostly render thin/near-empty content — a real ranking risk that works against the whole point of this strategy. The locality is still captured on every listing (`locality`) and shown on cards/detail pages; the `/pg/[city]/[area]` route gets reintroduced in Phase B once real per-area listing density justifies a non-thin page (see [ROADMAP.md](ROADMAP.md)).
 
 ## 2. Foundational SEO
 

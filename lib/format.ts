@@ -1,30 +1,48 @@
-import type { FoodPreference, HouseRules, PgType } from "./types";
+import type { FoodType, HouseRules, PgType } from "./types";
 
-export function formatPriceRange(min: number | null, max: number | null): string | null {
-  const fmt = (n: number) => `₹${Number(n).toLocaleString("en-IN")}`;
-  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
-  if (min) return `from ${fmt(min)}`;
-  if (max) return `up to ${fmt(max)}`;
-  return null;
+export function formatINR(n: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
 }
 
-export const PG_TYPE_LABEL: Record<PgType, string> = {
-  male: "Boys",
-  female: "Girls",
-  unisex: "Co-living",
+export function formatPriceRange(min: number, max: number): string {
+  if (min === max) return `${formatINR(min)}/mo`;
+  return `${formatINR(min)} – ${formatINR(max)}/mo`;
+}
+
+export const GENDER_LABEL: Record<PgType, string> = {
+  male: "Male only",
+  female: "Female only",
+  unisex: "Unisex / Co-living",
 };
 
-export const FOOD_LABEL: Record<FoodPreference, string> = {
-  veg: "Veg only",
-  non_veg: "Non-veg",
-  both: "Veg & non-veg",
-  not_provided: "Food not provided",
+export const FOOD_LABEL: Record<FoodType, string> = {
+  veg_only: "Veg only",
+  non_veg_allowed: "Non-veg allowed",
+  no_food: "No food provided",
+  jain_only: "Jain food",
 };
 
-export const STRICTNESS_LABEL: Record<HouseRules, string> = {
+export const RULES_LABEL: Record<HouseRules, string> = {
   strict: "Strict",
-  moderate: "Moderate",
   liberal: "Liberal",
 };
+
+export const AMENITIES_ALL = [
+  "WiFi",
+  "AC",
+  "Non-AC",
+  "Laundry",
+  "Housekeeping",
+  "Power backup",
+  "CCTV",
+  "Warden",
+  "Gym",
+  "Parking",
+  "Common kitchen",
+] as const;
 
 export const SHARING_TYPES = ["Single", "Double", "Triple", "4-bed", "5-bed"] as const;

@@ -7,26 +7,23 @@ const base: Listing = {
   name: "Test PG",
   slug: "test-pg",
   city_slug: "vadodara",
-  area_name: "Alkapuri",
-  address_line: null,
+  locality: "Alkapuri",
+  address: "Near Alkapuri Circle, Vadodara",
   lat: null,
   lng: null,
   description: "",
-  pg_type: "female",
+  pg_gender: "female",
   sharing_types: ["Single", "Double"],
   price_min: 7000,
   price_max: 9000,
-  food_preference: "veg",
-  house_rules_strictness: "strict",
-  road_access: "with_road",
+  food_type: "veg_only",
+  house_rules: "strict",
+  road_access: true,
   contact_phone: "+91 90000 00000",
   contact_whatsapp: null,
   amenities: [],
   images: [],
-  trust_score: 80,
-  rating_avg: 4.5,
-  rating_count: 10,
-  reviews: [],
+  trust_score: 4.5,
   verified_at: "2026-01-01",
   updated_at: "2026-01-01",
 };
@@ -36,14 +33,14 @@ describe("matchesFilters", () => {
     expect(matchesFilters(base, {})).toBe(true);
   });
 
-  it("filters by pgType", () => {
-    expect(matchesFilters(base, { pgType: "male" })).toBe(false);
-    expect(matchesFilters(base, { pgType: "female" })).toBe(true);
+  it("filters by gender", () => {
+    expect(matchesFilters(base, { gender: "male" })).toBe(false);
+    expect(matchesFilters(base, { gender: "female" })).toBe(true);
   });
 
-  it("filters by priceMax against price_min", () => {
-    expect(matchesFilters(base, { priceMax: 5000 })).toBe(false);
-    expect(matchesFilters(base, { priceMax: 8000 })).toBe(true);
+  it("filters by maxPrice against price_min", () => {
+    expect(matchesFilters(base, { maxPrice: 5000 })).toBe(false);
+    expect(matchesFilters(base, { maxPrice: 8000 })).toBe(true);
   });
 
   it("filters by sharing type", () => {
@@ -51,13 +48,28 @@ describe("matchesFilters", () => {
     expect(matchesFilters(base, { sharing: "Double" })).toBe(true);
   });
 
-  it("treats 'non_veg' filter as matching 'both'", () => {
-    const both = { ...base, food_preference: "both" as const };
-    expect(matchesFilters(both, { food: "non_veg" })).toBe(true);
-    expect(matchesFilters(base, { food: "non_veg" })).toBe(false);
+  it("filters by exact food type", () => {
+    expect(matchesFilters(base, { food: "non_veg_allowed" })).toBe(false);
+    expect(matchesFilters(base, { food: "veg_only" })).toBe(true);
   });
 
-  it("matches free-text query against name or area", () => {
+  it("filters by house rules", () => {
+    expect(matchesFilters(base, { rules: "liberal" })).toBe(false);
+    expect(matchesFilters(base, { rules: "strict" })).toBe(true);
+  });
+
+  it("filters by verified (requires verified_at set)", () => {
+    expect(matchesFilters({ ...base, verified_at: null }, { verified: true })).toBe(false);
+    expect(matchesFilters(base, { verified: true })).toBe(true);
+  });
+
+  it("requires every selected amenity to be present", () => {
+    const withAmenities = { ...base, amenities: ["WiFi", "AC"] };
+    expect(matchesFilters(withAmenities, { amenities: ["WiFi", "Gym"] })).toBe(false);
+    expect(matchesFilters(withAmenities, { amenities: ["WiFi", "AC"] })).toBe(true);
+  });
+
+  it("matches free-text query against name or locality", () => {
     expect(matchesFilters(base, { q: "alkapuri" })).toBe(true);
     expect(matchesFilters(base, { q: "koramangala" })).toBe(false);
   });
@@ -74,10 +86,10 @@ describe("getListingsForCity", () => {
     expect(getListingsForCity("nowhere")).toEqual([]);
   });
 
-  it("sorts ascending by price when requested", () => {
-    const results = getListingsForCity("vadodara", { sort: "price_asc" });
+  it("sorts by trust score descending", () => {
+    const results = getListingsForCity("vadodara");
     for (let i = 1; i < results.length; i++) {
-      expect(results[i - 1].price_min ?? Infinity).toBeLessThanOrEqual(results[i].price_min ?? Infinity);
+      expect(results[i - 1].trust_score).toBeGreaterThanOrEqual(results[i].trust_score);
     }
   });
 });
