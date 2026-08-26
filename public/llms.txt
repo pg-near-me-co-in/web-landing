@@ -1,0 +1,20 @@
+# PG Near Me
+
+> Free directory of PGs (paying-guest accommodation), hostels and shared flats across India. Seekers browse and contact owners directly, at no cost; owners list for free. No brokerage, no booking/payments — this is a discovery and lead-generation directory, not a transaction platform.
+
+## Key pages
+
+- [Homepage](https://pgnearme.co.in/) — search entry point, featured listings, FAQ
+- [Cities](https://pgnearme.co.in/cities) — full directory of covered and upcoming cities
+- [About](https://pgnearme.co.in/about) — what the product is and isn't
+- [For owners](https://pgnearme.co.in/for-owners) — free listing pitch for PG/hostel owners
+- City listing pages: `https://pgnearme.co.in/pg/[city]` — e.g. `/pg/vadodara`
+- Listing detail pages: `https://pgnearme.co.in/pg/[city]/[listing-slug]`
+
+## How search and filtering works
+
+Each city page lists published PGs/hostels with filters for gender policy (girls/boys/co-living), budget, sharing type (single through 5-bed), and food preference. Every listing shows price range, amenities, house rules, and a contact-reveal flow (seeker leaves a phone number, owner's number is shown) — no login required for seekers.
+
+## Contact
+
+hello@pgnearme.co.in
