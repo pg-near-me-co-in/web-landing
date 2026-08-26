@@ -46,27 +46,6 @@ export default function HomePage() {
 
         <HomeMapLoader listings={listings} />
 
-        {/* Server-rendered twin of the map pins so every PG stays crawlable
-            even though Leaflet markers are client-only. */}
-        <div className="container-page py-16 md:py-20">
-          <h2 className="text-center font-display text-2xl font-bold tracking-tight md:text-3xl">Verified PGs plotted on the map</h2>
-          <p className="mx-auto mt-3 max-w-xl text-center text-sm text-grey-500">
-            Every pin above has its own page with photos, pricing and the owner&apos;s number.
-          </p>
-          <ul className="mx-auto mt-8 grid max-w-5xl gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((l) => (
-              <li key={l.id}>
-                <Link
-                  href={`/pg/${l.city_slug}/${l.slug}`}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-grey-50 bg-white px-4 py-3 text-sm transition hover:border-primary/40 hover:text-primary"
-                >
-                  <span className="truncate font-semibold">{l.name}</span>
-                  <span className="shrink-0 text-xs text-grey-500">{l.locality}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </section>
 
       {/* Featured cities */}
