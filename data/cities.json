@@ -1,0 +1,122 @@
+[
+  {
+    "id": "c-vadodara",
+    "slug": "vadodara",
+    "name": "Vadodara",
+    "state": "Gujarat",
+    "lat": 22.3072,
+    "lng": 73.1812,
+    "image": "/city-icons/vadodara.svg",
+    "tagline": "Student hub around MSU, Alkapuri & Sayajigunj",
+    "count": "7 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-mumbai",
+    "slug": "mumbai",
+    "name": "Mumbai",
+    "state": "Maharashtra",
+    "lat": 19.076,
+    "lng": 72.8777,
+    "image": "/city-icons/mumbai.svg",
+    "tagline": "Andheri, Powai & Navi Mumbai shared living",
+    "count": "72 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-bengaluru",
+    "slug": "bengaluru",
+    "name": "Bengaluru",
+    "state": "Karnataka",
+    "lat": 12.9716,
+    "lng": 77.5946,
+    "image": "/city-icons/bengaluru.svg",
+    "tagline": "Tech corridors from Koramangala to Whitefield",
+    "count": "413 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-gurugram",
+    "slug": "gurugram",
+    "name": "Gurugram",
+    "state": "Haryana",
+    "lat": 28.4595,
+    "lng": 77.0266,
+    "image": "/city-icons/gurugram.svg",
+    "tagline": "Cyber City, Sohna Road & Golf Course Road stays",
+    "count": "17 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-noida",
+    "slug": "noida",
+    "name": "Noida",
+    "state": "Uttar Pradesh",
+    "lat": 28.5355,
+    "lng": 77.391,
+    "image": "/city-icons/noida.svg",
+    "tagline": "Sector 62, Greater Noida & Noida Extension PGs",
+    "count": "32 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-pune",
+    "slug": "pune",
+    "name": "Pune",
+    "state": "Maharashtra",
+    "lat": 18.5204,
+    "lng": 73.8567,
+    "image": "/city-icons/pune.svg",
+    "tagline": "Kothrud, Baner & Hinjewadi picks for movers",
+    "count": "122 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-hyderabad",
+    "slug": "hyderabad",
+    "name": "Hyderabad",
+    "state": "Telangana",
+    "lat": 17.385,
+    "lng": 78.4867,
+    "image": "/city-icons/hyderabad.svg",
+    "tagline": "Gachibowli, Madhapur & HITEC City rooms",
+    "count": "299 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-ahmedabad",
+    "slug": "ahmedabad",
+    "name": "Ahmedabad",
+    "state": "Gujarat",
+    "lat": 23.0225,
+    "lng": 72.5714,
+    "image": "/city-icons/ahmedabad.svg",
+    "tagline": "SG Highway, Navrangpura & Bopal PGs",
+    "count": "54 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-gandhinagar",
+    "slug": "gandhinagar",
+    "name": "Gandhinagar",
+    "state": "Gujarat",
+    "lat": 23.2156,
+    "lng": 72.6369,
+    "image": "/city-icons/gandhinagar.svg",
+    "tagline": "Sector-planned city living near GIFT City",
+    "count": "52 listings",
+    "is_launched": true
+  },
+  {
+    "id": "c-kota",
+    "slug": "kota",
+    "name": "Kota",
+    "state": "Rajasthan",
+    "lat": 25.2138,
+    "lng": 75.8648,
+    "image": "/city-icons/kota.svg",
+    "tagline": "Coaching-hub hostels for exam aspirants",
+    "count": "13 listings",
+    "is_launched": true
+  }
+]

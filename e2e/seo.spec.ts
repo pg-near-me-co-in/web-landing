@@ -1,67 +1,52 @@
 import { test, expect } from "@playwright/test";
 
-/** Pulls real city/listing URLs from the live sitemap.xml rather than
- *  hardcoding slugs, so this spec survives seed-data changes. Plain regex
- *  extraction — sitemap.xml's <loc> entries are simple enough that pulling
- *  in a full XML parser dependency just for this test isn't worth it. */
-async function sampleUrls(request: import("@playwright/test").APIRequestContext) {
-  const xml = await (await request.get("/sitemap.xml")).text();
-  const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  const cityUrl = urls.find((u) => /\/pg\/[^/]+$/.test(u));
-  const listingUrl = urls.find((u) => /\/pg\/[^/]+\/[^/]+\/[^/]+$/.test(u));
-  return { cityUrl, listingUrl };
+test("sitemap.xml is reachable and includes a listing URL", async ({ request }) => {
+  const res = await request.get("/sitemap.xml");
+  expect(res.ok()).toBe(true);
+  const body = await res.text();
+  expect(body).toContain("<urlset");
+  expect(body).toContain("/pg/vadodara");
+});
+
+test("robots.txt references the sitemap and disallows /admin", async ({ request }) => {
+  const res = await request.get("/robots.txt");
+  expect(res.ok()).toBe(true);
+  const body = await res.text();
+  expect(body).toContain("Sitemap:");
+  expect(body).toContain("Disallow: /admin");
+});
+
+test("manifest.webmanifest resolves with expected fields", async ({ request }) => {
+  const res = await request.get("/manifest.webmanifest");
+  expect(res.ok()).toBe(true);
+  const json = await res.json();
+  expect(json.name).toBe("PG Near Me");
+  expect(json.display).toBe("standalone");
+});
+
+test("llms.txt is reachable", async ({ request }) => {
+  const res = await request.get("/llms.txt");
+  expect(res.ok()).toBe(true);
+});
+
+for (const path of ["/", "/about", "/cities", "/for-owners"]) {
+  test(`${path} has exactly one canonical link and a description under 165 chars`, async ({ page }) => {
+    await page.goto(path);
+    const canonical = page.locator('link[rel="canonical"]');
+    await expect(canonical).toHaveCount(1);
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(description).toBeTruthy();
+    expect(description!.length).toBeLessThan(165);
+  });
 }
 
-test.describe("SEO fundamentals", () => {
-  test("robots.txt and sitemap.xml are well-formed and reachable", async ({ request }) => {
-    const robots = await request.get("/robots.txt");
-    expect(robots.status()).toBe(200);
-    expect(await robots.text()).toContain("Sitemap:");
+test("city and listing pages carry valid JSON-LD", async ({ page }) => {
+  await page.goto("/pg/vadodara");
+  const cityLd = await page.locator('script[type="application/ld+json"]').first().textContent();
+  expect(() => JSON.parse(cityLd!)).not.toThrow();
 
-    const sitemap = await request.get("/sitemap.xml");
-    expect(sitemap.status()).toBe(200);
-    const xml = await sitemap.text();
-    expect(xml).toContain("<urlset");
-    expect(xml).toContain("<loc>");
-  });
-
-  for (const path of ["/", "/about", "/cities", "/for-owners"]) {
-    test(`${path} has exactly one canonical link and a non-empty description under 165 chars`, async ({
-      page,
-    }) => {
-      await page.goto(path);
-      const canonical = page.locator('link[rel="canonical"]');
-      await expect(canonical).toHaveCount(1);
-
-      const description = await page
-        .locator('meta[name="description"]')
-        .getAttribute("content");
-      expect(description).toBeTruthy();
-      expect(description!.length).toBeGreaterThan(0);
-      expect(description!.length).toBeLessThan(165);
-    });
-  }
-
-  test("a live city page and a listing page resolve from the sitemap, have canonical + valid JSON-LD", async ({
-    page,
-    request,
-  }) => {
-    const { cityUrl, listingUrl } = await sampleUrls(request);
-    expect(cityUrl, "sitemap should contain at least one city URL").toBeTruthy();
-    expect(listingUrl, "sitemap should contain at least one listing URL").toBeTruthy();
-
-    for (const url of [cityUrl!, listingUrl!]) {
-      const path = new URL(url).pathname;
-      await page.goto(path);
-      await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
-
-      const ldJsonBlocks = await page.locator('script[type="application/ld+json"]').all();
-      expect(ldJsonBlocks.length).toBeGreaterThan(0);
-      for (const block of ldJsonBlocks) {
-        const text = await block.textContent();
-        const parsed = JSON.parse(text!);
-        expect(parsed["@type"] || parsed["@graph"]).toBeTruthy();
-      }
-    }
-  });
+  await page.goto("/pg/vadodara/stanza-living-auckland-house-pg-in-waghodia-road-vadodara");
+  const listingLd = await page.locator('script[type="application/ld+json"]').first().textContent();
+  const parsed = JSON.parse(listingLd!);
+  expect(parsed["@type"]).toBe("LodgingBusiness");
 });

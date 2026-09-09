@@ -1,0 +1,24 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bengaluru">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#15803D"/><stop offset="1" stop-color="#0E7C7B"/>
+  </linearGradient></defs>
+  <rect width="400" height="300" fill="url(#g)"/>
+  <g fill="#fff" fill-opacity=".16">
+    <rect x="30" y="205" width="34" height="45"/>
+    <rect x="70" y="180" width="30" height="70"/>
+    <rect x="106" y="215" width="26" height="35"/>
+    <rect x="270" y="210" width="28" height="40"/>
+    <rect x="304" y="185" width="32" height="65"/>
+    <rect x="342" y="220" width="26" height="30"/>
+  </g>
+  <g fill="#fff">
+    <rect x="176" y="130" width="48" height="120" rx="4"/>
+    <rect x="197" y="112" width="6" height="20"/>
+    <g fill-opacity=".4">
+      <rect x="184" y="145" width="10" height="10"/><rect x="206" y="145" width="10" height="10"/>
+      <rect x="184" y="163" width="10" height="10"/><rect x="206" y="163" width="10" height="10"/>
+      <rect x="184" y="181" width="10" height="10"/><rect x="206" y="181" width="10" height="10"/>
+      <rect x="184" y="199" width="10" height="10"/><rect x="206" y="199" width="10" height="10"/>
+    </g>
+  </g>
+</svg>

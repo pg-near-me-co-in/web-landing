@@ -1,0 +1,22 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hyderabad">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#C2410C"/><stop offset="1" stop-color="#BE185D"/>
+  </linearGradient></defs>
+  <rect width="400" height="300" fill="url(#g)"/>
+  <g fill="#fff" fill-opacity=".16">
+    <rect x="30" y="205" width="34" height="45"/>
+    <rect x="70" y="180" width="30" height="70"/>
+    <rect x="106" y="215" width="26" height="35"/>
+    <rect x="270" y="210" width="28" height="40"/>
+    <rect x="304" y="185" width="32" height="65"/>
+    <rect x="342" y="220" width="26" height="30"/>
+  </g>
+  <g fill="#fff">
+    <rect x="170" y="170" width="60" height="80"/>
+    <path d="M182 250 V210 A18 18 0 0 1 218 210 V250 Z" fill="url(#g)"/>
+    <rect x="150" y="150" width="10" height="100"/><circle cx="155" cy="145" r="8"/>
+    <rect x="240" y="150" width="10" height="100"/><circle cx="245" cy="145" r="8"/>
+    <rect x="185" y="120" width="8" height="50"/><circle cx="189" cy="115" r="7"/>
+    <rect x="207" y="120" width="8" height="50"/><circle cx="211" cy="115" r="7"/>
+  </g>
+</svg>

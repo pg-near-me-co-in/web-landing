@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Bento theme: softer 20px radius, Sora/Manrope, elevated-shadow cards —
+   visual system carried over from the project's Lovable-informed design
+   pass (docs/DESIGN_SYSTEM.md). Brand token names are kept stable so a
+   future `site_settings`-driven admin theme editor can override them
+   without a code change; derived shades stay computed from --brand-primary
+   via color-mix so runtime overrides remain coherent. */
+:root {
+  --brand-primary: #534ab7;
+  --brand-purple: #7f77dd;
+  --brand-accent: #afa9ec;
+  --brand-teal: #1d9e75;
+  --brand-highlight: #5dcaa5;
+
+  --brand-primary-dark: color-mix(in srgb, var(--brand-primary), #16191c 18%);
+  --brand-primary-tint: color-mix(in srgb, var(--brand-primary), #ffffff 90%);
+  --brand-teal-dark: color-mix(in srgb, var(--brand-teal), #16191c 35%);
+  --brand-teal-tint: color-mix(in srgb, var(--brand-teal), #ffffff 90%);
+
+  --grey-5: #fafbfc;
+  --grey-10: #f4f6f8;
+  --grey-50: #e8ecf0;
+  --grey-100: #d6dce2;
+  --grey-200: #b8c1ca;
+  --grey-300: #98a3af;
+  --grey-400: #7c8894;
+  --grey-500: #616c78;
+  --grey-600: #4c555f;
+  --grey-700: #383f47;
+  --grey-800: #262b30;
+  --grey-900: #16191c;
+  --grey-950: #0c0e10;
+
+  /* WCAG-AA-checked foreground/background pairs for state badges. */
+  --state-warn-bg: #fdeab8;
+  --state-warn-fg: #805509;
+  --state-success-bg: #e8f4f0;
+  --state-success-fg: #13724c;
+  --state-alert-bg: #fce8e8;
+  --state-alert-fg: #b83333;
+
+  --shadow-card: 0 1px 2px rgba(22, 25, 28, 0.04), 0 6px 20px -14px rgba(22, 25, 28, 0.15);
+  --shadow-elevated: 0 12px 32px -18px rgba(22, 25, 28, 0.18);
+  --shadow-lift: 0 20px 44px -20px rgba(83, 74, 183, 0.35);
+
+  --radius: 1.25rem;
+  --radius-card: var(--radius);
+  --radius-card-lg: calc(var(--radius) + 12px);
+
+  --surface-white: #ffffff;
+  --surface-foreground: var(--grey-900);
+  --surface-secondary: var(--grey-10);
+  --surface-secondary-foreground: var(--grey-900);
+  --surface-muted: var(--grey-10);
+  --surface-muted-foreground: var(--grey-500);
+  --surface-destructive: var(--state-alert-fg);
+  --surface-destructive-foreground: #ffffff;
+  --surface-border: var(--grey-100);
+}
+
+@theme inline {
+  --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-tint: var(--brand-primary-tint);
+  --color-purple: var(--brand-purple);
+  --color-accent: var(--brand-accent);
+  --color-teal: var(--brand-teal);
+  --color-teal-dark: var(--brand-teal-dark);
+  --color-teal-tint: var(--brand-teal-tint);
+  --color-highlight: var(--brand-highlight);
+
+  --color-background: var(--surface-white);
+  --color-foreground: var(--surface-foreground);
+  --color-card: var(--surface-white);
+  --color-card-foreground: var(--surface-foreground);
+  --color-popover: var(--surface-white);
+  --color-popover-foreground: var(--surface-foreground);
+  --color-primary-foreground: var(--surface-white);
+  --color-secondary: var(--surface-secondary);
+  --color-secondary-foreground: var(--surface-secondary-foreground);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--surface-muted-foreground);
+  --color-destructive: var(--surface-destructive);
+  --color-destructive-foreground: var(--surface-destructive-foreground);
+  --color-border: var(--surface-border);
+  --color-input: var(--surface-border);
+  --color-ring: var(--brand-primary);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 20px);
+
+  --color-grey-5: var(--grey-5);
+  --color-grey-10: var(--grey-10);
+  --color-grey-50: var(--grey-50);
+  --color-grey-100: var(--grey-100);
+  --color-grey-200: var(--grey-200);
+  --color-grey-300: var(--grey-300);
+  --color-grey-400: var(--grey-400);
+  --color-grey-500: var(--grey-500);
+  --color-grey-600: var(--grey-600);
+  --color-grey-700: var(--grey-700);
+  --color-grey-800: var(--grey-800);
+  --color-grey-900: var(--grey-900);
+  --color-grey-950: var(--grey-950);
+
+  --color-warn-bg: var(--state-warn-bg);
+  --color-warn-fg: var(--state-warn-fg);
+  --color-success-bg: var(--state-success-bg);
+  --color-success-fg: var(--state-success-fg);
+  --color-alert-bg: var(--state-alert-bg);
+  --color-alert-fg: var(--state-alert-fg);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-manrope), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-lift: var(--shadow-lift);
+
+  --radius-card: var(--radius-card);
+  --radius-card-lg: var(--radius-card-lg);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--grey-10);
+  color: var(--grey-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
+  background-image: radial-gradient(
+      60rem 40rem at 10% -10%,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(50rem 40rem at 100% 0%, color-mix(in srgb, var(--brand-teal) 6%, transparent), transparent 60%);
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--brand-primary);
+    background: var(--brand-primary-tint);
+    padding: 6px 13px;
+    border-radius: 999px;
+  }
+
+  .surface-card {
+    background: #fff;
+    border: 1px solid var(--grey-50);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  max-width: 76rem;
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--brand-primary-tint);
+  color: var(--grey-900);
+  border: 1px solid var(--grey-50);
+}
+
+@utility bento-card {
+  background: #fff;
+  border: 1px solid var(--grey-50);
+  border-radius: var(--radius-card-lg);
+  box-shadow: var(--shadow-elevated);
+}
+
+@utility glow-primary {
+  box-shadow: 0 0 40px -10px var(--brand-primary);
+}

@@ -2,35 +2,37 @@
 
 ## Tools
 
-| Tool | Purpose | Phase | Cost |
-|---|---|---|---|
-| Google Analytics 4 (GA4) | Primary traffic/funnel analytics | 1 (pageviews only) → 2 (full events) | Free |
-| Microsoft Clarity | Session recordings, heatmaps | 3 | Free |
-| Vercel Analytics | Core Web Vitals / real-user monitoring | 3 | Free tier (near-zero setup cost since hosting is already Vercel) |
+| Tool | Purpose | Cost |
+|---|---|---|
+| Google Analytics 4 (GA4) | Traffic, funnels, custom events | Free |
+| Microsoft Clarity | Session recordings, heatmaps, rage-click/drop-off detection | Free |
 
-Note: Plausible's free tier is trial-only, not perpetual — excluded from the "free tools" list for that reason.
+Both are loaded by `components/analytics.tsx`, gated on `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_CLARITY_ID` env vars — unset means no script loads (no console errors, nothing sent).
+
+**Naming note**: "Firebase" for a plain website means this same GA4 property — Firebase Analytics is the mobile-app SDK sibling of GA4, not a separate tool needed here. "Microsoft Clarity" is the correct name for the heatmap/session-recording tool (sometimes referred to loosely as "Azure Clarity" since it's a Microsoft product).
+
+## Setup (do this once you have the site live)
+
+1. Create a GA4 property at [analytics.google.com](https://analytics.google.com), get the Measurement ID (`G-XXXXXXX`), set it as `NEXT_PUBLIC_GA_ID` in your deployment env.
+2. Create a project at [clarity.microsoft.com](https://clarity.microsoft.com), get the Project ID, set it as `NEXT_PUBLIC_CLARITY_ID`.
+3. Both start recording immediately on deploy — no code change needed.
 
 ## Event taxonomy (GA4 custom events, snake_case)
 
-| Event | Fired when | Key params |
-|---|---|---|
-| `listing_view` | PG detail page loads | `listing_id`, `city`, `pg_type`, `price_bucket` |
-| `city_page_view` | City listing page loads | `city` |
-| `search_performed` | User submits/changes search filters | `city`, `filters_applied` |
-| `filter_used` | Individual filter toggle (e.g. Girls-only) | `filter_type`, `filter_value` |
-| `contact_reveal_click` | User taps the phone/contact icon (pre-form) | `listing_id` |
-| `lead_submitted` | Lead form successfully inserts into `leads` | `listing_id`, `intent` (matches the schema's `leads.intent` enum) |
-| `add_pg_cta_click` | "Add your PG" button clicked | `location` (header/hero) |
-| `owner_submission_completed` | Owner form successfully submitted | `city` |
-| `review_submitted` | User submits a review | `listing_id`, `rating` |
-| `map_interaction` | User interacts with the map section | `context` (homepage/detail) |
+| Event | Fired when | Key params | Wired in |
+|---|---|---|---|
+| `search_performed` | Hero search card submits | `city`, `filters_applied` | `components/search-card.tsx` |
+| `contact_reveal_click` | Seeker taps "Show contact number" | `listing_id` | `components/contact-reveal.tsx` |
+| `contact_reveal` | Seeker successfully reveals a number | `listing_id` | `components/contact-reveal.tsx` |
+| `click_whatsapp` | Seeker taps the WhatsApp deep link | `listing_id` | `components/contact-reveal.tsx` |
+| `owner_submission_completed` | Owner form hands off to `mailto:` | `city` | `components/owner-form.tsx` |
 
-Phase 1 ships pageviews only (`listing_view`, `city_page_view` as basic page_view events); the full custom-event taxonomy above is a Phase 2 build-out — see [ROADMAP.md](ROADMAP.md).
-
-**2026-07 UI overhaul**: the 5 new routes (`/about`, `/cities`, `/for-owners`, `/privacy-policy`, `/terms`) are covered by GA4's existing global `page_view` tracking (`src/components/analytics.tsx`) automatically — no new custom events were needed for them.
+GA4's automatic `page_view` event already covers `listing_view`/`city_page_view` — no separate custom event is needed for plain navigation.
 
 ## Privacy
 
-- Phone numbers are captured via the lead form (`leads.phone` — see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#leads-the-notebooks-ip--interested-party--capture)). Never pass raw phone numbers (or any other PII) into GA4 event params — only IDs (`listing_id`, etc.).
-- ~~Add a basic privacy policy / consent notice near the lead-capture form given phone numbers are collected.~~ **Done (2026-07)**: `/privacy-policy` documents exactly what's collected (contact-reveal, owner submission, reviews, GA4/Clarity) and why; linked from the footer on every page.
-- If/when EU or otherwise privacy-regulation-sensitive traffic becomes relevant, revisit consent-mode requirements for GA4 — out of scope for initial India-only launch but worth a placeholder note.
+Never pass raw phone numbers or other PII into GA4 event params — only IDs (`listing_id`, city slug). `/privacy-policy` documents exactly what's collected and why.
+
+## Phase B additions
+
+Once there's a real `leads` table, `lead_submitted` (params: `listing_id`, `intent`) and `review_submitted` (params: `listing_id`, `rating`) get added — see [ROADMAP.md](ROADMAP.md).
