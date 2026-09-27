@@ -1,4 +1,4 @@
-import type { FoodType, HouseRules, PgType } from "./types";
+import type { CctvCoverage, EntrySystem, FoodType, HouseRules, PgType } from "./types";
 
 export function formatINR(n: number): string {
   return new Intl.NumberFormat("en-IN", {
@@ -15,9 +15,9 @@ export function formatPriceRange(min: number | null, max: number | null): string
 }
 
 export const GENDER_LABEL: Record<PgType, string> = {
-  male: "Male only",
-  female: "Female only",
-  unisex: "Unisex / Co-living",
+  male: "Boys-only",
+  female: "Girls-only",
+  unisex: "Co-ed",
 };
 
 /** Shared gender→color convention — listing card badges and map pin rings both use this. */
@@ -40,6 +40,20 @@ export const RULES_LABEL: Record<HouseRules, string> = {
   liberal: "Liberal",
 };
 
+export const CCTV_LABEL: Record<CctvCoverage, string> = {
+  entrance_only: "Entrance only",
+  common_areas: "Common areas",
+  entrance_and_common: "Entrance + Common areas",
+  none_listed: "None listed",
+};
+
+export const ENTRY_SYSTEM_LABEL: Record<EntrySystem, string> = {
+  biometric: "Biometric",
+  keycard: "Keycard",
+  manual_warden: "Manual/Warden",
+  none_listed: "None listed",
+};
+
 /** Avoids "Vadodara, Vadodara" when a listing has no locality more specific than its city. */
 export function placeName(locality: string, cityName: string): string {
   return locality === cityName ? cityName : `${locality}, ${cityName}`;
@@ -54,6 +68,12 @@ export function foodLabel(f: FoodType | null): string {
 }
 export function rulesLabel(r: HouseRules | null): string {
   return r ? RULES_LABEL[r] : "Not specified";
+}
+export function cctvLabel(c: CctvCoverage | null): string {
+  return c ? CCTV_LABEL[c] : "None listed";
+}
+export function entrySystemLabel(e: EntrySystem | null): string {
+  return e ? ENTRY_SYSTEM_LABEL[e] : "None listed";
 }
 
 export const AMENITIES_ALL = [

@@ -40,6 +40,24 @@ for (const path of ["/", "/about", "/cities", "/for-owners"]) {
   });
 }
 
+test("homepage exposes OG and Twitter image tags with the brand OG asset", async ({ page }) => {
+  await page.goto("/");
+  const ogImage = page.locator('meta[property="og:image"]');
+  await expect(ogImage.first()).toHaveAttribute("content", /og\.(png|jpg|jpeg|webp)/i);
+  const twImage = page.locator('meta[name="twitter:image"], meta[property="twitter:image"]');
+  await expect(twImage.first()).toHaveAttribute("content", /og\.(png|jpg|jpeg|webp)|opengraph-image|twitter-image/i);
+  await expect(page.locator('meta[property="og:title"]').first()).toHaveAttribute("content", /PG Near Me/);
+  await expect(page.locator('meta[name="twitter:card"]').first()).toHaveAttribute("content", "summary_large_image");
+});
+
+test("brand logo and OG image assets are reachable", async ({ request }) => {
+  for (const path of ["/logo.png", "/og.png", "/icons/icon-512.png"]) {
+    const res = await request.get(path);
+    expect(res.ok(), path).toBe(true);
+    expect(res.headers()["content-type"] ?? "").toMatch(/image\//);
+  }
+});
+
 test("city and listing pages carry valid JSON-LD", async ({ page }) => {
   await page.goto("/pg/vadodara");
   const cityLd = await page.locator('script[type="application/ld+json"]').first().textContent();
@@ -49,4 +67,16 @@ test("city and listing pages carry valid JSON-LD", async ({ page }) => {
   const listingLd = await page.locator('script[type="application/ld+json"]').first().textContent();
   const parsed = JSON.parse(listingLd!);
   expect(parsed["@type"]).toBe("LodgingBusiness");
+});
+
+test("homepage JSON-LD includes Organization with logo", async ({ page }) => {
+  await page.goto("/");
+  const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();
+  const parsed = scripts.flatMap((t) => {
+    const v = JSON.parse(t);
+    return Array.isArray(v) ? v : [v];
+  });
+  const org = parsed.find((x) => x["@type"] === "Organization");
+  expect(org?.logo).toMatch(/logo\.png/);
+  expect(org?.name).toBe("PG Near Me");
 });

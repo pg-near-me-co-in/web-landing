@@ -4,7 +4,18 @@ import { ABOUT_COPY, SITE } from "@/lib/content";
 export const metadata: Metadata = {
   title: "About PG Near Me — the PG directory for how India actually searches",
   description: "Why we built a vertical-specific listing platform for PG, hostel and shared-flat accommodation across India — starting with Vadodara.",
-  openGraph: { title: "About PG Near Me", description: "The PG directory for how India actually searches." },
+  openGraph: {
+    title: "About PG Near Me",
+    description: "The PG directory for how India actually searches.",
+    url: "/about",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "About PG Near Me" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About PG Near Me",
+    description: "The PG directory for how India actually searches.",
+    images: ["/og.png"],
+  },
   alternates: { canonical: "/about" },
 };
 

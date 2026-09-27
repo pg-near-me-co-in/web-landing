@@ -120,17 +120,24 @@ function FilterFields({ search, router }: { search: CitySearch; router: ReturnTy
         />
       </FilterGroup>
 
-      <FilterGroup label="Gender">
+      <FilterGroup label="Gender type">
         <div className="grid grid-cols-2 gap-2">
-          {(["any", "male", "female", "unisex"] as const).map((g) => (
+          {(
+            [
+              { id: "any", label: "Any" },
+              { id: "female", label: "Girls-only" },
+              { id: "male", label: "Boys-only" },
+              { id: "unisex", label: "Co-ed" },
+            ] as const
+          ).map((g) => (
             <button
-              key={g}
-              onClick={() => update({ gender: g === "any" ? undefined : g })}
+              key={g.id}
+              onClick={() => update({ gender: g.id === "any" ? undefined : g.id })}
               className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
-                (search.gender ?? "any") === g ? "border-primary bg-primary text-white" : "border-grey-100 bg-white hover:bg-grey-10"
+                (search.gender ?? "any") === g.id ? "border-primary bg-primary text-white" : "border-grey-100 bg-white hover:bg-grey-10"
               }`}
             >
-              {g === "any" ? "Any" : g === "unisex" ? "Unisex" : g[0].toUpperCase() + g.slice(1)}
+              {g.label}
             </button>
           ))}
         </div>

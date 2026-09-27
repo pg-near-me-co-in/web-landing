@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Users, Utensils, ShieldCheck, Star } from "lucide-react";
+import { MapPin, Users, Utensils, ShieldCheck, Star, CheckCircle2, UserRoundCheck } from "lucide-react";
 import type { Listing } from "@/lib/types";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import { formatPriceRange, foodLabel, genderLabel, GENDER_COLOR, GENDER_COLOR_FALLBACK } from "@/lib/format";
@@ -22,13 +22,23 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <GeneratedAvatar id={listing.slug} name={listing.name} className="h-full w-full transition duration-700 group-hover:scale-[1.06]" />
         )}
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
-        <div className="absolute left-4 top-4">
+        <div className="absolute left-4 top-4 flex flex-wrap gap-1.5">
           <span
             style={{ backgroundColor: `${genderColor}e6` }}
             className="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-white backdrop-blur-xl"
           >
             {genderLabel(listing.pg_gender)}
           </span>
+          {listing.verified_at && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-success-fg/20 bg-success-bg px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-success-fg backdrop-blur-xl">
+              <CheckCircle2 className="h-3 w-3" /> Verified
+            </span>
+          )}
+          {listing.verified_for_women && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-success-fg/20 bg-success-bg px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-success-fg backdrop-blur-xl">
+              <CheckCircle2 className="h-3 w-3" /> Verified for Women
+            </span>
+          )}
         </div>
         <div className="absolute bottom-4 right-4 flex items-center gap-1 rounded-lg border border-white/40 bg-white/25 px-2.5 py-1 text-xs font-bold text-amber-300 shadow-lg backdrop-blur-md">
           <Star className="h-3 w-3 fill-current" strokeWidth={1.5} /> {listing.trust_score.toFixed(1)}
@@ -55,6 +65,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
             <span className="rounded-xl border border-grey-50 bg-primary-tint px-2.5 py-1 text-[10px] font-bold text-primary">
               <ShieldCheck className="mr-1 inline h-3 w-3" />
               Strict
+            </span>
+          )}
+          {listing.female_warden_onsite && (
+            <span className="rounded-xl border border-grey-50 bg-primary-tint px-2.5 py-1 text-[10px] font-bold text-primary">
+              <UserRoundCheck className="mr-1 inline h-3 w-3" />
+              Female Warden On-site
             </span>
           )}
         </div>

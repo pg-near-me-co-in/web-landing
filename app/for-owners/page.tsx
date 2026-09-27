@@ -5,7 +5,18 @@ import { OWNER_BENEFITS, OWNER_FORM_URL } from "@/lib/content";
 export const metadata: Metadata = {
   title: "For PG owners — list your property free",
   description: "Independent PG operators: reach seekers directly without paying broker commission. Free to list. No dashboard to learn.",
-  openGraph: { title: "For PG owners — PG Near Me", description: "Independent PG operators: reach seekers directly, free." },
+  openGraph: {
+    title: "For PG owners — PG Near Me",
+    description: "Independent PG operators: reach seekers directly, free.",
+    url: "/for-owners",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "List your PG on PG Near Me" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "For PG owners — PG Near Me",
+    description: "Independent PG operators: reach seekers directly, free.",
+    images: ["/og.png"],
+  },
   alternates: { canonical: "/for-owners" },
 };
 

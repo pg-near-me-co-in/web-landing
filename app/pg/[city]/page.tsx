@@ -37,6 +37,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `Browse verified PGs in ${city.name}`,
       description: `Filter verified PGs in ${city.name} by budget, gender, food and house rules. Zero brokerage.`,
+      url: `/pg/${city.slug}`,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: `PGs in ${city.name} — PG Near Me` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Browse verified PGs in ${city.name}`,
+      description: `Filter verified PGs in ${city.name} by budget, gender, food and house rules. Zero brokerage.`,
+      images: ["/og.png"],
     },
   };
 }

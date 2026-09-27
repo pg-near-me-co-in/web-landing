@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MapPin, Star, Users, Utensils, ShieldCheck, Home, CheckCircle2, Info } from "lucide-react";
+import { MapPin, Star, Users, Utensils, ShieldCheck, Home, CheckCircle2, Info, Clock, Cctv, KeyRound, Shield, UserRoundCheck } from "lucide-react";
 import { getAllListings, getListingBySlug } from "@/lib/data/listings";
 import { getCityBySlug } from "@/lib/data/cities";
 import { BackButton } from "@/components/back-button";
 import { ListingGallery } from "@/components/listing-gallery";
 import { ContactReveal } from "@/components/contact-reveal";
 import { GeneratedAvatar } from "@/components/generated-avatar";
-import { formatPriceRange, foodLabel, genderLabel, placeName, rulesLabel } from "@/lib/format";
+import { ListingReviews } from "@/components/listing-reviews";
+import { formatPriceRange, foodLabel, genderLabel, placeName, rulesLabel, cctvLabel, entrySystemLabel } from "@/lib/format";
 import { SITE } from "@/lib/content";
 
 interface Props {
@@ -32,7 +33,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description: desc,
     alternates: { canonical: `/pg/${l.city_slug}/${l.slug}` },
-    openGraph: { title: `${l.name} — ${l.locality}`, description: desc, type: "article" },
+    openGraph: {
+      title: `${l.name} — ${l.locality}`,
+      description: desc,
+      type: "article",
+      url: `/pg/${l.city_slug}/${l.slug}`,
+      images: l.images[0]
+        ? [{ url: l.images[0].storage_path, alt: l.images[0].alt_text || l.name }]
+        : [{ url: "/og.png", width: 1200, height: 630, alt: `${l.name} on ${SITE.name}` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${l.name} — ${l.locality}`,
+      description: desc,
+      images: [l.images[0]?.storage_path ?? "/og.png"],
+    },
   };
 }
 
@@ -53,6 +68,13 @@ export default async function ListingDetailPage({ params }: Props) {
   if (!l || l.city_slug !== city) notFound();
   const cityObj = getCityBySlug(l.city_slug);
 
+  const hasSafety =
+    l.curfew_time ||
+    l.cctv_coverage ||
+    l.entry_system ||
+    l.female_warden_onsite ||
+    l.nearest_police_station_distance;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LodgingBusiness",
@@ -66,7 +88,7 @@ export default async function ListingDetailPage({ params }: Props) {
     },
     ...(l.lat && l.lng ? { geo: { "@type": "GeoCoordinates", latitude: l.lat, longitude: l.lng } } : {}),
     ...(l.price_min != null && l.price_max != null ? { priceRange: `₹${l.price_min}–₹${l.price_max}/month` } : {}),
-    aggregateRating: { "@type": "AggregateRating", ratingValue: l.trust_score, bestRating: 5, ratingCount: 1 },
+    aggregateRating: { "@type": "AggregateRating", ratingValue: l.trust_score, bestRating: 5, ratingCount: Math.max(1, l.reviews?.length ?? 1) },
   };
 
   return (
@@ -79,12 +101,18 @@ export default async function ListingDetailPage({ params }: Props) {
 
       <section className="container-page">
         {l.images.length > 0 ? (
-          <ListingGallery images={l.images.map((i) => i.storage_path)} listingName={l.name} />
+          <ListingGallery images={l.images.map((i) => i.storage_path)} listingName={l.name} photoVerifiedDate={l.photo_verified_date} />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-grey-50 bg-grey-10">
+          <div className="relative overflow-hidden rounded-2xl border border-grey-50 bg-grey-10">
             <div className="relative aspect-[16/10] w-full">
               <GeneratedAvatar id={l.slug} name={l.name} className="h-full w-full" />
             </div>
+            {l.photo_verified_date && (
+              <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-success-fg/20 bg-success-bg px-2.5 py-1 text-[11px] font-bold text-success-fg backdrop-blur">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Photos verified {new Date(l.photo_verified_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              </div>
+            )}
           </div>
         )}
       </section>
@@ -99,6 +127,11 @@ export default async function ListingDetailPage({ params }: Props) {
             {l.verified_at && (
               <span className="chip border-success-fg/20 bg-success-bg text-success-fg">
                 <CheckCircle2 className="h-3 w-3" /> Verified
+              </span>
+            )}
+            {l.verified_for_women && (
+              <span className="chip border-success-fg/20 bg-success-bg text-success-fg">
+                <CheckCircle2 className="h-3 w-3" /> Verified for Women
               </span>
             )}
           </div>
@@ -130,9 +163,54 @@ export default async function ListingDetailPage({ params }: Props) {
                     <CheckCircle2 className="h-3 w-3 text-success-fg" /> {a}
                   </span>
                 ))}
+                {l.female_warden_onsite && (
+                  <span className="chip">
+                    <UserRoundCheck className="h-3 w-3 text-success-fg" /> Female Warden On-site
+                  </span>
+                )}
               </div>
             </div>
           )}
+
+          {l.amenities.length === 0 && l.female_warden_onsite && (
+            <div className="mt-10">
+              <h2 className="font-display text-xl font-semibold">Amenities</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="chip">
+                  <UserRoundCheck className="h-3 w-3 text-success-fg" /> Female Warden On-site
+                </span>
+              </div>
+            </div>
+          )}
+
+          {hasSafety && (
+            <div className="mt-10">
+              <h2 className="font-display text-xl font-semibold">Safety Info</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {l.curfew_time && <Fact icon={<Clock className="h-4 w-4" />} label="Curfew" value={l.curfew_time} />}
+                {l.cctv_coverage && <Fact icon={<Cctv className="h-4 w-4" />} label="CCTV coverage" value={cctvLabel(l.cctv_coverage)} />}
+                {l.entry_system && <Fact icon={<KeyRound className="h-4 w-4" />} label="Entry system" value={entrySystemLabel(l.entry_system)} />}
+                {l.female_warden_onsite && (
+                  <Fact icon={<UserRoundCheck className="h-4 w-4" />} label="Warden" value="Female warden on-site" />
+                )}
+              </div>
+            </div>
+          )}
+
+          {l.nearest_police_station_distance && (
+            <div className="mt-10">
+              <h2 className="font-display text-xl font-semibold">Location</h2>
+              <div className="mt-4">
+                <Fact
+                  icon={<Shield className="h-4 w-4" />}
+                  label="Nearest police station"
+                  value={l.nearest_police_station_distance}
+                />
+              </div>
+            </div>
+          )}
+
+          <ListingReviews reviews={l.reviews ?? []} />
 
           <div className="mt-10 flex items-start gap-3 rounded-2xl border border-grey-50 bg-grey-10 p-4 text-sm text-grey-500">
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -159,6 +237,7 @@ export default async function ListingDetailPage({ params }: Props) {
                 priceMax={l.price_max}
                 sharingTypes={l.sharing_types}
                 pgGender={l.pg_gender}
+                emergencyContact={l.emergency_contact_number}
               />
             </div>
           </div>

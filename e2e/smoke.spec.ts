@@ -14,7 +14,7 @@ test("city page renders listings and filters", async ({ page }) => {
 
 test("gender filter narrows results via URL", async ({ page }) => {
   await page.goto("/pg/vadodara");
-  await page.getByRole("button", { name: "Female", exact: true }).click();
+  await page.getByRole("button", { name: "Girls-only", exact: true }).click();
   await expect(page).toHaveURL(/gender=female/);
 });
 
@@ -25,10 +25,10 @@ test("listing detail page reveals contact instantly, no gate", async ({ page }) 
   await expect(page.getByRole("link", { name: /\+91/ })).toBeVisible();
 });
 
-test("cities directory lists both live and upcoming cities", async ({ page }) => {
+test("map directory lists live cities", async ({ page }) => {
   await page.goto("/cities");
   await expect(page.getByText("Live", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Soon", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Map", exact: true })).toBeVisible();
 });
 
 test("List your PG CTA points to the external owner form, not a dead page", async ({ page }) => {

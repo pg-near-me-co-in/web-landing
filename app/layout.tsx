@@ -26,6 +26,15 @@ const jetbrainsMono = JetBrains_Mono({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE.domain}`;
 
+const ogImages = [
+  {
+    url: "/og.png",
+    width: 1200,
+    height: 630,
+    alt: `${SITE.name} — verified PGs on an interactive map`,
+  },
+];
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: SITE.name,
@@ -34,18 +43,47 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description: SITE.defaultDescription,
+  keywords: [
+    "PG near me",
+    "paying guest",
+    "hostel",
+    "shared room",
+    "girls PG",
+    "boys PG",
+    "co-ed PG",
+    "zero brokerage",
+    "India",
+  ],
+  authors: [{ name: SITE.name, url: siteUrl }],
+  creator: SITE.name,
+  publisher: SITE.name,
+  category: "housing",
+  icons: {
+    icon: [{ url: "/logo.png", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     siteName: SITE.name,
+    title: SITE.defaultTitle,
+    description: SITE.defaultDescription,
     type: "website",
     locale: "en_IN",
+    url: siteUrl,
+    images: ogImages,
   },
   twitter: {
     card: "summary_large_image",
     title: SITE.defaultTitle,
     description: SITE.defaultDescription,
+    images: ogImages,
   },
   alternates: {
     canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   },
 };
 

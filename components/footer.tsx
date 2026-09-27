@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Home, Instagram, Linkedin } from "lucide-react";
+import Image from "next/image";
+import { Instagram, Linkedin } from "lucide-react";
 import { getAllCities, getLaunchedCities } from "@/lib/data/cities";
 import { SITE, OWNER_FORM_URL } from "@/lib/content";
 
@@ -12,8 +13,8 @@ export function Footer() {
       <div className="container-page grid gap-8 py-12 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-white">
-              <Home className="h-3.5 w-3.5" strokeWidth={2.5} />
+            <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+              <Image src="/logo.png" alt="" width={32} height={32} className="h-full w-full object-contain" />
             </span>
             {SITE.name}
           </div>
