@@ -26,6 +26,15 @@ const base: Listing = {
   trust_score: 4.5,
   verified_at: "2026-01-01",
   updated_at: "2026-01-01",
+  verified_for_women: false,
+  female_warden_onsite: false,
+  curfew_time: null,
+  cctv_coverage: null,
+  entry_system: null,
+  nearest_police_station_distance: null,
+  emergency_contact_number: null,
+  photo_verified_date: null,
+  reviews: [],
 };
 
 describe("matchesFilters", () => {

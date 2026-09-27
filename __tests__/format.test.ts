@@ -30,7 +30,7 @@ describe("null-safe field labels", () => {
   });
 
   it("still return the normal label when the field is present", () => {
-    expect(genderLabel("female")).toBe("Female only");
+    expect(genderLabel("female")).toBe("Girls-only");
     expect(foodLabel("veg_only")).toBe("Veg only");
     expect(rulesLabel("strict")).toBe("Strict");
   });

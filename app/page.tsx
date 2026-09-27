@@ -10,13 +10,30 @@ export default function HomePage() {
   const cityCount = new Set(listings.map((l) => l.city_slug)).size;
   const featuredCities = getAllCities().slice(0, 4);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE.name,
-    url: `https://${SITE.domain}`,
-    description: "Vertical-specific directory for PG, hostel and shared-flat accommodation in India.",
-  };
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE.name,
+      url: `https://${SITE.domain}`,
+      description: SITE.defaultDescription,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `https://${SITE.domain}/pg/vadodara?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE.name,
+      url: `https://${SITE.domain}`,
+      logo: `https://${SITE.domain}/logo.png`,
+      email: SITE.contactEmail,
+      description: SITE.defaultDescription,
+      sameAs: [],
+    },
+  ];
 
   return (
     <main className="flex-1">

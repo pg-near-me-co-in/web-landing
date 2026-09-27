@@ -9,7 +9,7 @@ import { OWNER_FORM_URL } from "@/lib/content";
 const LINKS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/pg/vadodara", label: "Find a PG" },
-  { href: "/cities", label: "Cities" },
+  { href: "/cities", label: "Map" },
   { href: "/about", label: "About" },
   { href: "/for-owners", label: "For owners" },
 ];

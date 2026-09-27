@@ -55,6 +55,7 @@ export function ContactReveal({
   priceMax,
   sharingTypes,
   pgGender,
+  emergencyContact,
 }: {
   listingId: string;
   listingName: string;
@@ -67,6 +68,7 @@ export function ContactReveal({
   priceMax: number | null;
   sharingTypes: string[];
   pgGender: PgType | null;
+  emergencyContact?: string | null;
 }) {
   const [revealed, setRevealed] = useState(false);
   const waNumber = (whatsapp ?? phone).replace(/[^0-9]/g, "");
@@ -83,6 +85,7 @@ export function ContactReveal({
         <div className="rounded-xl border border-grey-100 bg-grey-10 p-4 text-sm text-grey-600">
           Contact number not available for this listing yet.
         </div>
+        {emergencyContact && <EmergencyLink number={emergencyContact} listingId={listingId} />}
         <a
           href={`mailto:${SITE.contactEmail}?subject=${encodeURIComponent(`Contact info for ${listingName}`)}&body=${encodeURIComponent(`I have contact details for ${listingName} (${placeName(locality, cityName)}) on ${SITE.name}. Here's what I know:`)}`}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-grey-100 bg-white py-3 text-sm font-medium text-grey-800 transition hover:bg-grey-10"
@@ -122,9 +125,22 @@ export function ContactReveal({
           <MessageCircle className="h-4 w-4 text-success-fg" /> Message on WhatsApp
         </a>
       )}
+      {emergencyContact && <EmergencyLink number={emergencyContact} listingId={listingId} />}
       <div className="rounded-xl bg-grey-10 p-3 text-xs text-grey-500">
         We track contact-reveal events (not your identity) so owners see qualified interest.
       </div>
     </div>
+  );
+}
+
+function EmergencyLink({ number, listingId }: { number: string; listingId: string }) {
+  return (
+    <a
+      href={`tel:${number}`}
+      onClick={() => trackEvent("click_emergency", { listing_id: listingId })}
+      className="flex w-full items-center justify-center gap-2 rounded-xl border border-grey-100 bg-white py-2.5 text-xs font-medium text-grey-600 transition hover:bg-grey-10"
+    >
+      <Phone className="h-3.5 w-3.5" /> Emergency Contact · {number}
+    </a>
   );
 }

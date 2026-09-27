@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { MapPin } from "lucide-react";
-import type { Listing } from "@/lib/types";
+import type { HomeMapProps } from "./home-map";
 
 const HomeMap = dynamic(() => import("./home-map"), {
   ssr: false,
@@ -15,6 +15,6 @@ const HomeMap = dynamic(() => import("./home-map"), {
   ),
 });
 
-export function HomeMapLoader({ listings }: { listings: Listing[] }) {
-  return <HomeMap listings={listings} />;
+export function HomeMapLoader(props: HomeMapProps) {
+  return <HomeMap {...props} />;
 }
